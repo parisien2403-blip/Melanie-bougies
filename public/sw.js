@@ -1,6 +1,6 @@
 // Boudoir & Vanille · service worker : mise en cache pour ouverture hors ligne
 // Change le numéro à chaque mise à jour du site pour forcer le rafraîchissement
-const CACHE = "madeleine-v11";
+const CACHE = "madeleine-v12";
 const FILES = ["./", "index.html", "manifest.webmanifest", "produits.json", "vendor/qrcode.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-48.png", "img/logo-160.png", "img/bois-v.jpg", "img/bois-h.jpg",
   ...Array.from({ length: 10 }, (_, i) => `img/p${i + 1}.jpg`)];

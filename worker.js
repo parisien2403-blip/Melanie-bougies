@@ -34,8 +34,8 @@ let GAIN_PARRAIN = 1;
 let TAUX_REDUCTION = 0.05;
 const REGLAGES_DEFAUT = {
   bandeau: 'Photos d’inspiration à remplacer par les créations de Mélanie · paiement en ligne pas encore branché',
-  accrocheTitre: 'Des bougies qui sentent *le goûter* de grand-mère.',
-  accrocheTexte: 'Gâteaux de cire, verrines gourmandes, beignets et fondants parfumés : chaque pièce est coulée et décorée à la main par Mélanie, en cire végétale, dans l’esprit des salons d’antan.',
+  accrocheTitre: 'Les odeurs des *années 80 et 90*, rallumées.',
+  accrocheTexte: 'Le goûter devant les dessins animés du mercredi, les bonbons de la boulangerie, la barbe à papa de la fête foraine… Ces odeurs qu’on croyait perdues, Mélanie les coule dans la cire, à la main, en petites séries.',
   port: 6.9, portOffert: 60, tamponsParBon: 10, valeurBon: 10, gainParrain: 1, tauxReduction: 5,
   categories: [['gateau', 'Gâteaux'], ['verrine', 'Verrines'], ['douceur', 'Petites douceurs'], ['pot', 'Pots'], ['bouteille', 'Bouteilles'], ['tasse', 'Tasses']],
   images: { accueil: ['img/p6.jpg', 'img/p1.jpg', 'img/p3.jpg'], histoire: ['img/p8.jpg', 'img/p9.jpg', 'img/p5.jpg'], souvenirs: ['img/p7.jpg', 'img/p8.jpg', 'img/p2.jpg', 'img/p1.jpg'] },
@@ -60,6 +60,8 @@ async function chargerReglages(env) {
   const { results } = await env.DB.prepare("SELECT k, v FROM reglages WHERE k IN ('boutique', 'verrine')").all();
   const lu = Object.fromEntries(results.map(r => { try { return [r.k, JSON.parse(r.v)]; } catch { return [r.k, {}]; } }));
   R = { ...REGLAGES_DEFAUT, ...(lu.boutique || {}) };
+  if (R.accrocheTitre === 'Des bougies qui sentent *le goûter* de grand-mère.') R.accrocheTitre = REGLAGES_DEFAUT.accrocheTitre;
+  if (R.accrocheTexte === 'Gâteaux de cire, verrines gourmandes, beignets et fondants parfumés : chaque pièce est coulée et décorée à la main par Mélanie, en cire végétale, dans l’esprit des salons d’antan.') R.accrocheTexte = REGLAGES_DEFAUT.accrocheTexte;
   R.images = { ...REGLAGES_DEFAUT.images, ...((lu.boutique || {}).images || {}) };
   V = { ...VERRINE_DEFAUT, ...(lu.verrine || {}) };
   TAMPONS_PAR_BON = R.tamponsParBon; VALEUR_BON = R.valeurBon; PORT = R.port; PORT_OFFERT = R.portOffert;

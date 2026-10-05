@@ -314,6 +314,9 @@ dl.recap{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin:0;font-
 
 .parrain-choisi{display:flex;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--mustard);padding:8px 10px;flex-wrap:wrap}
 
+/* Enseigne : le grand médaillon en tête de l'accueil */
+.enseigne{display:block;width:min(300px,72%);height:auto;margin:6px auto 14px;filter:drop-shadow(0 12px 16px rgba(0,0,0,.4))}
+@media (min-width:761px){.enseigne{margin-left:0;width:260px}}
 .logo-histoire{display:block;width:min(220px,55vw);height:auto;margin:6px 0 14px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}
 
 /* Réglages */
@@ -464,7 +467,7 @@ flacon:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="108" rx="30" ry
 ART.verrine=ART.pot;ART.douceur=ART.gateau;
 
 // Numéro de cette version de l'appli (à augmenter avec public/version.json et CACHE dans sw.js à chaque publication)
-const VERSION="1.11";
+const VERSION="1.12";
 
 /* ---------- Mémoire de l'appareil ---------- */
 // Seulement ce qui appartient à cet appareil : son jeton de connexion, son panier, une copie de la carte pour l'afficher hors ligne
@@ -485,8 +488,8 @@ const eur=n=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR"});
 const num4=n=>String(n).padStart(4,"0");
 // Règles de la boutique, réglées par Mélanie (Atelier › Ma boutique) et reçues avec le catalogue
 const R_DEFAUT={bandeau:"Photos d’inspiration à remplacer par les créations de Mélanie · paiement en ligne pas encore branché",
- accrocheTitre:"Des bougies qui sentent *le goûter* de grand-mère.",
- accrocheTexte:"Gâteaux de cire, verrines gourmandes, beignets et fondants parfumés : chaque pièce est coulée et décorée à la main par Mélanie, en cire végétale, dans l’esprit des salons d’antan.",
+ accrocheTitre:"Les odeurs des *années 80 et 90*, rallumées.",
+ accrocheTexte:"Le goûter devant les dessins animés du mercredi, les bonbons de la boulangerie, la barbe à papa de la fête foraine… Ces odeurs qu’on croyait perdues, Mélanie les coule dans la cire, à la main, en petites séries.",
  port:6.9,portOffert:60,tamponsParBon:10,valeurBon:10,gainParrain:1,tauxReduction:5,
  categories:[["gateau","Gâteaux"],["verrine","Verrines"],["douceur","Petites douceurs"],["pot","Pots"],["bouteille","Bouteilles"],["tasse","Tasses"]],
  images:{accueil:["img/p6.jpg","img/p1.jpg","img/p3.jpg"],histoire:["img/p8.jpg","img/p9.jpg","img/p5.jpg"],souvenirs:["img/p7.jpg","img/p8.jpg","img/p2.jpg","img/p1.jpg"]}};
@@ -625,7 +628,7 @@ function vBoutique(){
  const list=PRODUITS.filter(p=>(filtre==="tous"||p.cat===filtre)&&(!q||(p.nom+" "+p.parfum).toLowerCase().includes(q.toLowerCase())));
  return `<div class="wrap">
  <section class="hero">
-  <div><span class="stamp">Fait main · petites séries</span>
+  <div><img class="enseigne" src="img/logo.png" alt="Boudoir & Vanille, candle studio"><span class="stamp">Vintage · Fait main</span>
    <h1 class="big">${accroche(R.accrocheTitre)}</h1>
    <p>${esc(R.accrocheTexte)}</p>
    <p>Avec la carte de fidélité, chaque commande vous rapporte un tampon. <b>Au ${TAMPONS_PAR_BON}<sup>e</sup>, ${eurRond(VALEUR_BON)} offerts.</b></p>
@@ -737,7 +740,7 @@ function vHistoire(){
   <div><img src="img/logo.png" alt="Boudoir & Vanille, candle studio" class="logo-histoire"><span class="stamp">Notre histoire</span>
    <h1 class="big">Le goût <em>d’avant</em>, retrouvé dans la cire.</h1>
    <p>Il y a des odeurs qui ouvrent des portes. Une brioche qui dore, un caramel qui frémit, la vanille sur les doigts : en une seconde, on a de nouveau huit ans, assis à la table de la cuisine, les jambes qui ne touchent pas le sol.</p>
-   <p>Boudoir & Vanille est né de cette envie-là : retrouver les plaisirs simples qu’on a laissés filer, et les rallumer, le temps d’une bougie.</p></div>
+   <p>Boudoir & Vanille est né de cette envie-là : retrouver les odeurs des années 80 et 90, ces plaisirs simples qu’on a laissés filer, et les rallumer, le temps d’une bougie.</p></div>
   <div class="hero-art frame wood" aria-hidden="true">${R.images.histoire.map(u=>`<img src="${esc(u)}" alt="">`).join("")}</div>
  </section>
 
