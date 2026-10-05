@@ -1,8 +1,16 @@
 {
- "version": "1.11",
+ "version": "1.12",
  "date": "2026-10-05",
- "notifier": true,
+ "notifier": false,
  "historique": [
+  {
+   "version": "1.12",
+   "date": "2026-10-05",
+   "notes": [
+    "Le médaillon Boudoir & Vanille en grand sur l’accueil",
+    "Les odeurs des années 80 et 90, rallumées"
+   ]
+  },
   {
    "version": "1.11",
    "date": "2026-10-05",
