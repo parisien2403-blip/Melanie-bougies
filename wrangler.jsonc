@@ -4,6 +4,8 @@
 {
   "name": "la-madeleine",
   "main": "worker.js",
+  // Adresse publique la-madeleine.<compte>.workers.dev toujours active
+  "workers_dev": true,
   "compatibility_date": "2025-09-01",
   "assets": { "directory": "./public", "binding": "ASSETS" },
   "d1_databases": [{ "binding": "DB", "database_name": "la-madeleine" }],
