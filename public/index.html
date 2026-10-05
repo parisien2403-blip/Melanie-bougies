@@ -249,15 +249,30 @@ footer .wrap b{font-family:var(--f-script);font-weight:400;font-size:26px;color:
 .code-grand{font-family:var(--f-tag);font-size:30px;letter-spacing:.12em;background:var(--paper);border:2px dashed var(--mustard);padding:8px 16px;display:inline-block}
 .avatar{width:84px;height:112px;border:3px solid var(--brass-2);background:var(--paper-2);display:grid;place-items:center;overflow:hidden;flex:none}
 .avatar img{width:100%;height:100%;object-fit:cover}
-details.atelier-acces summary{cursor:pointer;color:var(--ink-soft);font-size:13.5px}
 .fid{display:flex;gap:4px;flex-wrap:wrap}.fid i{width:12px;height:12px;border-radius:50%;border:1px solid var(--line)}.fid i.ok{background:var(--rose-deep);border-color:var(--rose-deep)}
 .check{display:flex;gap:8px;align-items:flex-start;font-size:14px;background:var(--card);border:1px solid var(--mustard);padding:10px}
 
+/* Messagerie */
+.adresse-interne{font-family:var(--f-tag);background:var(--card);border:1px dashed var(--mustard);padding:2px 8px;overflow-wrap:anywhere}
+.mail{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--brass-2);padding:12px 16px;margin-bottom:12px;box-shadow:0 2px 6px var(--shadow)}
+.mail.envoye{border-left-color:var(--rose-deep);background:var(--paper)}
+.mail.nonlu{box-shadow:0 0 0 2px var(--mustard),0 2px 6px var(--shadow)}
+.mail header{display:flex;justify-content:space-between;gap:4px 10px;flex-wrap:wrap;font-size:13.5px}
+.mail .objet{font-family:var(--f-display);font-size:18px;margin:4px 0 6px;line-height:1.25}
+.mail p{margin:0;font-size:14.5px;overflow-wrap:anywhere}
+.mail .row{margin-top:8px}
+.boite{display:grid;grid-template-columns:300px 1fr;gap:22px;align-items:start}
+.boite>*{min-width:0}
+.conv{display:block;width:100%;text-align:left;border:0;border-bottom:1px dashed var(--line);background:none;padding:10px 8px;cursor:pointer}
+.conv:hover{background:var(--paper)}.conv.on{background:var(--paper-2)}
+.conv .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nbtn .badge:empty{display:none}
 @media (max-width:760px){
   .hero{grid-template-columns:1fr;padding-top:24px}
   .two,.modal .box{grid-template-columns:1fr}
   .kpis{grid-template-columns:1fr 1fr}
   .etapes{grid-template-columns:1fr 1fr}
+  .boite{grid-template-columns:1fr}
   .bar input{margin-left:0;width:100%}
   .lambris{grid-template-columns:repeat(3,1fr)}.lambris span:nth-child(n+4){display:none}
   .logo b{font-size:34px}
@@ -327,6 +342,8 @@ async function api(chemin,corps){
 let PRODUITS=[],LETTRE=null,SERVEUR=false,MOI=LS.get("madeleine.moi"),ATL=null;
 let view="boutique",filtre="tous",q="",layer=null,err="",adminTab="commandes",editing=null,pending=null;
 let flip=false,codeLiaison=null,photoNeuve=null,fiche=null,ficheCode=null,occupe=false;
+// Messagerie : non lus, messages du client, conversations de l'atelier, brouillon en cours
+let NONLUS=0,MSG=null,BOITE=null,CONV=null,brouillon={};
 const client=()=>MOI&&MOI.role==="client"?MOI.client:null;
 const atelier=()=>MOI&&MOI.role==="atelier";
 const P=id=>PRODUITS.find(p=>p.id===id);
@@ -339,6 +356,7 @@ const cartTotal=()=>panier.reduce((a,l)=>a+l.q*(P(l.id)?.prix||0),0);
 const STAT={nouvelle:"Nouvelle",preparation:"En préparation",prete:"Prête / expédiée",livree:"Livrée",annulee:"Annulée"};
 const spill=s=>`<span class="pill s-${s}">${STAT[s]}</span>`;
 const fdate=d=>new Date(d+"T12:00").toLocaleDateString("fr-FR");
+const fdt=d=>new Date(d).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 const fmois=d=>new Date(d+"T12:00").toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
 // Panier ramené au stock réel ; true si quelque chose a changé
 function fitCart(){const avant=JSON.stringify(panier);panier=panier.map(l=>({...l,q:Math.min(l.q,P(l.id)?.stock||0)})).filter(l=>l.q>0);savePanier();return JSON.stringify(panier)!==avant}
@@ -348,21 +366,24 @@ async function init(){
  catch(e){SERVEUR=false;try{PRODUITS=await(await fetch("produits.json")).json()}catch(e2){PRODUITS=[]}}
  document.getElementById("hors").hidden=SERVEUR;
  if(SERVEUR&&jeton){
-  try{MOI=await api("moi");LS.set("madeleine.moi",MOI)}
+  try{MOI=await api("moi");NONLUS=MOI.nonlus||0;LS.set("madeleine.moi",MOI)}
   catch(e){if(e.statut===401){setJeton(null);MOI=null}}
  }
  if(!jeton)MOI=null;
+ if(location.hash==="#atelier")view=atelier()?"atelier":"entree";
  render();
 }
+addEventListener("hashchange",()=>{if(location.hash==="#atelier"){view=atelier()?"atelier":"entree";render();scrollTo(0,0)}});
 async function rechargerCatalogue(){try{const c=await api("catalogue");PRODUITS=c.produits;LETTRE=c.lettre}catch(e){}}
 async function rechargerMoi(){MOI=await api("moi");LS.set("madeleine.moi",MOI)}
-async function rechargerAtelier(){ATL=await api("atelier");PRODUITS=ATL.produits}
+async function rechargerAtelier(){ATL=await api("atelier");PRODUITS=ATL.produits;NONLUS=ATL.nonlus||0}
 
 function renderNav(){
  const items=[["boutique","Boutique"],["histoire","Notre histoire"]];
- if(atelier())items.push(["atelier","L'atelier"]);
- else items.push(["compte",client()?"Ma carte":"Carte de fidélité"]);
- document.getElementById("nav").innerHTML=items.map(([k,l])=>`<button class="nbtn ${view===k?"on":""}" data-nav="${k}">${esc(l)}</button>`).join("")+
+ if(atelier())items.push(["atelier","L'atelier",NONLUS]);
+ else if(client())items.push(["compte","Ma carte"],["messages","Messages",NONLUS]);
+ else items.push(["compte","Carte de fidélité"]);
+ document.getElementById("nav").innerHTML=items.map(([k,l,n])=>`<button class="nbtn ${view===k?"on":""}" data-nav="${k}">${esc(l)}${n!==undefined?`<span class="badge" aria-label="${n} non lu${n>1?"s":""}">${n||""}</span>`:""}</button>`).join("")+
   `<button class="nbtn" data-open="cart">Panier<span class="badge">${cartCount()}</span></button>`;
 }
 
@@ -531,9 +552,6 @@ function vCompte(){
     <label class="f">Code à 8 caractères<input id="cCode" required maxlength="12" autocomplete="one-time-code" style="font-family:var(--f-tag);letter-spacing:.15em;text-transform:uppercase" placeholder="ABCD-EFGH"></label>
     <div class="err">${err.startsWith("!")?esc(err.slice(1)):""}</div>
     <button class="btn" ${SERVEUR?"":"disabled"}>Ouvrir ma carte ici</button></form>
-   <details class="atelier-acces panel"><summary>Accès atelier (Mélanie)</summary>
-    <form class="form" id="fAtelier" style="margin-top:12px"><label class="f">Code de l’atelier<input id="aCode" type="password" required autocomplete="current-password"></label>
-    <button class="btn small" ${SERVEUR?"":"disabled"}>Entrer dans l’atelier</button></form></details>
   </div></div></div>`;
  const cmds=MOI.commandes||[];
  return `<div class="wrap"><h2 class="sec">Bonjour ${esc(c.prenom)}</h2>
@@ -542,6 +560,7 @@ function vCompte(){
  <div class="two"><div class="panel form"><b>Mes informations</b>
    <div class="row" style="align-items:flex-end"><div class="avatar">${(photoNeuve||c.photo)?`<img src="${photoNeuve||c.photo}" alt="">`:`<span class="hint">Photo</span>`}</div>
     <label class="f" style="flex:1;min-width:160px">Changer de photo<input id="iPhoto" type="file" accept="image/*"></label></div>
+   <label class="f">Mon adresse La Madeleine (messagerie du site)<input value="${esc(c.courriel||"")}" disabled style="font-family:var(--f-tag)"></label>
    <label class="f">E-mail<input value="${esc(c.email)}" disabled></label>
    <label class="f">Téléphone<input id="iTel" type="tel" value="${esc(c.tel||"")}" maxlength="30"></label>
    <label class="f">Adresse de livraison<textarea id="iAdr" rows="2" maxlength="300">${esc(c.adresse||"")}</textarea></label>
@@ -552,27 +571,27 @@ function vCompte(){
    <div class="row"><button class="btn small" data-act="liaison">Ajouter un appareil</button>
    ${pending==="logout"?`<span class="confirm">Vraiment ? <button class="btn small" data-act="logout">Oui</button><button class="btn ghost small" data-act="cancelDel">Non</button></span>`:`<button class="btn ghost small" data-act="askLogout">Se déconnecter de cet appareil</button>`}</div>
    ${pending==="logout"?`<p class="hint" style="margin:0">Pour revenir, il faudra un code d’un autre appareil connecté ou un code de réactivation donné par Mélanie.</p>`:""}</div></div>
- <div class="panel"><b>Mes commandes</b>${cmds.length?`<div class="tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Contenu</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>${cmds.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${o.items.map(i=>`${i.q}× ${esc(i.nom)}`).join("<br>")}${o.remise?`<div class="meta">Bon fidélité : −${eur(o.remise)}</div>`:""}</td><td class="num">${eur(o.total)}</td><td>${spill(o.statut)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="hint">Pas encore de commande. La vitrine vous attend.</p>`}</div></div>`;
+ <div class="panel"><b>Mes commandes</b>${cmds.length?`<div class="tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Contenu</th><th class="num">Total</th><th>Statut</th><th></th></tr></thead><tbody>${cmds.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${o.items.map(i=>`${i.q}× ${esc(i.nom)}`).join("<br>")}${o.remise?`<div class="meta">Bon fidélité : −${eur(o.remise)}</div>`:""}</td><td class="num">${eur(o.total)}</td><td>${spill(o.statut)}</td><td><button class="btn ghost small" data-question="${o.id}">Une question ?</button></td></tr>`).join("")}</tbody></table></div>`:`<p class="hint">Pas encore de commande. La vitrine vous attend.</p>`}</div></div>`;
 }
 
 /* ---------- Atelier ---------- */
 function vAtelier(){
  if(!atelier()) return `<div class="wrap"><p>Accès réservé.</p></div>`;
- if(!ATL){api("atelier").then(d=>{ATL=d;PRODUITS=d.produits;render()}).catch(e=>toast(e.message));return `<div class="wrap"><h2 class="sec left">L'atelier de Mélanie</h2><p class="hint">Chargement…</p></div>`}
+ if(!ATL){api("atelier").then(d=>{ATL=d;PRODUITS=d.produits;NONLUS=d.nonlus||0;render()}).catch(e=>toast(e.message));return `<div class="wrap"><h2 class="sec left">L'atelier de Mélanie</h2><p class="hint">Chargement…</p></div>`}
  const ca=ATL.commandes.filter(o=>o.statut!=="annulee").reduce((a,o)=>a+o.total,0);
  const aFaire=ATL.commandes.filter(o=>o.statut==="nouvelle"||o.statut==="preparation").length;
  return `<div class="wrap"><div class="row" style="justify-content:space-between"><h2 class="sec left">L'atelier de Mélanie</h2><button class="btn ghost small" data-act="sortirAtelier">Fermer l’atelier sur cet appareil</button></div>
  <div class="kpis"><div class="kpi"><span>Chiffre d'affaires</span><b>${eur(ca)}</b></div><div class="kpi"><span>Commandes à traiter</span><b>${aFaire}</b></div><div class="kpi"><span>Cartes de fidélité</span><b>${ATL.clients.length}</b></div><div class="kpi"><span>Stock bas (≤ 3)</span><b>${PRODUITS.filter(p=>p.stock<=3).length}</b></div></div>
- <div class="bar" style="border:0;padding-top:0">${[["commandes","Commandes"],["produits","Mes créations"],["clients","Clients & tampons"],["lettre","Mon mot"]].map(([k,l])=>`<button class="chip ${adminTab===k?"on":""}" data-atab="${k}">${l}</button>`).join("")}
+ <div class="bar" style="border:0;padding-top:0">${[["commandes","Commandes"],["messagerie","Messagerie"+(NONLUS?` (${NONLUS})`:"")],["produits","Mes créations"],["clients","Clients & tampons"],["lettre","Mon mot"]].map(([k,l])=>`<button class="chip ${adminTab===k?"on":""}" data-atab="${k}">${l}</button>`).join("")}
   ${adminTab==="produits"?`<button class="btn small" style="margin-left:auto" data-act="newProd">+ Nouvelle création</button>`:""}</div>
- ${adminTab==="commandes"?aCommandes():adminTab==="produits"?aProduits():adminTab==="lettre"?aLettre():aClients()}</div>`;
+ ${adminTab==="commandes"?aCommandes():adminTab==="messagerie"?aMessagerie():adminTab==="produits"?aProduits():adminTab==="lettre"?aLettre():aClients()}</div>`;
 }
 function aCommandes(){
  const nomDe=n=>{const c=ATL.clients.find(x=>x.numero===n);return c?`${esc(c.prenom)} ${esc(c.nom)}<div class="meta">N° ${num4(n)}</div>`:"?"};
  return `<div class="panel tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Contenu</th><th>Réception</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>
  ${ATL.commandes.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${nomDe(o.numero)}</td><td>${o.items.map(i=>`${i.q}× ${esc(i.nom)}`).join("<br>")}${o.remise?`<div class="meta">Bon fidélité −${eur(o.remise)}</div>`:""}</td><td>${esc(o.mode)}${o.adresse?`<div class="meta">${esc(o.adresse)}</div>`:""}</td><td class="num">${eur(o.total)}</td>
- <td><select data-statut="${o.id}" aria-label="Statut de ${o.ref}">${Object.entries(STAT).map(([k,l])=>`<option value="${k}" ${o.statut===k?"selected":""}>${l}</option>`).join("")}</select></td></tr>`).join("")||`<tr><td colspan="7">Aucune commande pour l’instant.</td></tr>`}</tbody></table>
- <p class="hint">Annuler une commande remet les bougies en stock, retire le tampon et rend le bon de 10 € s’il avait servi.</p></div>`;
+ <td><select data-statut="${o.id}" aria-label="Statut de ${o.ref}">${Object.entries(STAT).map(([k,l])=>`<option value="${k}" ${o.statut===k?"selected":""}>${l}</option>`).join("")}</select><div style="margin-top:6px"><button class="btn ghost small" data-ecrire="${o.numero}:${o.id}">Écrire au client</button></div></td></tr>`).join("")||`<tr><td colspan="7">Aucune commande pour l’instant.</td></tr>`}</tbody></table>
+ <p class="hint">Chaque changement de statut envoie un message automatique au client. Annuler une commande remet les bougies en stock, retire le tampon et rend le bon de 10 € s’il avait servi.</p></div>`;
 }
 function aProduits(){
  return `<div class="panel tbl"><table><thead><tr><th></th><th>Création</th><th>Catégorie</th><th class="num">Prix</th><th class="num">Stock</th><th></th></tr></thead><tbody>
@@ -589,7 +608,7 @@ function aClients(){
   <div class="panel form">${f?`<b>${esc(f.prenom)} ${esc(f.nom)} · N° ${num4(f.numero)}</b>
    <div>${pastilles(f.tampons)}<div class="meta">${f.tampons}/${TAMPONS_PAR_BON} tampons · ${f.bons} bon${f.bons>1?"s":""} de ${VALEUR_BON} €</div></div>
    <div class="row"><button class="btn brass small" data-tampon="1">+1 tampon</button><button class="btn ghost small" data-tampon="-1">Retirer un tampon</button>${f.bons?`<button class="btn small" data-act="utiliserBon">Utiliser un bon de ${VALEUR_BON} €</button>`:""}</div>
-   <div class="row"><button class="btn ghost small" data-act="reactivation">Code de réactivation</button>${ficheCode?`<span class="code-grand" style="font-size:20px">${ficheCode.slice(0,4)}-${ficheCode.slice(4)}</span>`:""}</div>
+   <div class="row"><button class="btn ghost small" data-ecrire="${f.numero}:0">Écrire à ${esc(f.prenom)}</button><button class="btn ghost small" data-act="reactivation">Code de réactivation</button>${ficheCode?`<span class="code-grand" style="font-size:20px">${ficheCode.slice(0,4)}-${ficheCode.slice(4)}</span>`:""}</div>
    ${ficheCode?`<p class="hint" style="margin:0">À donner au client (téléphone perdu ou changé) : valable 48 heures, une seule fois.</p>`:""}`:`<p class="hint">Choisissez une carte : par son numéro, ou avec « Gérer » dans la liste.</p>`}</div></div>
  <div class="panel tbl"><table><thead><tr><th>N°</th><th>Nom</th><th>Contact</th><th>Tampons</th><th class="num">Bons</th><th class="num">Commandes</th><th></th></tr></thead><tbody>
  ${ATL.clients.map(c=>`<tr><td style="font-family:var(--f-tag)">${num4(c.numero)}</td><td>${esc(c.prenom)} ${esc(c.nom)}<div class="meta">depuis le ${fdate(c.cree)}</div></td><td>${esc(c.email)}${c.tel?`<div class="meta">${esc(c.tel)}</div>`:""}</td><td>${pastilles(c.tampons)}</td><td class="num">${c.bons}</td><td class="num">${ATL.commandes.filter(o=>o.numero===c.numero).length}</td><td><button class="btn ghost small" data-fiche="${c.numero}">Gérer</button></td></tr>`).join("")||`<tr><td colspan="7">Aucune carte pour l’instant. La première aura le n° 0001.</td></tr>`}</tbody></table></div>`;
@@ -599,6 +618,54 @@ function aLettre(){
   <p class="hint" style="margin:0">Ce texte est un premier jet : remplacez-le par vos propres mots. Laissez une ligne vide entre deux paragraphes. La signature « Mélanie » est ajoutée automatiquement.</p>
   <label class="f">Votre texte<textarea id="aLettre" rows="14">${esc(LETTRE??LETTRE_DEFAUT)}</textarea></label>
   <div class="row"><button class="btn brass small" data-act="saveLettre">Enregistrer</button><button class="btn ghost small" data-nav="histoire">Voir la page</button><button class="btn ghost small" data-act="resetLettre">Revenir au texte d'origine</button></div></div>`;
+}
+
+/* ---------- Messagerie ---------- */
+// Les plus récents en premier ; moi : 'client' ou 'atelier'
+function filMessages(ms,moi,autre){
+ return [...ms].reverse().map(m=>{const mien=m.de===moi;return `<article class="mail ${mien?"envoye":""} ${!m.lu&&!mien?"nonlu":""}">
+  <header><b>${mien?"Vous":esc(autre)}</b><span class="meta">${fdt(m.date)}</span></header>
+  <div class="objet">${esc(m.objet)}${m.ref&&!m.objet.includes(m.ref)?` <span class="pill">${m.ref}</span>`:""}</div>
+  <p>${esc(m.texte).replace(/\n/g,"<br>")}</p>
+  ${mien?(m.lu?`<div class="meta" style="margin-top:6px">✓ Lu</div>`:""):`<div class="row"><button class="btn ghost small" data-repondre="${m.id}">Répondre</button></div>`}</article>`}).join("");
+}
+const chargement=t=>`<div class="wrap"><h2 class="sec">${t}</h2><p class="hint" style="text-align:center">Chargement…</p></div>`;
+function vMessages(){
+ const c=client();if(!c)return vCompte();
+ if(!MSG){api("messages",{lu:true}).then(d=>{MSG=d.messages;NONLUS=0;render()}).catch(e=>toast(e.message));return chargement("Ma messagerie")}
+ const cmds=MOI.commandes||[];
+ return `<div class="wrap"><h2 class="sec">Ma messagerie</h2>
+ <p class="lead">Votre adresse : <span class="adresse-interne">${esc(c.courriel)}</span><br><span class="hint">Elle ne sert que sur ce site, pour échanger avec Mélanie.</span></p>
+ <div class="two"><form class="panel form" id="fMsg" style="align-self:start"><b>Écrire à Mélanie</b>
+  <label class="f">À<input value="melanie@la-madeleine" disabled style="font-family:var(--f-tag)"></label>
+  <label class="f">Objet<input id="mObjet" maxlength="120" value="${esc(brouillon.objet||"")}"></label>
+  ${cmds.length?`<label class="f">À propos d’une commande (facultatif)<select id="mCmd"><option value="">Aucune</option>${cmds.map(o=>`<option value="${o.id}" ${brouillon.commande===o.id?"selected":""}>${o.ref} · ${fdate(o.date)}</option>`).join("")}</select></label>`:""}
+  <label class="f">Message<textarea id="mTexte" rows="7" maxlength="4000" required></textarea></label>
+  <button class="btn brass">Envoyer</button></form>
+ <div>${filMessages(MSG,"client","Mélanie · La Madeleine")||`<p class="hint">Aucun message pour l’instant.</p>`}</div></div></div>`;
+}
+function aMessagerie(){
+ if(!BOITE){api("atelier/boite").then(d=>{BOITE=d.conversations;render()}).catch(e=>toast(e.message));return `<p class="hint">Chargement…</p>`}
+ const k=CONV&&CONV.client;
+ return `<div class="boite"><div class="panel" style="padding:8px">${BOITE.map(c=>`<button class="conv ${k&&k.numero===c.numero?"on":""}" data-conv="${c.numero}">
+   <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${esc(c.prenom)} ${esc(c.nom)}</b>${c.nonlus?`<span class="badge">${c.nonlus}</span>`:""}</div>
+   <div class="meta">${esc(c.courriel)} · N° ${num4(c.numero)}</div><div class="meta">${c.de==="atelier"?"Vous : ":""}${esc(c.objet)} · ${fdt(c.date)}</div></button>`).join("")||`<p class="hint" style="padding:8px">Aucune conversation : elles apparaissent à chaque nouvelle carte.</p>`}</div>
+ <div>${k?`<form class="panel form" id="fAMsg"><b>Écrire à ${esc(k.prenom)} ${esc(k.nom)}</b>
+   <label class="f">À<input value="${esc(k.courriel)}" disabled style="font-family:var(--f-tag)"></label>
+   <label class="f">Objet<input id="amObjet" maxlength="120" value="${esc(brouillon.objet||"")}"></label>
+   ${CONV.commandes.length?`<label class="f">À propos d’une commande (facultatif)<select id="amCmd"><option value="">Aucune</option>${CONV.commandes.map(o=>`<option value="${o.id}" ${brouillon.commande===o.id?"selected":""}>${o.ref}</option>`).join("")}</select></label>`:""}
+   <label class="f">Message<textarea id="amTexte" rows="6" maxlength="4000" required></textarea></label>
+   <button class="btn brass">Envoyer</button></form>
+  ${filMessages(CONV.messages,"atelier",`${k.prenom} ${k.nom}`)}`:`<p class="hint">Choisissez une conversation à gauche.</p>`}</div></div>`;
+}
+async function ouvrirConv(numero){CONV=await api("atelier/conversation",{numero});BOITE=null;await rechargerAtelier().catch(()=>{});render()}
+
+/* ---------- Entrée de l'atelier (adresse cachée : …/#atelier) ---------- */
+function vEntree(){
+ return `<div class="wrap"><h2 class="sec">L’atelier</h2><form class="panel form" id="fAtelier" style="max-width:420px;margin:0 auto">
+  <p class="hint" style="margin:0">Réservé à Mélanie. Une fois le code saisi, l’atelier reste ouvert sur cet appareil.</p>
+  <label class="f">Code de l’atelier<input id="aCode" type="password" required autocomplete="current-password"></label>
+  <button class="btn brass" ${SERVEUR?"":"disabled"}>Entrer dans l’atelier</button></form></div>`;
 }
 
 /* ---------- Calques ---------- */
@@ -646,7 +713,7 @@ function renderLayer(){
  }
 }
 
-function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
+function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="messages"?vMessages():view==="entree"?vEntree():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
 
 /* ---------- Actions ---------- */
 // Une action serveur à la fois ; message clair en cas d'échec
@@ -654,26 +721,30 @@ async function agir(fn){if(occupe)return;occupe=true;try{await fn()}catch(e){toa
 function addToCart(id){const p=P(id);const l=panier.find(x=>x.id===id);const cur=l?l.q:0;if(cur>=p.stock){toast("Stock atteint pour cette bougie");return}l?l.q++:panier.push({id,q:1});savePanier();renderNav();toast(`« ${p.nom} » ajoutée au panier`)}
 
 document.addEventListener("click",async e=>{
- const t=e.target.closest("[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],[data-tampon],[data-fiche],#goHome");
+ const t=e.target.closest("[data-question],[data-repondre],[data-conv],[data-ecrire],[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],[data-tampon],[data-fiche],#goHome");
  if(!t)return; const d=t.dataset;
  if(d.close!==undefined&&e.target!==t&&t.classList.contains("modal"))return;
+ if(d.question){const o=(MOI.commandes||[]).find(x=>x.id===+d.question);brouillon={objet:o?`Question sur la commande ${o.ref}`:"",commande:+d.question};view="messages";MSG=null;render();scrollTo(0,0);return}
+ if(d.repondre){const ms=atelier()?CONV?.messages:MSG;const m=ms&&ms.find(x=>x.id===+d.repondre);if(m){brouillon={objet:m.objet.startsWith("Re : ")?m.objet:"Re : "+m.objet,commande:m.commande};render();const z=document.getElementById(atelier()?"amTexte":"mTexte");z.scrollIntoView({block:"center"});z.focus()}return}
+ if(d.conv){brouillon={};agir(()=>ouvrirConv(+d.conv));return}
+ if(d.ecrire){const[n,id]=d.ecrire.split(":").map(Number);adminTab="messagerie";brouillon=id?{objet:`Votre commande CMD-${num4(id)}`,commande:id}:{};agir(async()=>{await ouvrirConv(n);scrollTo(0,0)});return}
  if(t.id==="goHome"){view="boutique";layer=null;render();scrollTo(0,0);return}
- if(d.nav){view=d.nav==="compte"&&atelier()?"atelier":d.nav;if(view==="atelier")ATL=null;err="";layer=null;pending=null;render();scrollTo(0,0)}
+ if(d.nav){view=d.nav==="compte"&&atelier()?"atelier":d.nav;if(view==="atelier")ATL=null;if(view==="messages")MSG=null;err="";layer=null;pending=null;render();scrollTo(0,0)}
  else if(d.open){layer=d.open;err="";renderLayer()}
  else if(d.close!==undefined){layer=null;editing=null;renderLayer()}
  else if(d.filtre){filtre=d.filtre;render();document.getElementById("vitrine").scrollIntoView({block:"start"})}
  else if(d.scroll){document.getElementById(d.scroll).scrollIntoView({behavior:"smooth"})}
  else if(d.add){addToCart(d.add);if(layer==="cart")renderLayer()}
  else if(d.q){const[id,s]=d.q.split(":");const l=panier.find(x=>x.id===id);const p=P(id);if(!l||!p)return;l.q+=+s;if(l.q>p.stock)l.q=p.stock;if(l.q<=0)panier=panier.filter(x=>x!==l);savePanier();renderNav();renderLayer()}
- else if(d.atab){adminTab=d.atab;pending=null;render();agir(async()=>{await rechargerAtelier();render()})}
+ else if(d.atab){adminTab=d.atab;pending=null;if(d.atab==="messagerie")BOITE=null;render();agir(async()=>{await rechargerAtelier();render()})}
  else if(d.act==="flip"){flip=!flip;document.querySelector(".carte")?.classList.toggle("tournee",flip)}
  else if(d.act==="dlCarte"){const c=client();if(!c)return;const cv=await dessinerCarte(c);const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=`carte-la-madeleine-${num4(c.numero)}.png`;document.body.appendChild(a);a.click();a.remove()}
  else if(d.act==="saveProfil")agir(async()=>{const r=await api("profil",{tel:document.getElementById("iTel").value,adresse:document.getElementById("iAdr").value,...(photoNeuve?{photo:photoNeuve}:{})});MOI.client=r.client;photoNeuve=null;LS.set("madeleine.moi",MOI);render();toast("Informations enregistrées")});
  else if(d.act==="liaison")agir(async()=>{const r=await api("code-liaison",{});codeLiaison=r.code;render();setTimeout(()=>{if(codeLiaison===r.code){codeLiaison=null;if(view==="compte")render()}},r.minutes*60000)});
  else if(d.act==="askLogout"){pending="logout";render()}
  else if(d.act==="cancelDel"){pending=null;render()}
- else if(d.act==="logout")agir(async()=>{try{await api("deconnexion",{})}catch(e){}setJeton(null);MOI=null;pending=null;codeLiaison=null;view="boutique";render();toast("Carte fermée sur cet appareil")});
- else if(d.act==="sortirAtelier")agir(async()=>{try{await api("atelier/sortir",{})}catch(e){}setJeton(null);MOI=null;ATL=null;view="boutique";render();toast("Atelier fermé sur cet appareil")});
+ else if(d.act==="logout")agir(async()=>{try{await api("deconnexion",{})}catch(e){}setJeton(null);MOI=null;pending=null;codeLiaison=null;MSG=null;NONLUS=0;view="boutique";render();toast("Carte fermée sur cet appareil")});
+ else if(d.act==="sortirAtelier")agir(async()=>{try{await api("atelier/sortir",{})}catch(e){}setJeton(null);MOI=null;ATL=null;BOITE=null;CONV=null;NONLUS=0;view="boutique";render();toast("Atelier fermé sur cet appareil")});
  else if(d.act==="checkout"){
   if(!client()){layer=null;view="compte";err="Créez votre carte ou ouvrez-la sur cet appareil pour commander.";render();scrollTo(0,0);return}
   agir(async()=>{
@@ -715,12 +786,14 @@ document.addEventListener("submit",e=>{
  e.preventDefault();const f=e.target,v=id=>f.querySelector(id).value;
  if(f.id==="fReg")agir(async()=>{
   try{const r=await api("inscription",{prenom:v("#rPrenom"),nom:v("#rNom"),email:v("#rEmail"),tel:v("#rTel"),adresse:v("#rAdr"),photo:photoNeuve});
-   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[]};LS.set("madeleine.moi",MOI);photoNeuve=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`)}
+   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[]};NONLUS=1;MSG=null;LS.set("madeleine.moi",MOI);photoNeuve=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`)}
   catch(x){err=x.message;render()}});
  if(f.id==="fCode")agir(async()=>{
-  try{const r=await api("connexion",{code:v("#cCode")});setJeton(r.jeton);await rechargerMoi();err="";render();scrollTo(0,0);toast(`Carte n° ${num4(r.client.numero)} ouverte sur cet appareil`)}
+  try{const r=await api("connexion",{code:v("#cCode")});setJeton(r.jeton);await rechargerMoi();NONLUS=MOI.nonlus||0;MSG=null;err="";render();scrollTo(0,0);toast(`Carte n° ${num4(r.client.numero)} ouverte sur cet appareil`)}
   catch(x){err="!"+x.message;render()}});
- if(f.id==="fAtelier")agir(async()=>{const r=await api("atelier/entrer",{code:v("#aCode")});setJeton(r.jeton);MOI={role:"atelier"};LS.set("madeleine.moi",MOI);ATL=null;view="atelier";render();toast("Bienvenue dans l'atelier")});
+ if(f.id==="fAtelier")agir(async()=>{const r=await api("atelier/entrer",{code:v("#aCode")});setJeton(r.jeton);MOI={role:"atelier"};LS.set("madeleine.moi",MOI);ATL=null;view="atelier";history.replaceState(null,"",location.pathname+location.search);render();toast("Bienvenue dans l'atelier")});
+ if(f.id==="fMsg")agir(async()=>{await api("message",{objet:v("#mObjet"),texte:v("#mTexte"),commande:f.querySelector("#mCmd")?.value||null});brouillon={};const d=await api("messages",{lu:true});MSG=d.messages;render();toast("Message envoyé à Mélanie")});
+ if(f.id==="fAMsg")agir(async()=>{const n=CONV.client.numero;await api("atelier/message",{numero:n,objet:v("#amObjet"),texte:v("#amTexte"),commande:f.querySelector("#amCmd")?.value||null});brouillon={};await ouvrirConv(n);toast(`Message envoyé à ${CONV.client.prenom}`)});
  if(f.id==="fTampon"){const n=parseInt(v("#tNum"),10);agir(async()=>{const r=await api("atelier/client",{numero:n});fiche=r.client.numero;ficheCode=null;const c=ATL.clients.find(x=>x.numero===fiche);if(c)Object.assign(c,{tampons:r.client.tampons,bons:r.client.bons});render()})}
  if(f.id==="fProd")agir(async()=>{
   const g=id=>f.querySelector(id).value,file=f.querySelector("#ePhoto").files[0];
@@ -729,9 +802,19 @@ document.addEventListener("submit",e=>{
   await api("atelier/produit",{produit:p});layer=null;editing=null;await rechargerAtelier();render();toast("Création enregistrée");
  });
 });
-// Atelier ouvert : nouvelles commandes et inscriptions récupérées toutes les minutes (sauf pendant une saisie)
-setInterval(()=>{if(view==="atelier"&&ATL&&!layer&&!occupe&&document.visibilityState==="visible"&&!document.activeElement?.matches("input,textarea,select"))
- api("atelier").then(d=>{ATL=d;PRODUITS=d.produits;render()}).catch(()=>{})},60000);
+// Toutes les minutes : nouveaux messages (et, dans l'atelier, nouvelles commandes), sauf pendant une saisie
+setInterval(()=>{
+ if(!jeton||!SERVEUR||!MOI||occupe||document.visibilityState!=="visible")return;
+ const tape=document.activeElement?.matches("input,textarea,select")||layer;
+ api("nonlus").then(async d=>{
+  const plus=d.nonlus>NONLUS;NONLUS=d.nonlus;
+  if(plus)toast("Nouveau message dans votre messagerie");
+  if(tape){renderNav();return}
+  if(atelier()&&view==="atelier"){await rechargerAtelier();if(adminTab==="messagerie"&&plus){BOITE=null;if(CONV)CONV=await api("atelier/conversation",{numero:CONV.client.numero})}}
+  else if(view==="messages"&&plus)MSG=null;
+  render();
+ }).catch(()=>{});
+},60000);
 init();
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>

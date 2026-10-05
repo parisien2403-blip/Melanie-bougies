@@ -5,6 +5,10 @@
 // liaison (8 caractères, 15 min) et le saisit sur le nouvel appareil. Téléphone perdu : l'atelier donne un code de
 // réactivation (48 h).
 //
+// Messagerie (comme la boîte aux lettres de TRIGONE) : chaque client reçoit une adresse prenom.nom@la-madeleine qui ne
+// sert que sur le site. Il écrit à melanie@la-madeleine, l'atelier répond ; les étapes de ses commandes lui arrivent aussi
+// en message automatique.
+//
 // Carte de fidélité : numéro client 0001, 0002… dans l'ordre des inscriptions. Un tampon par commande (retiré si la
 // commande est annulée) ; au 10e tampon, un bon de 10 € à utiliser sur l'achat de son choix.
 //
@@ -16,6 +20,7 @@
 const CODE_CAR = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const TAMPONS_PAR_BON = 10, VALEUR_BON = 10, PORT = 6.9, PORT_OFFERT = 60;
 const MODES = ['Colissimo', 'Retrait atelier'];
+const DOMAINE = 'la-madeleine', ADRESSE_ATELIER = 'melanie@' + DOMAINE;
 const STATUTS = ['nouvelle', 'preparation', 'prete', 'livree', 'annulee'];
 
 const SCHEMA = [
@@ -28,6 +33,10 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS commandes (id INTEGER PRIMARY KEY AUTOINCREMENT, numero INTEGER, date TEXT, items TEXT,
      mode TEXT, adresse TEXT, port REAL, remise REAL, statut TEXT, tampon INTEGER NOT NULL DEFAULT 0)`,
   `CREATE TABLE IF NOT EXISTS reglages (k TEXT PRIMARY KEY, v TEXT)`,
+  // de : 'client' (vers l'atelier) ou 'atelier' (vers le client) ; lu : lu par le destinataire
+  `CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, numero INTEGER NOT NULL, de TEXT NOT NULL,
+     objet TEXT, texte TEXT NOT NULL, commande INTEGER, date TEXT NOT NULL, lu INTEGER NOT NULL DEFAULT 0)`,
+  `CREATE INDEX IF NOT EXISTS messages_numero ON messages (numero, id)`,
   `CREATE TABLE IF NOT EXISTS limites (cle TEXT PRIMARY KEY, n INTEGER NOT NULL, fin INTEGER NOT NULL)`,
 ];
 
@@ -54,6 +63,30 @@ function photoValide(p, max) {
   return p;
 }
 
+// Adresse interne prenom.nom@la-madeleine (sans accents) ; prenom.nom2… si elle est déjà prise
+const simplifier = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+async function adresseLibre(env, prenom, nom) {
+  const base = [simplifier(prenom), simplifier(nom)].filter(Boolean).join('.') || 'client';
+  for (let n = 1; ; n++) {
+    const a = `${base}${n > 1 ? n : ''}@${DOMAINE}`;
+    if (base + '@' + DOMAINE === ADRESSE_ATELIER && n === 1) continue;
+    if (!await env.DB.prepare('SELECT 1 FROM clients WHERE courriel = ?').bind(a).first()) return a;
+  }
+}
+const messageAuto = (env, numero, objet, texte, commande) => env.DB.prepare(
+  "INSERT INTO messages (numero, de, objet, texte, commande, date) VALUES (?, 'atelier', ?, ?, ?, ?)").bind(numero, objet, texte, commande ?? null, new Date().toISOString());
+const refCmd = id => 'CMD-' + String(id).padStart(4, '0');
+function texteStatut(statut, o) {
+  switch (statut) {
+  case 'preparation': return 'Mélanie a commencé à préparer votre commande.';
+  case 'prete': return o.mode === 'Retrait atelier' ? 'Votre commande est prête : vous pouvez venir la retirer à l\'atelier.' : 'Votre commande est partie par Colissimo. Elle arrive bientôt !';
+  case 'livree': return 'Votre commande est indiquée comme livrée. Belle flamme et bons souvenirs !';
+  case 'annulee': return 'Votre commande a été annulée. Le tampon correspondant a été retiré de votre carte' + (o.remise ? ' et votre bon de 10 € vous a été rendu.' : '.');
+  }
+  return null;
+}
+const messagePublic = m => ({ id: m.id, de: m.de, objet: m.objet, texte: m.texte, commande: m.commande, ref: m.commande ? refCmd(m.commande) : null, date: m.date, lu: m.lu });
+
 // Compteur par adresse IP (essais de code, inscriptions) : false une fois la limite atteinte sur la période.
 async function limite(env, cle, max, secondes) {
   const t = maintenant();
@@ -67,6 +100,11 @@ let pret = null;
 async function preparer(env) {
   if (!pret) pret = (async () => {
     await env.DB.batch(SCHEMA.map(s => env.DB.prepare(s)));
+    // Bases créées avant la messagerie : colonne de l'adresse interne, puis une adresse pour chaque client
+    try { await env.DB.prepare('ALTER TABLE clients ADD COLUMN courriel TEXT').run(); } catch { /* déjà là */ }
+    const { results: sans } = await env.DB.prepare('SELECT numero, prenom, nom FROM clients WHERE courriel IS NULL ORDER BY numero').all();
+    for (const c of sans) await env.DB.prepare('UPDATE clients SET courriel = ? WHERE numero = ?').bind(await adresseLibre(env, c.prenom, c.nom), c.numero).run();
+    await env.DB.prepare('CREATE UNIQUE INDEX IF NOT EXISTS clients_courriel ON clients (courriel)').run();
     const { n } = await env.DB.prepare('SELECT COUNT(*) AS n FROM produits').first();
     if (n === 0) {
       const seed = await (await env.ASSETS.fetch(new Request('https://assets/produits.json'))).json();
@@ -84,9 +122,9 @@ async function produits(env) {
   const { results } = await env.DB.prepare('SELECT data, stock FROM produits ORDER BY ordre, id').all();
   return results.map(r => ({ ...JSON.parse(r.data), stock: r.stock }));
 }
-const clientPublic = c => c && ({ numero: c.numero, prenom: c.prenom, nom: c.nom, email: c.email, tel: c.tel,
+const clientPublic = c => c && ({ numero: c.numero, prenom: c.prenom, nom: c.nom, courriel: c.courriel, email: c.email, tel: c.tel,
   adresse: c.adresse, photo: c.photo, tampons: c.tampons, bons: c.bons, cree: c.cree });
-const commandePublique = c => ({ id: c.id, ref: 'CMD-' + String(c.id).padStart(4, '0'), numero: c.numero, date: c.date,
+const commandePublique = c => ({ id: c.id, ref: refCmd(c.id), numero: c.numero, date: c.date,
   items: JSON.parse(c.items), mode: c.mode, adresse: c.adresse, port: c.port, remise: c.remise, statut: c.statut, tampon: c.tampon,
   total: Math.max(0, JSON.parse(c.items).reduce((a, i) => a + i.q * i.prix, 0) - c.remise) + c.port });
 
@@ -99,6 +137,12 @@ async function qui(request, env) {
   if (a.role === 'atelier') return { role: 'atelier', jeton };
   const c = await env.DB.prepare('SELECT * FROM clients WHERE numero = ?').bind(a.numero).first();
   return c ? { role: 'client', client: c, jeton } : null;
+}
+async function nonLus(env, moi) {
+  const r = moi.role === 'atelier'
+    ? await env.DB.prepare("SELECT COUNT(*) AS n FROM messages WHERE de = 'client' AND lu = 0").first()
+    : await env.DB.prepare("SELECT COUNT(*) AS n FROM messages WHERE numero = ? AND de = 'atelier' AND lu = 0").bind(moi.client.numero).first();
+  return r.n;
 }
 async function nouvelAppareil(env, numero, role) {
   const jeton = hasard(32);
@@ -153,15 +197,43 @@ async function api(request, env, chemin) {
     if (await env.DB.prepare('SELECT 1 FROM clients WHERE email = ?').bind(email).first())
       throw new Refus(409, 'Un compte existe déjà avec cet e-mail. Utilisez « J\'ai déjà une carte ».');
     const photo = photoValide(corps.photo, 250000);
-    const c = await env.DB.prepare(`INSERT INTO clients (prenom, nom, email, tel, adresse, photo, cree) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *`)
-      .bind(prenom, nom, email, txt(corps.tel, 30), txt(corps.adresse, 300), photo, new Date().toISOString().slice(0, 10)).first();
+    const c = await env.DB.prepare(`INSERT INTO clients (prenom, nom, courriel, email, tel, adresse, photo, cree) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`)
+      .bind(prenom, nom, await adresseLibre(env, prenom, nom), email, txt(corps.tel, 30), txt(corps.adresse, 300), photo, new Date().toISOString().slice(0, 10)).first();
+    await messageAuto(env, c.numero, 'Bienvenue chez La Madeleine',
+      `Bonjour ${prenom},\n\nVotre carte n° ${String(c.numero).padStart(4, '0')} est prête. Voici votre messagerie : vous pouvez m'écrire ici pour toute question sur une bougie ou une commande, je vous répondrai au plus vite.\n\nMélanie`).run();
     return json({ jeton: await nouvelAppareil(env, c.numero, 'client'), client: clientPublic(c) });
   }
   case 'moi': {
     if (!moi) throw new Refus(401, 'Appareil non reconnu.');
-    if (moi.role === 'atelier') return json({ role: 'atelier' });
+    if (moi.role === 'atelier') return json({ role: 'atelier', courriel: ADRESSE_ATELIER });
     const { results } = await env.DB.prepare('SELECT * FROM commandes WHERE numero = ? ORDER BY id DESC').bind(moi.client.numero).all();
-    return json({ role: 'client', client: clientPublic(moi.client), commandes: results.map(commandePublique) });
+    return json({ role: 'client', client: clientPublic(moi.client), commandes: results.map(commandePublique), nonlus: await nonLus(env, moi) });
+  }
+  case 'nonlus': {
+    if (!moi) throw new Refus(401, 'Appareil non reconnu.');
+    return json({ nonlus: await nonLus(env, moi) });
+  }
+
+  // --- Messagerie ---
+  case 'messages': {
+    const c = exigerClient();
+    const { results } = await env.DB.prepare('SELECT * FROM messages WHERE numero = ? ORDER BY id').bind(c.numero).all();
+    if (corps.lu) await env.DB.prepare("UPDATE messages SET lu = 1 WHERE numero = ? AND de = 'atelier' AND lu = 0").bind(c.numero).run();
+    return json({ messages: results.map(messagePublic), atelier: ADRESSE_ATELIER });
+  }
+  case 'message': {
+    const c = exigerClient();
+    if (!await limite(env, 'message:' + c.numero, 30, 3600)) throw new Refus(429, 'Beaucoup de messages en peu de temps : réessayez dans une heure.');
+    const texte = txt(corps.texte, 4000);
+    if (!texte) throw new Refus(400, 'Votre message est vide.');
+    let commande = null;
+    if (corps.commande) {
+      const o = await env.DB.prepare('SELECT id FROM commandes WHERE id = ? AND numero = ?').bind(Math.floor(Number(corps.commande)), c.numero).first();
+      commande = o ? o.id : null;
+    }
+    await env.DB.prepare("INSERT INTO messages (numero, de, objet, texte, commande, date) VALUES (?, 'client', ?, ?, ?, ?)")
+      .bind(c.numero, txt(corps.objet, 120) || 'Sans objet', texte, commande, new Date().toISOString()).run();
+    return json({ ok: true });
   }
   case 'profil': {
     const c = exigerClient();
@@ -223,7 +295,10 @@ async function api(request, env, chemin) {
         .bind(c.numero, new Date().toISOString().slice(0, 10), JSON.stringify(items), mode, mode === 'Colissimo' ? c.adresse : '', port, remise),
       enregistrerCarte(env, c),
     ]);
-    return json({ commande: commandePublique(cmd.results[0]), client: clientPublic(c) });
+    const nouvelle = commandePublique(cmd.results[0]);
+    await messageAuto(env, c.numero, `Commande ${nouvelle.ref} bien reçue`,
+      `Merci pour votre commande ! Mélanie va la préparer à la main.\n\n${items.map(i => `${i.q} × ${i.nom}`).join('\n')}\nTotal : ${nouvelle.total.toFixed(2).replace('.', ',')} €${remise ? ' (bon fidélité déduit)' : ''}\n\nVous recevrez ici chaque étape. Une question ? Répondez simplement à ce message.`, nouvelle.id).run();
+    return json({ commande: nouvelle, client: clientPublic(c) });
   }
 
   // --- Atelier ---
@@ -237,9 +312,42 @@ async function api(request, env, chemin) {
     exigerAtelier();
     const [cmds, clients] = await env.DB.batch([
       env.DB.prepare('SELECT * FROM commandes ORDER BY id DESC'),
-      env.DB.prepare('SELECT numero, prenom, nom, email, tel, adresse, tampons, bons, cree FROM clients ORDER BY numero'),
+      env.DB.prepare('SELECT numero, prenom, nom, courriel, email, tel, adresse, tampons, bons, cree FROM clients ORDER BY numero'),
     ]);
-    return json({ commandes: cmds.results.map(commandePublique), clients: clients.results, produits: await produits(env) });
+    return json({ commandes: cmds.results.map(commandePublique), clients: clients.results, produits: await produits(env), nonlus: await nonLus(env, moi) });
+  }
+  case 'atelier/boite': {
+    // Une conversation par client : dernier message, messages non lus
+    exigerAtelier();
+    const { results } = await env.DB.prepare(`SELECT c.numero, c.prenom, c.nom, c.courriel, m.objet, m.de, m.date,
+        (SELECT COUNT(*) FROM messages n WHERE n.numero = c.numero AND n.de = 'client' AND n.lu = 0) AS nonlus
+      FROM clients c JOIN messages m ON m.id = (SELECT MAX(id) FROM messages WHERE numero = c.numero)
+      ORDER BY m.id DESC`).all();
+    return json({ conversations: results });
+  }
+  case 'atelier/conversation': {
+    exigerAtelier();
+    const numero = Math.floor(Number(corps.numero));
+    const c = await env.DB.prepare('SELECT numero, prenom, nom, courriel FROM clients WHERE numero = ?').bind(numero).first();
+    if (!c) throw new Refus(404, 'Aucun client avec ce numéro.');
+    const { results } = await env.DB.prepare('SELECT * FROM messages WHERE numero = ? ORDER BY id').bind(numero).all();
+    await env.DB.prepare("UPDATE messages SET lu = 1 WHERE numero = ? AND de = 'client' AND lu = 0").bind(numero).run();
+    const { results: cmds } = await env.DB.prepare('SELECT id FROM commandes WHERE numero = ? ORDER BY id DESC').bind(numero).all();
+    return json({ client: c, messages: results.map(messagePublic), commandes: cmds.map(o => ({ id: o.id, ref: refCmd(o.id) })) });
+  }
+  case 'atelier/message': {
+    exigerAtelier();
+    const numero = Math.floor(Number(corps.numero));
+    if (!await env.DB.prepare('SELECT 1 FROM clients WHERE numero = ?').bind(numero).first()) throw new Refus(404, 'Aucun client avec ce numéro.');
+    const texte = txt(corps.texte, 4000);
+    if (!texte) throw new Refus(400, 'Le message est vide.');
+    let commande = null;
+    if (corps.commande) {
+      const o = await env.DB.prepare('SELECT id FROM commandes WHERE id = ? AND numero = ?').bind(Math.floor(Number(corps.commande)), numero).first();
+      commande = o ? o.id : null;
+    }
+    await messageAuto(env, numero, txt(corps.objet, 120) || 'Message de Mélanie', texte, commande).run();
+    return json({ ok: true });
   }
   case 'atelier/client': {
     exigerAtelier();
@@ -266,6 +374,8 @@ async function api(request, env, chemin) {
       await prendreStock(env, items);
       if (c) { if (o.remise) c.bons--; ajouterTampon(c); suite.push(enregistrerCarte(env, c)); tampon = 1; }
     }
+    const texte = statut !== o.statut ? texteStatut(statut, o) : null;
+    if (texte) suite.push(messageAuto(env, o.numero, `Commande ${refCmd(o.id)} : ${{ preparation: 'en préparation', prete: o.mode === 'Retrait atelier' ? 'prête à retirer' : 'expédiée', livree: 'livrée', annulee: 'annulée' }[statut]}`, texte, o.id));
     await env.DB.batch([env.DB.prepare('UPDATE commandes SET statut = ?, tampon = ? WHERE id = ?').bind(statut, tampon, o.id), ...suite]);
     return json({ ok: true });
   }
