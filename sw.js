@@ -1,7 +1,7 @@
 // La Madeleine · service worker : mise en cache pour ouverture hors ligne
 // Change le numéro à chaque mise à jour du site pour forcer le rafraîchissement
-const CACHE = "madeleine-v2";
-const FILES = ["./", "index.html", "manifest.webmanifest",
+const CACHE = "madeleine-v3";
+const FILES = ["./", "index.html", "manifest.webmanifest", "produits.json",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png",
   ...Array.from({ length: 10 }, (_, i) => `img/p${i + 1}.jpg`)];
 
@@ -14,6 +14,8 @@ self.addEventListener("activate", e => {
 });
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  // Boutique en ligne (comptes, commandes, stock) : toujours en direct, jamais en cache
+  if (new URL(e.request.url).pathname.includes("/api/")) return;
   // Réseau d'abord (pour avoir la dernière version), cache en secours
   e.respondWith(fetch(e.request).then(r => {
     const copy = r.clone();

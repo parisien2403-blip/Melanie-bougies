@@ -210,7 +210,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .modal h3{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0;line-height:1.1}
 dl.spec{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:13.5px}
 dl.spec dt{font-family:var(--f-tag);color:var(--ink-soft)}dl.spec dd{margin:0}
-.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;font-family:var(--f-tag);z-index:60;font-size:13.5px;max-width:calc(100% - 32px);text-align:center}
+.toast{position:fixed;left:16px;right:16px;margin-inline:auto;width:fit-content;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);background:var(--ink);color:var(--paper);padding:10px 18px;font-family:var(--f-tag);z-index:60;font-size:13.5px;max-width:calc(100% - 32px);text-align:center}
 .confirm{display:inline-flex;gap:6px;align-items:center;font-size:13px}
 
 /* Pied de page : lambris vernis */
@@ -220,6 +220,38 @@ footer{box-shadow:0 -6px 16px var(--shadow)}
   box-shadow:inset 3px 3px 0 rgba(255,236,210,.14),inset -3px -3px 0 rgba(0,0,0,.4),inset 0 0 0 7px rgba(0,0,0,.08),inset 9px 9px 0 -2px rgba(0,0,0,.25),inset -9px -9px 0 -2px rgba(255,236,210,.08)}
 footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:12px 22px;font-size:13px}
 footer .wrap b{font-family:var(--f-script);font-weight:400;font-size:26px;color:var(--brass-1);line-height:1}
+
+
+/* Carte client (recto bois verni, verso tampons) */
+.carte-zone{max-width:460px;margin:0 auto;perspective:1400px}
+.carte{position:relative;aspect-ratio:1.586;container-type:inline-size;transition:transform .7s;transform-style:preserve-3d;cursor:pointer;border:0;padding:0;background:none;width:100%;display:block;color:inherit;text-align:left}
+.carte.tournee{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:4.5cqw;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 14px 30px var(--shadow)}
+.face::after{content:"";position:absolute;inset:2.4cqw;border:.7cqw solid var(--brass-2);border-radius:3cqw;pointer-events:none;box-shadow:inset 0 0 0 .3cqw rgba(0,0,0,.25)}
+.recto{display:grid;grid-template-columns:31% 1fr;gap:5cqw;padding:7cqw;align-items:center}
+.recto .ph{aspect-ratio:3/4;border:.8cqw solid var(--brass-2);background:#e7dacd;overflow:hidden;display:grid;place-items:center;font-family:var(--f-display);font-size:9cqw;color:#5a3219;box-shadow:0 .6cqw 1.4cqw rgba(0,0,0,.45)}
+.recto .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.recto .marque{font-family:var(--f-script);font-size:8.6cqw;color:var(--brass-1);line-height:1;text-shadow:0 .2cqw 0 rgba(0,0,0,.6)}
+.recto .sous{font-family:var(--f-tag);font-size:2.3cqw;letter-spacing:.2em;text-transform:uppercase;opacity:.85;margin-top:1cqw}
+.recto .nom{font-family:var(--f-display);font-size:5cqw;line-height:1.15;margin-top:4cqw;overflow-wrap:anywhere}
+.recto .num{display:inline-block;margin-top:3cqw;font-family:var(--f-tag);font-size:4.6cqw;background:var(--brass);color:#2b1a0c;padding:.6cqw 2.4cqw;border-radius:.6cqw;box-shadow:0 .3cqw .6cqw rgba(0,0,0,.4)}
+.recto .depuis{font-size:2.5cqw;opacity:.8;margin-top:2cqw}
+.verso{transform:rotateY(180deg);background:#fcf7f1;color:#36211a;padding:6.5cqw 7.5cqw;display:flex;flex-direction:column;justify-content:space-between;
+  background-image:repeating-linear-gradient(90deg,transparent 0 6cqw,rgba(122,80,56,.06) 6cqw 6.3cqw)}
+.verso h4{margin:0;text-align:center;font-family:var(--f-display);font-weight:400;font-size:5cqw}
+.verso h4 small{display:block;font-family:var(--f-tag);font-size:2.3cqw;letter-spacing:.18em;text-transform:uppercase;color:#6b5248}
+.tampons{display:grid;grid-template-columns:repeat(5,1fr);gap:2.4cqw 3.6cqw;padding-inline:2cqw}
+.case{aspect-ratio:1;border-radius:50%;border:.5cqw dashed #b9a593;display:grid;place-items:center;font-family:var(--f-tag);font-size:3cqw;color:#b9a593}
+.case.ok{border:0;background:radial-gradient(circle at 35% 30%,#a477aa,#6e4a74 58%,#47294c);color:#f6e8d6;font-family:var(--f-script);font-size:7.5cqw;line-height:1;
+  box-shadow:0 .4cqw .9cqw rgba(0,0,0,.35),inset 0 0 0 .8cqw rgba(255,255,255,.13);transform:rotate(var(--r,0deg))}
+.verso .regle{text-align:center;font-size:2.7cqw;margin:0}
+.verso .bon{align-self:center;font-family:var(--f-tag);font-size:2.9cqw;background:var(--brass);color:#2b1a0c;padding:.6cqw 2.6cqw;border-radius:.6cqw}
+.code-grand{font-family:var(--f-tag);font-size:30px;letter-spacing:.12em;background:var(--paper);border:2px dashed var(--mustard);padding:8px 16px;display:inline-block}
+.avatar{width:84px;height:112px;border:3px solid var(--brass-2);background:var(--paper-2);display:grid;place-items:center;overflow:hidden;flex:none}
+.avatar img{width:100%;height:100%;object-fit:cover}
+details.atelier-acces summary{cursor:pointer;color:var(--ink-soft);font-size:13.5px}
+.fid{display:flex;gap:4px;flex-wrap:wrap}.fid i{width:12px;height:12px;border-radius:50%;border:1px solid var(--line)}.fid i.ok{background:var(--rose-deep);border-color:var(--rose-deep)}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:14px;background:var(--card);border:1px solid var(--mustard);padding:10px}
 
 @media (max-width:760px){
   .hero{grid-template-columns:1fr;padding-top:24px}
@@ -235,7 +267,8 @@ footer .wrap b{font-family:var(--f-script);font-weight:400;font-size:26px;color:
 </style>
 </head>
 <body>
-<div class="demo">Maquette de démonstration · photos d’inspiration à remplacer par les créations de Mélanie · données stockées dans ce navigateur · paiement non branché</div>
+<div class="demo">Photos d’inspiration à remplacer par les créations de Mélanie · paiement en ligne pas encore branché</div>
+<div class="demo" id="hors" hidden style="background:var(--rose-deep)">Boutique en ligne pas encore ouverte sur cette adresse : vitrine seulement (inscriptions et commandes indisponibles)</div>
 <header class="top"><div class="wood"><div class="wrap">
   <button class="logo" id="goHome" aria-label="Accueil La Madeleine"><b>La Madeleine</b><small>Chandellerie d'autrefois</small></button>
   <nav class="main" id="nav"></nav>
@@ -258,17 +291,19 @@ flacon:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="108" rx="30" ry
 const CATS={gateau:"Gâteaux",verrine:"Verrines",douceur:"Petites douceurs",pot:"Pots",bouteille:"Bouteilles",tasse:"Tasses"};
 ART.verrine=ART.pot;ART.douceur=ART.gateau;
 
-/* ---------- Stockage (navigateur) ---------- */
-const KEY="melantan.v2"; // clé conservée pour garder les données déjà saisies
-let toast=()=>{};
-function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null}catch(e){return null}}
-// Renvoie false si le navigateur refuse (mémoire pleine) : l'appelant peut alors annuler la modification
-function save(){try{localStorage.setItem(KEY,JSON.stringify(DB));return true}catch(e){toast("Mémoire du navigateur pleine : la modification n'a pas pu être enregistrée.");return false}}
-async function hash(s){try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("mel:"+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch(e){return"x"+btoa(unescape(encodeURIComponent(s)))}}
-const uid=()=>Math.random().toString(36).slice(2,9);
-const eur=n=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR"});
+/* ---------- Mémoire de l'appareil ---------- */
+// Seulement ce qui appartient à cet appareil : son jeton de connexion, son panier, une copie de la carte pour l'afficher hors ligne
+const LS={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+ set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}},
+ del(k){try{localStorage.removeItem(k)}catch(e){}}};
+let jeton=LS.get("madeleine.jeton");
+let panier=LS.get("madeleine.panier")||[];
+const savePanier=()=>LS.set("madeleine.panier",panier);
+function setJeton(j){jeton=j;if(j)LS.set("madeleine.jeton",j);else{LS.del("madeleine.jeton");LS.del("madeleine.moi")}}
 
-const ADMIN_EMAIL="melanie@lamadeleine.fr";
+const eur=n=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR"});
+const num4=n=>String(n).padStart(4,"0");
+const TAMPONS_PAR_BON=10,VALEUR_BON=10;
 const LETTRE_DEFAUT=`Je crois que nous avons tous une cuisine quelque part dans la mémoire. Une table en chêne ou en formica, une toile cirée, une boîte en fer pleine de biscuits, et cette odeur qui disait que tout allait bien.
 
 Ces moments-là, on ne peut pas les rattraper. Mais on peut les rappeler. C’est ce que j’essaie de faire avec chaque bougie : façonner un gâteau qu’on ne mangera pas, mais qu’on respirera, et qui ramènera pour quelques heures le goût d’avant.
@@ -277,78 +312,85 @@ Tout est fait à la main, chez moi, en petites séries : la cire végétale coul
 
 Allumez-la un dimanche, faites-vous un thé, et laissez la maison sentir le goûter.`;
 
-const SEED_PRODUCTS=[
- {id:"p1",img:"p1",cat:"gateau",nom:"Le Petit Fraisier",parfum:"Fraise des bois & chantilly",cire:"Soja",poids:180,duree:30,prix:22,stock:5,c1:"#f3ece6",c2:"#c2405a",desc:"Un petit gâteau blanc à collerette de crème, coiffé de trois fraises. Le dessert des goûters d’anniversaire d’autrefois."},
- {id:"p2",img:"p2",cat:"douceur",nom:"Beignets de la Kermesse",parfum:"Barbe à papa & vanille",cire:"Soja",poids:150,duree:20,prix:15,stock:9,c1:"#e9a7c4",c2:"#8e6a8f",desc:"Lot de 3 beignets glacés aux vermicelles multicolores, couleurs au choix. L’odeur sucrée des fêtes foraines du dimanche."},
- {id:"p3",img:"p3",cat:"gateau",nom:"Le Framboisier Nappé",parfum:"Framboise & sucre glace",cire:"Soja",poids:220,duree:35,prix:26,stock:2,c1:"#d98ea0",c2:"#9e4558",desc:"Biscuit rose nappé de glaçage blanc coulant, framboises et paillettes dorées. Vendu à l’unité."},
- {id:"p4",img:"p4",cat:"douceur",nom:"Fondants Caramel Doré",parfum:"Caramel au beurre salé",cire:"Colza",poids:120,duree:24,prix:12,stock:0,c1:"#d6b38c",c2:"#b08d4a",desc:"Lot de 4 fondants parfumés pour brûle-parfum, en cannelé et en cœur, saupoudrés de feuille d’or. Sans mèche."},
- {id:"p5",img:"p5",cat:"douceur",nom:"Petits Kouglofs Pêche",parfum:"Pêche de vigne & fleur d’oranger",cire:"Colza",poids:150,duree:30,prix:13,stock:7,c1:"#f2b9a0",c2:"#c8775a",desc:"Lot de 5 mini-kouglofs à faire fondre, tout en douceur fruitée. Joli dans une coupelle sur la commode."},
- {id:"p6",img:"p6",cat:"verrine",nom:"Forêt-Noire en Verrine",parfum:"Cerise noire & cacao",cire:"Soja",poids:320,duree:50,prix:32,stock:4,c1:"#6b3d2e",c2:"#a3233a",desc:"Deux étages de génoise chocolat et de chantilly dans un verre épais, vermicelles rouges au sommet."},
- {id:"p7",img:"p7",cat:"verrine",nom:"Le Goûter Choco-Biscuit",parfum:"Petit-beurre & chocolat au lait",cire:"Soja",poids:300,duree:45,prix:29,stock:6,c1:"#8a5a3c",c2:"#d6b38c",desc:"Biscuits émiettés, crème fouettée, carré de chocolat et petit sablé : le cartable du mercredi après-midi."},
- {id:"p8",img:"p8",cat:"pot",nom:"La Brioche du Dimanche",parfum:"Brioche au beurre & fleur d’oranger",cire:"Soja",poids:350,duree:55,prix:27,stock:8,c1:"#e3b56a",c2:"#8a5a3c",desc:"Grand bocal à couvercle de verre, parfum de boulangerie de village le dimanche matin."},
- {id:"p9",img:"p9",cat:"verrine",nom:"Le Liégeois Café",parfum:"Café crème & chocolat noir",cire:"Soja",poids:250,duree:40,prix:28,stock:1,c1:"#7a4f34",c2:"#3b2418",desc:"Crème café montée, grains de café et carré de chocolat, comme à la terrasse du café de la place."},
- {id:"p10",img:"p10",cat:"verrine",nom:"Sorbet Pastèque",parfum:"Pastèque & menthe fraîche",cire:"Soja",poids:280,duree:45,prix:26,stock:5,c1:"#c8443c",c2:"#4d7a3a",desc:"Édition d’été : crème rouge pastèque et tranches de fruit en cire, pour les soirées sur la terrasse."}
-];
-let DB=load();
-async function init(){
- if(!DB){
-  DB={products:SEED_PRODUCTS,users:[
-    {id:"u0",nom:"Mélanie",email:ADMIN_EMAIL,pwd:await hash("bougie"),role:"admin"},
-    {id:"u1",nom:"Client démo",email:"client@exemple.fr",pwd:await hash("demo"),role:"client",adresse:"12 rue des Lilas, 33500 Libourne"}],
-   orders:[
-    {id:"CMD-0001",user:"u1",date:"2026-10-01",items:[{id:"p1",q:1,prix:22},{id:"p5",q:2,prix:13}],mode:"Colissimo",port:6.9,statut:"preparation"},
-    {id:"CMD-0002",user:"u1",date:"2026-10-03",items:[{id:"p8",q:1,prix:27}],mode:"Retrait atelier",port:0,statut:"nouvelle"}],
-   session:null,cart:[]};
- }
- // Données d'avant le changement de nom
- const old=DB.users.find(u=>u.email==="melanie@melantan.fr");if(old)old.email=ADMIN_EMAIL;
- if(DB.lettre==null)DB.lettre=LETTRE_DEFAUT;
- save();
- render();
+/* ---------- Serveur (Cloudflare) ---------- */
+async function api(chemin,corps){
+ let r;
+ try{r=await fetch("api/"+chemin,{method:corps?"POST":"GET",headers:{"content-type":"application/json",...(jeton?{authorization:"Bearer "+jeton}:{})},body:corps?JSON.stringify(corps):undefined})}
+ catch(e){throw Object.assign(new Error("Boutique injoignable : vérifiez votre connexion internet."),{statut:0})}
+ let j=null;try{j=await r.json()}catch(e){}
+ if(!j)throw Object.assign(new Error("La boutique en ligne n'est pas encore ouverte sur cette adresse."),{statut:0});
+ if(!r.ok)throw Object.assign(new Error(j.erreur||"Erreur "+r.status),{statut:r.status});
+ return j;
 }
 
-/* ---------- État de vue ---------- */
+/* ---------- État ---------- */
+let PRODUITS=[],LETTRE=null,SERVEUR=false,MOI=LS.get("madeleine.moi"),ATL=null;
 let view="boutique",filtre="tous",q="",layer=null,err="",adminTab="commandes",editing=null,pending=null;
-const me=()=>DB.users.find(u=>u.id===DB.session);
-const P=id=>DB.products.find(p=>p.id===id);
+let flip=false,codeLiaison=null,photoNeuve=null,fiche=null,ficheCode=null,occupe=false;
+const client=()=>MOI&&MOI.role==="client"?MOI.client:null;
+const atelier=()=>MOI&&MOI.role==="atelier";
+const P=id=>PRODUITS.find(p=>p.id===id);
 const pic=p=>{const src=p.photo||(p.img&&PHOTOS[p.img]);return src?`<img src="${src}" alt="${esc(p.nom)}">`:(ART[p.cat]||ART.gateau)(p.c1,p.c2)};
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
-toast=t=>{const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)};
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}
 const dispo=p=>p.stock===0?`<span class="low out">Épuisée · bientôt de retour</span>`:p.stock<=2?`<span class="low">Plus que ${p.stock}</span>`:`<span class="low ok">En stock</span>`;
-const cartCount=()=>DB.cart.reduce((a,l)=>a+l.q,0);
-const cartTotal=()=>DB.cart.reduce((a,l)=>a+l.q*(P(l.id)?.prix||0),0);
+const cartCount=()=>panier.reduce((a,l)=>a+l.q,0);
+const cartTotal=()=>panier.reduce((a,l)=>a+l.q*(P(l.id)?.prix||0),0);
+const STAT={nouvelle:"Nouvelle",preparation:"En préparation",prete:"Prête / expédiée",livree:"Livrée",annulee:"Annulée"};
+const spill=s=>`<span class="pill s-${s}">${STAT[s]}</span>`;
+const fdate=d=>new Date(d+"T12:00").toLocaleDateString("fr-FR");
+const fmois=d=>new Date(d+"T12:00").toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+// Panier ramené au stock réel ; true si quelque chose a changé
+function fitCart(){const avant=JSON.stringify(panier);panier=panier.map(l=>({...l,q:Math.min(l.q,P(l.id)?.stock||0)})).filter(l=>l.q>0);savePanier();return JSON.stringify(panier)!==avant}
+
+async function init(){
+ try{const c=await api("catalogue");PRODUITS=c.produits;LETTRE=c.lettre;SERVEUR=true}
+ catch(e){SERVEUR=false;try{PRODUITS=await(await fetch("produits.json")).json()}catch(e2){PRODUITS=[]}}
+ document.getElementById("hors").hidden=SERVEUR;
+ if(SERVEUR&&jeton){
+  try{MOI=await api("moi");LS.set("madeleine.moi",MOI)}
+  catch(e){if(e.statut===401){setJeton(null);MOI=null}}
+ }
+ if(!jeton)MOI=null;
+ render();
+}
+async function rechargerCatalogue(){try{const c=await api("catalogue");PRODUITS=c.produits;LETTRE=c.lettre}catch(e){}}
+async function rechargerMoi(){MOI=await api("moi");LS.set("madeleine.moi",MOI)}
+async function rechargerAtelier(){ATL=await api("atelier");PRODUITS=ATL.produits}
 
 function renderNav(){
- const u=me();
  const items=[["boutique","Boutique"],["histoire","Notre histoire"]];
- if(u&&u.role==="admin")items.push(["atelier","L'atelier"]);
- items.push(["compte",u?u.nom:"Se connecter"]);
+ if(atelier())items.push(["atelier","L'atelier"]);
+ else items.push(["compte",client()?"Ma carte":"Carte de fidélité"]);
  document.getElementById("nav").innerHTML=items.map(([k,l])=>`<button class="nbtn ${view===k?"on":""}" data-nav="${k}">${esc(l)}</button>`).join("")+
   `<button class="nbtn" data-open="cart">Panier<span class="badge">${cartCount()}</span></button>`;
 }
 
+/* ---------- Boutique ---------- */
 function vBoutique(){
- const list=DB.products.filter(p=>(filtre==="tous"||p.cat===filtre)&&(!q||(p.nom+" "+p.parfum).toLowerCase().includes(q.toLowerCase())));
+ const list=PRODUITS.filter(p=>(filtre==="tous"||p.cat===filtre)&&(!q||(p.nom+" "+p.parfum).toLowerCase().includes(q.toLowerCase())));
  return `<div class="wrap">
  <section class="hero">
   <div><span class="stamp">Fait main · petites séries</span>
    <h1 class="big">Des bougies qui sentent <em>le goûter</em> de grand-mère.</h1>
    <p>Gâteaux de cire, verrines gourmandes, beignets et fondants parfumés : chaque pièce est coulée et décorée à la main par Mélanie, en cire végétale, dans l’esprit des salons d’antan.</p>
-   <div class="row"><button class="btn" data-scroll="vitrine">Voir la vitrine</button><button class="btn ghost" data-nav="histoire">Lire notre histoire</button></div></div>
+   <p>Avec la carte de fidélité, chaque commande vous rapporte un tampon. <b>Au 10e, 10 € offerts.</b></p>
+   <div class="row"><button class="btn" data-scroll="vitrine">Voir la vitrine</button><button class="btn ghost" data-nav="${client()||atelier()?"histoire":"compte"}">${client()||atelier()?"Lire notre histoire":"Créer ma carte de fidélité"}</button></div></div>
   <div class="hero-art frame wood" aria-hidden="true"><img src="${PHOTOS.p6}" alt=""><img src="${PHOTOS.p1}" alt=""><img src="${PHOTOS.p3}" alt=""></div>
  </section>
  <div class="bar" id="vitrine">
-  ${[["tous","Tout"],...Object.entries(CATS).filter(([k])=>DB.products.some(p=>p.cat===k))].map(([k,l])=>`<button class="chip ${filtre===k?"on":""}" data-filtre="${k}">${l}</button>`).join("")}
+  ${[["tous","Tout"],...Object.entries(CATS).filter(([k])=>PRODUITS.some(p=>p.cat===k))].map(([k,l])=>`<button class="chip ${filtre===k?"on":""}" data-filtre="${k}">${l}</button>`).join("")}
   <input id="search" type="search" placeholder="Chercher un parfum, un nom…" value="${esc(q)}" aria-label="Rechercher">
  </div>
  <div class="grid">${list.map(p=>`<article class="prod ${p.stock?"":"sold"}">
-  <span class="cat">${CATS[p.cat]}</span>${dispo(p)}
+  <span class="cat">${CATS[p.cat]||""}</span>${dispo(p)}
   <div class="frame wood"><div class="pic" data-open="prod:${p.id}">${pic(p)}${p.img&&!p.photo?`<span class="insp">Photo d’inspiration</span>`:""}</div></div>
   <div class="body"><h3>${esc(p.nom)}</h3><div class="meta">${esc(p.parfum)}</div><div class="meta">${p.poids} g · ≈ ${p.duree} h de combustion</div>
    <div class="foot"><span class="tag">${eur(p.prix)}</span><button class="btn small" data-add="${p.id}" ${p.stock?"":"disabled"}>${p.stock?"Ajouter":"Bientôt"}</button></div></div>
  </article>`).join("")||`<p class="hint">Aucune bougie ne correspond à cette recherche.</p>`}</div></div>`;
 }
 
+/* ---------- Notre histoire ---------- */
 const MEMOIRES=[
  ["p7","Le goûter de quatre heures","Le cartable posé dans l’entrée, le petit-beurre trempé dans le chocolat, la radio en fond. L’odeur du mercredi après-midi."],
  ["p8","La brioche du dimanche","La boulangerie du village, la file qui déborde sur le trottoir, le papier encore tiède serré contre soi sur le chemin du retour."],
@@ -356,7 +398,7 @@ const MEMOIRES=[
  ["p1","Le gâteau d’anniversaire","Les fraises posées une à une, la crème qu’on vole du bout du doigt, les bougies qu’on souffle en fermant fort les yeux."]
 ];
 function vHistoire(){
- const lettre=String(DB.lettre||"").split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+ const lettre=String(LETTRE??LETTRE_DEFAUT).split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
  return `<div class="wrap">
  <section class="hero">
   <div><span class="stamp">Notre histoire</span>
@@ -372,7 +414,7 @@ function vHistoire(){
 
  <h2 class="sec">Les plaisirs qu’on croyait perdus</h2>
  <p class="lead">On ne les a pas vus partir. Un jour, le goûter de quatre heures est devenu une barre avalée debout, la pâtisserie du coin a fermé, et les dimanches ont pris le goût du pressé. Ces petits bonheurs n’ont pas disparu : ils attendent qu’on les rallume.</p>
- <div class="memoires">${MEMOIRES.map(([id,t,txt])=>{const p=P(id);return`<article class="memoire"><div class="frame wood"><img src="${PHOTOS[id]}" alt=""></div><div class="txt"><h3>${t}</h3><p>${txt}</p>${p?`<button class="btn small" data-open="prod:${id}">Retrouver ce parfum</button>`:""}</div></article>`}).join("")}</div>
+ <div class="memoires">${MEMOIRES.map(([id,t,txt])=>`<article class="memoire"><div class="frame wood"><img src="${PHOTOS[id]}" alt=""></div><div class="txt"><h3>${t}</h3><p>${txt}</p>${P(id)?`<button class="btn small" data-open="prod:${id}">Retrouver ce parfum</button>`:""}</div></article>`).join("")}</div>
 
  <h2 class="sec">Le mot de Mélanie</h2>
  <div class="lettre">${lettre.map(s=>`<p>${esc(s).replace(/\n/g,"<br>")}</p>`).join("")}<p class="sig">Mélanie</p></div>
@@ -388,65 +430,174 @@ function vHistoire(){
  </div>`;
 }
 
-function vCompte(){
- const u=me();
- if(!u) return `<div class="wrap"><h2 class="sec">Mon compte</h2><div class="two">
-  <form class="panel form" id="fLogin"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:22px">Déjà cliente ou client</h3>
-   <label class="f">E-mail<input id="lEmail" type="email" required autocomplete="username"></label>
-   <label class="f">Mot de passe<input id="lPwd" type="password" required autocomplete="current-password"></label>
-   <div class="err">${esc(err)}</div><button class="btn">Se connecter</button>
-   <p class="hint">Comptes de démonstration : client@exemple.fr / demo · ${ADMIN_EMAIL} / bougie (atelier)</p></form>
-  <form class="panel form" id="fReg"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:22px">Créer un compte</h3>
-   <label class="f">Prénom et nom<input id="rNom" required></label>
-   <label class="f">E-mail<input id="rEmail" type="email" required></label>
-   <label class="f">Mot de passe (6 caractères min.)<input id="rPwd" type="password" minlength="6" required autocomplete="new-password"></label>
-   <label class="f">Adresse de livraison<textarea id="rAdr" rows="2"></textarea></label>
-   <button class="btn brass">Créer mon compte</button></form></div></div>`;
- const mine=DB.orders.filter(o=>o.user===u.id).sort((a,b)=>b.date.localeCompare(a.date));
- return `<div class="wrap"><h2 class="sec left">Bonjour ${esc(u.nom)}</h2>
- <div class="two"><div class="panel form"><b>Mes informations</b>
-   <label class="f">E-mail<input value="${esc(u.email)}" disabled id="iEmail"></label>
-   <label class="f">Adresse de livraison<textarea id="iAdr" rows="2">${esc(u.adresse||"")}</textarea></label>
-   <div class="row"><button class="btn brass small" data-act="saveAdr">Enregistrer l'adresse</button><button class="btn ghost small" data-act="logout">Se déconnecter</button></div></div>
-  <div class="panel"><b>Mes commandes</b>${mine.length?`<div class="tbl"><table><thead><tr><th>N°</th><th>Date</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>${mine.map(o=>`<tr><td>${o.id}</td><td>${fdate(o.date)}</td><td class="num">${eur(oTotal(o))}</td><td>${spill(o.statut)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="hint">Pas encore de commande. La vitrine vous attend.</p>`}</div></div></div>`;
+/* ---------- Carte client ---------- */
+function carteHTML(c){
+ const init=(c.prenom[0]||"")+(c.nom[0]||"");
+ const cases=Array.from({length:TAMPONS_PAR_BON},(_,i)=>i<c.tampons?`<span class="case ok" style="--r:${(i*37%24)-12}deg">M</span>`:`<span class="case">${i+1}</span>`).join("");
+ return `<div class="carte-zone"><button class="carte ${flip?"tournee":""}" data-act="flip" aria-label="Retourner la carte">
+  <div class="face recto wood"><div class="ph">${c.photo?`<img src="${c.photo}" alt="">`:esc(init.toUpperCase())}</div>
+   <div><div class="marque">La Madeleine</div><div class="sous">Carte de fidélité</div>
+    <div class="nom">${esc(c.prenom)}<br>${esc(c.nom.toUpperCase())}</div>
+    <div class="num">N° ${num4(c.numero)}</div><div class="depuis">Membre depuis ${fmois(c.cree)}</div></div></div>
+  <div class="face verso"><h4><small>Carte n° ${num4(c.numero)}</small>Mes tampons</h4>
+   <div class="tampons">${cases}</div>
+   ${c.bons?`<span class="bon">${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} € à utiliser</span>`:""}
+   <p class="regle">Un tampon par commande · au ${TAMPONS_PAR_BON}<sup>e</sup>, ${VALEUR_BON} € offerts sur l’achat de votre choix</p></div>
+ </button></div>
+ <div class="row" style="justify-content:center;margin-top:14px"><button class="btn ghost small" data-act="flip">Retourner la carte</button><button class="btn brass small" data-act="dlCarte">Télécharger ma carte</button></div>`;
 }
-const STAT={nouvelle:"Nouvelle",preparation:"En préparation",prete:"Prête / expédiée",livree:"Livrée",annulee:"Annulée"};
-const spill=s=>`<span class="pill s-${s}">${STAT[s]}</span>`;
-const oTotal=o=>o.items.reduce((a,i)=>a+i.q*i.prix,0)+o.port;
-const fdate=d=>new Date(d+"T12:00").toLocaleDateString("fr-FR");
 
+// Image téléchargeable : recto au-dessus du verso
+async function dessinerCarte(c){
+ try{await Promise.all(['64px "Pinyon Script"','30px "Special Elite"','40px "Playfair Display"','24px "Libre Baskerville"'].map(f=>document.fonts.load(f)))}catch(e){}
+ const W=1012,H=638,G=40,cv=document.createElement("canvas");cv.width=W;cv.height=H*2+G;const x=cv.getContext("2d");
+ const rr=(X,Y,w,h,r)=>{x.beginPath();x.roundRect?x.roundRect(X,Y,w,h,r):x.rect(X,Y,w,h)};
+ const laiton=(y0,y1)=>{const g=x.createLinearGradient(0,y0,0,y1);g.addColorStop(0,"#f0d89a");g.addColorStop(.55,"#b48a3e");g.addColorStop(1,"#6f5220");return g};
+ const cadre=oy=>{x.save();rr(24,oy+24,W-48,H-48,30);x.lineWidth=7;x.strokeStyle=laiton(oy,oy+H);x.stroke();x.restore()};
+ // Recto : bois verni
+ x.save();rr(0,0,W,H,44);x.clip();
+ let g=x.createLinearGradient(0,0,W,0);[["#5a3219",0],["#8a5430",.22],["#5a3219",.41],["#3d200f",.63],["#8a5430",.84],["#5a3219",1]].forEach(([c,o])=>g.addColorStop(o,c));
+ x.fillStyle=g;x.fillRect(0,0,W,H);
+ let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
+ for(let i=0;i<170;i++){const y=rnd()*H,a=4+rnd()*14,f=.004+rnd()*.01,ph=rnd()*6;x.beginPath();for(let X=0;X<=W;X+=16){const Y=y+Math.sin(X*f+ph)*a;X?x.lineTo(X,Y):x.moveTo(X,Y)}
+  x.strokeStyle=`rgba(${rnd()<.5?"25,10,2":"255,225,190"},${.04+rnd()*.1})`;x.lineWidth=.6+rnd()*2.2;x.stroke()}
+ g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"rgba(255,236,210,.26)");g.addColorStop(.35,"rgba(255,236,210,0)");g.addColorStop(1,"rgba(0,0,0,.3)");x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.restore();cadre(0);
+ // Photo
+ const px=70,py=110,pw=290,ph=387;x.fillStyle="#e7dacd";x.fillRect(px,py,pw,ph);
+ if(c.photo){const im=new Image();im.src=c.photo;try{await im.decode();const k=Math.max(pw/im.width,ph/im.height),w=im.width*k,h=im.height*k;x.save();x.beginPath();x.rect(px,py,pw,ph);x.clip();x.drawImage(im,px+(pw-w)/2,py+(ph-h)/2,w,h);x.restore()}catch(e){}}
+ else{x.fillStyle="#5a3219";x.font='110px "Playfair Display", Georgia, serif';x.textAlign="center";x.textBaseline="middle";x.fillText(((c.prenom[0]||"")+(c.nom[0]||"")).toUpperCase(),px+pw/2,py+ph/2);x.textAlign="left";x.textBaseline="alphabetic"}
+ x.lineWidth=8;x.strokeStyle=laiton(py,py+ph);x.strokeRect(px,py,pw,ph);
+ const tx=410;x.shadowColor="rgba(0,0,0,.6)";x.shadowOffsetY=2;
+ x.fillStyle="#f0d89a";x.font='92px "Pinyon Script", cursive';x.fillText("La Madeleine",tx,175);x.shadowColor="transparent";
+ x.fillStyle="rgba(246,232,214,.85)";x.font='23px "Special Elite", monospace';x.fillText("C A R T E   D E   F I D É L I T É",tx,215);
+ x.fillStyle="#f6e8d6";x.font='50px "Playfair Display", Georgia, serif';
+ const fit=(t,max)=>{let f=50;while(f>26&&x.measureText(t).width>max){f-=2;x.font=`${f}px "Playfair Display", Georgia, serif`}return t};
+ fit(c.prenom,540);x.fillText(c.prenom,tx,300);x.font='50px "Playfair Display", Georgia, serif';fit(c.nom.toUpperCase(),540);x.fillText(c.nom.toUpperCase(),tx,358);
+ x.font='44px "Special Elite", monospace';const nt="N° "+num4(c.numero),nw=x.measureText(nt).width;
+ x.fillStyle=laiton(395,455);rr(tx,395,nw+44,60,6);x.fill();x.fillStyle="#2b1a0c";x.fillText(nt,tx+22,440);
+ x.fillStyle="rgba(246,232,214,.85)";x.font='24px "Libre Baskerville", Georgia, serif';x.fillText("Membre depuis "+fmois(c.cree),tx,505);
+ // Verso : papier et tampons
+ const oy=H+G;x.save();rr(0,oy,W,H,44);x.clip();x.fillStyle="#fcf7f1";x.fillRect(0,oy,W,H);
+ x.fillStyle="rgba(122,80,56,.06)";for(let X=0;X<W;X+=60)x.fillRect(X+57,oy,3,H);x.restore();cadre(oy);
+ x.textAlign="center";x.fillStyle="#6b5248";x.font='22px "Special Elite", monospace';x.fillText("C A R T E   N °   "+num4(c.numero),W/2,oy+92);
+ x.fillStyle="#36211a";x.font='50px "Playfair Display", Georgia, serif';x.fillText("Mes tampons",W/2,oy+148);
+ const R=58,gx=(W-5*2*R)/6;
+ for(let i=0;i<TAMPONS_PAR_BON;i++){const cx=gx+R+(i%5)*(2*R+gx),cy=oy+240+Math.floor(i/5)*(2*R+28);
+  if(i<c.tampons){x.save();x.translate(cx,cy);x.rotate(((i*37%24)-12)*Math.PI/180);
+   const rg=x.createRadialGradient(-R*.3,-R*.4,4,0,0,R);rg.addColorStop(0,"#a477aa");rg.addColorStop(.6,"#6e4a74");rg.addColorStop(1,"#47294c");
+   x.beginPath();x.arc(0,0,R,0,7);x.fillStyle=rg;x.shadowColor="rgba(0,0,0,.35)";x.shadowBlur=8;x.shadowOffsetY=3;x.fill();x.shadowColor="transparent";
+   x.beginPath();x.arc(0,0,R-9,0,7);x.strokeStyle="rgba(255,255,255,.18)";x.lineWidth=4;x.stroke();
+   x.fillStyle="#f6e8d6";x.font='76px "Pinyon Script", cursive';x.textBaseline="middle";x.fillText("M",0,6);x.restore()}
+  else{x.beginPath();x.arc(cx,cy,R-3,0,7);x.setLineDash([9,7]);x.strokeStyle="#b9a593";x.lineWidth=4;x.stroke();x.setLineDash([]);
+   x.fillStyle="#b9a593";x.font='30px "Special Elite", monospace';x.textBaseline="middle";x.fillText(String(i+1),cx,cy+2)}
+  x.textBaseline="alphabetic"}
+ if(c.bons){x.font='28px "Special Elite", monospace';const t=`${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} € à utiliser`,w=x.measureText(t).width+40;
+  x.fillStyle=laiton(oy+490,oy+535);rr(W/2-w/2,oy+492,w,46,6);x.fill();x.fillStyle="#2b1a0c";x.fillText(t,W/2,oy+525)}
+ x.fillStyle="#36211a";x.font='24px "Libre Baskerville", Georgia, serif';x.fillText(`Un tampon par commande · au ${TAMPONS_PAR_BON}e, ${VALEUR_BON} € offerts sur l’achat de votre choix`,W/2,oy+H-62);
+ x.textAlign="left";
+ return cv;
+}
+
+// Photo d'identité : recadrée en portrait 3:4, réduite pour rester légère
+function lirePhoto(file,w,h){return new Promise((ok,ko)=>{const r=new FileReader();r.onerror=ko;r.onload=()=>{const im=new Image();im.onerror=()=>ko(new Error("Image illisible"));im.onload=()=>{
+ const c=document.createElement("canvas");c.width=w;c.height=h;const k=Math.max(w/im.width,h/im.height),dw=im.width*k,dh=im.height*k;
+ c.getContext("2d").drawImage(im,(w-dw)/2,(h-dh)/2,dw,dh);ok(c.toDataURL("image/jpeg",.8))};im.src=r.result};r.readAsDataURL(file)})}
+function lireImage(file){return new Promise((ok,ko)=>{const r=new FileReader();r.onerror=ko;r.onload=()=>{const im=new Image();im.onerror=()=>ko(new Error("Image illisible"));im.onload=()=>{
+ const s=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+ c.getContext("2d").drawImage(im,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.75))};im.src=r.result};r.readAsDataURL(file)})}
+
+/* ---------- Carte de fidélité / compte ---------- */
+function vCompte(){
+ if(atelier())return vAtelier();
+ const c=client();
+ if(!c) return `<div class="wrap"><h2 class="sec">Carte de fidélité</h2>
+  <p class="lead">Inscrivez-vous et recevez votre carte La Madeleine, avec votre photo et votre numéro de cliente ou de client. Un tampon à chaque commande : <b>au 10e, 10 € offerts</b> sur l’achat de votre choix. Pas de mot de passe à retenir : la carte reste sur votre téléphone.</p>
+  ${SERVEUR?"":`<p class="err" style="text-align:center">Les inscriptions ouvriront avec la boutique en ligne.</p>`}
+  <div class="two">
+  <form class="panel form" id="fReg"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:22px">Créer ma carte</h3>
+   <div class="row" style="align-items:flex-end"><div class="avatar">${photoNeuve?`<img src="${photoNeuve}" alt="">`:`<span class="hint">Photo</span>`}</div>
+    <label class="f" style="flex:1;min-width:180px">Votre photo (facultative)<input id="rPhoto" type="file" accept="image/*"></label></div>
+   <label class="f">Prénom<input id="rPrenom" required maxlength="60" autocomplete="given-name"></label>
+   <label class="f">Nom<input id="rNom" required maxlength="60" autocomplete="family-name"></label>
+   <label class="f">E-mail<input id="rEmail" type="email" required maxlength="120" autocomplete="email"></label>
+   <label class="f">Téléphone (facultatif)<input id="rTel" type="tel" maxlength="30" autocomplete="tel"></label>
+   <label class="f">Adresse de livraison<textarea id="rAdr" rows="2" maxlength="300" autocomplete="street-address"></textarea></label>
+   <div class="err">${view==="compte"&&err&&!err.startsWith("!")?esc(err):""}</div>
+   <button class="btn brass" ${SERVEUR?"":"disabled"}>Recevoir ma carte</button></form>
+  <div>
+   <form class="panel form" id="fCode"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:22px">J’ai déjà une carte</h3>
+    <p class="hint" style="margin:0">Sur l’appareil où votre carte est déjà ouverte : <b>Ma carte › Ajouter un appareil</b>. Saisissez ici le code affiché. Téléphone perdu ? Mélanie peut vous donner un code de réactivation.</p>
+    <label class="f">Code à 8 caractères<input id="cCode" required maxlength="12" autocomplete="one-time-code" style="font-family:var(--f-tag);letter-spacing:.15em;text-transform:uppercase" placeholder="ABCD-EFGH"></label>
+    <div class="err">${err.startsWith("!")?esc(err.slice(1)):""}</div>
+    <button class="btn" ${SERVEUR?"":"disabled"}>Ouvrir ma carte ici</button></form>
+   <details class="atelier-acces panel"><summary>Accès atelier (Mélanie)</summary>
+    <form class="form" id="fAtelier" style="margin-top:12px"><label class="f">Code de l’atelier<input id="aCode" type="password" required autocomplete="current-password"></label>
+    <button class="btn small" ${SERVEUR?"":"disabled"}>Entrer dans l’atelier</button></form></details>
+  </div></div></div>`;
+ const cmds=MOI.commandes||[];
+ return `<div class="wrap"><h2 class="sec">Bonjour ${esc(c.prenom)}</h2>
+ ${carteHTML(c)}
+ <p class="lead" style="margin-top:18px">${c.tampons}/${TAMPONS_PAR_BON} tampons${c.bons?` · <b>${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} €</b> à utiliser dans le panier`:` · encore ${TAMPONS_PAR_BON-c.tampons} commande${TAMPONS_PAR_BON-c.tampons>1?"s":""} avant vos ${VALEUR_BON} € offerts`}</p>
+ <div class="two"><div class="panel form"><b>Mes informations</b>
+   <div class="row" style="align-items:flex-end"><div class="avatar">${(photoNeuve||c.photo)?`<img src="${photoNeuve||c.photo}" alt="">`:`<span class="hint">Photo</span>`}</div>
+    <label class="f" style="flex:1;min-width:160px">Changer de photo<input id="iPhoto" type="file" accept="image/*"></label></div>
+   <label class="f">E-mail<input value="${esc(c.email)}" disabled></label>
+   <label class="f">Téléphone<input id="iTel" type="tel" value="${esc(c.tel||"")}" maxlength="30"></label>
+   <label class="f">Adresse de livraison<textarea id="iAdr" rows="2" maxlength="300">${esc(c.adresse||"")}</textarea></label>
+   <div class="row"><button class="btn brass small" data-act="saveProfil">Enregistrer</button></div></div>
+  <div class="panel form"><b>Mes appareils</b>
+   <p class="hint" style="margin:0">Pour retrouver votre carte sur un autre téléphone ou un ordinateur, affichez un code ici puis saisissez-le là-bas (« Carte de fidélité › J’ai déjà une carte »).</p>
+   ${codeLiaison?`<div><span class="code-grand">${codeLiaison.slice(0,4)}-${codeLiaison.slice(4)}</span><p class="hint">Valable 15 minutes, une seule fois.</p></div>`:""}
+   <div class="row"><button class="btn small" data-act="liaison">Ajouter un appareil</button>
+   ${pending==="logout"?`<span class="confirm">Vraiment ? <button class="btn small" data-act="logout">Oui</button><button class="btn ghost small" data-act="cancelDel">Non</button></span>`:`<button class="btn ghost small" data-act="askLogout">Se déconnecter de cet appareil</button>`}</div>
+   ${pending==="logout"?`<p class="hint" style="margin:0">Pour revenir, il faudra un code d’un autre appareil connecté ou un code de réactivation donné par Mélanie.</p>`:""}</div></div>
+ <div class="panel"><b>Mes commandes</b>${cmds.length?`<div class="tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Contenu</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>${cmds.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${o.items.map(i=>`${i.q}× ${esc(i.nom)}`).join("<br>")}${o.remise?`<div class="meta">Bon fidélité : −${eur(o.remise)}</div>`:""}</td><td class="num">${eur(o.total)}</td><td>${spill(o.statut)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="hint">Pas encore de commande. La vitrine vous attend.</p>`}</div></div>`;
+}
+
+/* ---------- Atelier ---------- */
 function vAtelier(){
- const u=me(); if(!u||u.role!=="admin") return `<div class="wrap"><p>Accès réservé.</p></div>`;
- const ca=DB.orders.filter(o=>o.statut!=="annulee").reduce((a,o)=>a+oTotal(o),0);
- const aFaire=DB.orders.filter(o=>o.statut==="nouvelle"||o.statut==="preparation").length;
- const stockBas=DB.products.filter(p=>p.stock<=3).length;
- return `<div class="wrap"><h2 class="sec left">L'atelier de Mélanie</h2>
- <div class="kpis"><div class="kpi"><span>Chiffre d'affaires</span><b>${eur(ca)}</b></div><div class="kpi"><span>Commandes à traiter</span><b>${aFaire}</b></div><div class="kpi"><span>Bougies en vitrine</span><b>${DB.products.length}</b></div><div class="kpi"><span>Stock bas (≤ 3)</span><b>${stockBas}</b></div></div>
- <div class="bar" style="border:0;padding-top:0">${[["commandes","Commandes"],["produits","Mes créations"],["clients","Clients"],["lettre","Mon mot"]].map(([k,l])=>`<button class="chip ${adminTab===k?"on":""}" data-atab="${k}">${l}</button>`).join("")}
+ if(!atelier()) return `<div class="wrap"><p>Accès réservé.</p></div>`;
+ if(!ATL){api("atelier").then(d=>{ATL=d;PRODUITS=d.produits;render()}).catch(e=>toast(e.message));return `<div class="wrap"><h2 class="sec left">L'atelier de Mélanie</h2><p class="hint">Chargement…</p></div>`}
+ const ca=ATL.commandes.filter(o=>o.statut!=="annulee").reduce((a,o)=>a+o.total,0);
+ const aFaire=ATL.commandes.filter(o=>o.statut==="nouvelle"||o.statut==="preparation").length;
+ return `<div class="wrap"><div class="row" style="justify-content:space-between"><h2 class="sec left">L'atelier de Mélanie</h2><button class="btn ghost small" data-act="sortirAtelier">Fermer l’atelier sur cet appareil</button></div>
+ <div class="kpis"><div class="kpi"><span>Chiffre d'affaires</span><b>${eur(ca)}</b></div><div class="kpi"><span>Commandes à traiter</span><b>${aFaire}</b></div><div class="kpi"><span>Cartes de fidélité</span><b>${ATL.clients.length}</b></div><div class="kpi"><span>Stock bas (≤ 3)</span><b>${PRODUITS.filter(p=>p.stock<=3).length}</b></div></div>
+ <div class="bar" style="border:0;padding-top:0">${[["commandes","Commandes"],["produits","Mes créations"],["clients","Clients & tampons"],["lettre","Mon mot"]].map(([k,l])=>`<button class="chip ${adminTab===k?"on":""}" data-atab="${k}">${l}</button>`).join("")}
   ${adminTab==="produits"?`<button class="btn small" style="margin-left:auto" data-act="newProd">+ Nouvelle création</button>`:""}</div>
  ${adminTab==="commandes"?aCommandes():adminTab==="produits"?aProduits():adminTab==="lettre"?aLettre():aClients()}</div>`;
 }
 function aCommandes(){
- const os=[...DB.orders].sort((a,b)=>b.date.localeCompare(a.date));
- return `<div class="panel tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Contenu</th><th>Mode</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>
- ${os.map(o=>{const c=DB.users.find(u=>u.id===o.user);return`<tr><td>${o.id}</td><td>${fdate(o.date)}</td><td>${esc(c?.nom||"?")}</td><td>${o.items.map(i=>`${i.q}× ${esc(P(i.id)?.nom||"supprimée")}`).join("<br>")}</td><td>${esc(o.mode)}</td><td class="num">${eur(oTotal(o))}</td>
- <td><select id="st-${o.id}" data-statut="${o.id}">${Object.entries(STAT).map(([k,l])=>`<option value="${k}" ${o.statut===k?"selected":""}>${l}</option>`).join("")}</select></td></tr>`}).join("")||`<tr><td colspan="7">Aucune commande.</td></tr>`}</tbody></table></div>`;
+ const nomDe=n=>{const c=ATL.clients.find(x=>x.numero===n);return c?`${esc(c.prenom)} ${esc(c.nom)}<div class="meta">N° ${num4(n)}</div>`:"?"};
+ return `<div class="panel tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Contenu</th><th>Réception</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>
+ ${ATL.commandes.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${nomDe(o.numero)}</td><td>${o.items.map(i=>`${i.q}× ${esc(i.nom)}`).join("<br>")}${o.remise?`<div class="meta">Bon fidélité −${eur(o.remise)}</div>`:""}</td><td>${esc(o.mode)}${o.adresse?`<div class="meta">${esc(o.adresse)}</div>`:""}</td><td class="num">${eur(o.total)}</td>
+ <td><select data-statut="${o.id}" aria-label="Statut de ${o.ref}">${Object.entries(STAT).map(([k,l])=>`<option value="${k}" ${o.statut===k?"selected":""}>${l}</option>`).join("")}</select></td></tr>`).join("")||`<tr><td colspan="7">Aucune commande pour l’instant.</td></tr>`}</tbody></table>
+ <p class="hint">Annuler une commande remet les bougies en stock, retire le tampon et rend le bon de 10 € s’il avait servi.</p></div>`;
 }
 function aProduits(){
  return `<div class="panel tbl"><table><thead><tr><th></th><th>Création</th><th>Catégorie</th><th class="num">Prix</th><th class="num">Stock</th><th></th></tr></thead><tbody>
- ${DB.products.map(p=>`<tr><td><div class="mini">${pic(p)}</div></td><td><b>${esc(p.nom)}</b><div class="meta">${esc(p.parfum)}</div></td><td>${CATS[p.cat]}</td><td class="num">${eur(p.prix)}</td>
+ ${PRODUITS.map(p=>`<tr><td><div class="mini">${pic(p)}</div></td><td><b>${esc(p.nom)}</b><div class="meta">${esc(p.parfum)}</div></td><td>${CATS[p.cat]||""}</td><td class="num">${eur(p.prix)}</td>
  <td class="num"><div class="qty" style="justify-content:flex-end"><button data-stock="${p.id}:-1" aria-label="Retirer un">−</button><b style="min-width:2ch;text-align:center">${p.stock}</b><button data-stock="${p.id}:1" aria-label="Ajouter un">+</button></div></td>
  <td><div class="row" style="justify-content:flex-end"><button class="btn ghost small" data-edit="${p.id}">Modifier</button>${pending===p.id?`<span class="confirm">Supprimer ? <button class="btn small" data-del="${p.id}">Oui</button><button class="btn ghost small" data-act="cancelDel">Non</button></span>`:`<button class="btn ghost small" data-askdel="${p.id}">Supprimer</button>`}</div></td></tr>`).join("")}</tbody></table></div>`;
 }
+const pastilles=n=>`<span class="fid" aria-label="${n} tampons sur ${TAMPONS_PAR_BON}">${Array.from({length:TAMPONS_PAR_BON},(_,i)=>`<i class="${i<n?"ok":""}"></i>`).join("")}</span>`;
 function aClients(){
- const cs=DB.users.filter(u=>u.role==="client");
- return `<div class="panel tbl"><table><thead><tr><th>Nom</th><th>E-mail</th><th>Adresse</th><th class="num">Commandes</th><th class="num">Total</th></tr></thead><tbody>
- ${cs.map(c=>{const os=DB.orders.filter(o=>o.user===c.id);return`<tr><td>${esc(c.nom)}</td><td>${esc(c.email)}</td><td>${esc(c.adresse||"—")}</td><td class="num">${os.length}</td><td class="num">${eur(os.reduce((a,o)=>a+oTotal(o),0))}</td></tr>`}).join("")}</tbody></table></div>`;
+ const f=fiche&&ATL.clients.find(c=>c.numero===fiche);
+ return `<div class="two"><form class="panel form" id="fTampon"><b>Tamponner une carte</b>
+   <p class="hint" style="margin:0">Pour une vente en direct (marché, atelier) : saisissez le numéro inscrit sur la carte.</p>
+   <div class="row"><label class="f" style="flex:1">N° de carte<input id="tNum" inputmode="numeric" required placeholder="0001" value="${f?num4(f.numero):""}" style="font-family:var(--f-tag)"></label><button class="btn small" style="align-self:flex-end">Ouvrir</button></div></form>
+  <div class="panel form">${f?`<b>${esc(f.prenom)} ${esc(f.nom)} · N° ${num4(f.numero)}</b>
+   <div>${pastilles(f.tampons)}<div class="meta">${f.tampons}/${TAMPONS_PAR_BON} tampons · ${f.bons} bon${f.bons>1?"s":""} de ${VALEUR_BON} €</div></div>
+   <div class="row"><button class="btn brass small" data-tampon="1">+1 tampon</button><button class="btn ghost small" data-tampon="-1">Retirer un tampon</button>${f.bons?`<button class="btn small" data-act="utiliserBon">Utiliser un bon de ${VALEUR_BON} €</button>`:""}</div>
+   <div class="row"><button class="btn ghost small" data-act="reactivation">Code de réactivation</button>${ficheCode?`<span class="code-grand" style="font-size:20px">${ficheCode.slice(0,4)}-${ficheCode.slice(4)}</span>`:""}</div>
+   ${ficheCode?`<p class="hint" style="margin:0">À donner au client (téléphone perdu ou changé) : valable 48 heures, une seule fois.</p>`:""}`:`<p class="hint">Choisissez une carte : par son numéro, ou avec « Gérer » dans la liste.</p>`}</div></div>
+ <div class="panel tbl"><table><thead><tr><th>N°</th><th>Nom</th><th>Contact</th><th>Tampons</th><th class="num">Bons</th><th class="num">Commandes</th><th></th></tr></thead><tbody>
+ ${ATL.clients.map(c=>`<tr><td style="font-family:var(--f-tag)">${num4(c.numero)}</td><td>${esc(c.prenom)} ${esc(c.nom)}<div class="meta">depuis le ${fdate(c.cree)}</div></td><td>${esc(c.email)}${c.tel?`<div class="meta">${esc(c.tel)}</div>`:""}</td><td>${pastilles(c.tampons)}</td><td class="num">${c.bons}</td><td class="num">${ATL.commandes.filter(o=>o.numero===c.numero).length}</td><td><button class="btn ghost small" data-fiche="${c.numero}">Gérer</button></td></tr>`).join("")||`<tr><td colspan="7">Aucune carte pour l’instant. La première aura le n° 0001.</td></tr>`}</tbody></table></div>`;
 }
 function aLettre(){
  return `<div class="panel form"><b>Le mot affiché sur la page « Notre histoire »</b>
   <p class="hint" style="margin:0">Ce texte est un premier jet : remplacez-le par vos propres mots. Laissez une ligne vide entre deux paragraphes. La signature « Mélanie » est ajoutée automatiquement.</p>
-  <label class="f">Votre texte<textarea id="aLettre" rows="14">${esc(DB.lettre)}</textarea></label>
+  <label class="f">Votre texte<textarea id="aLettre" rows="14">${esc(LETTRE??LETTRE_DEFAUT)}</textarea></label>
   <div class="row"><button class="btn brass small" data-act="saveLettre">Enregistrer</button><button class="btn ghost small" data-nav="histoire">Voir la page</button><button class="btn ghost small" data-act="resetLettre">Revenir au texte d'origine</button></div></div>`;
 }
 
@@ -455,20 +606,24 @@ function renderLayer(){
  const L=document.getElementById("layer");
  if(!layer){L.innerHTML="";return}
  if(layer==="cart"){
-  const ship=DB.cart.length?(cartTotal()>=60?0:6.9):0;
+  const c=client(),st=cartTotal();
+  const bon=c&&c.bons>0&&document.getElementById("bon")?.checked!==false;
+  const port=st>=60?0:6.9,remise=bon?Math.min(VALEUR_BON,st):0;
   L.innerHTML=`<div class="veil" data-close></div><aside class="drawer" role="dialog" aria-label="Panier"><div class="row" style="justify-content:space-between"><h2>Mon panier</h2><button class="btn ghost small" data-close>Fermer</button></div>
-  <div class="lines">${DB.cart.map(l=>{const p=P(l.id);if(!p)return"";return`<div class="line"><div class="mini">${pic(p)}</div><div><b>${esc(p.nom)}</b><div class="meta">${eur(p.prix)}</div></div><div class="qty"><button data-q="${p.id}:-1" aria-label="Moins">−</button><span>${l.q}</span><button data-q="${p.id}:1" aria-label="Plus">+</button></div></div>`}).join("")||`<p class="hint">Votre panier est vide.</p>`}</div>
-  ${!DB.cart.length&&err?`<div class="err">${esc(err)}</div>`:""}
-  ${DB.cart.length?`<div class="form"><label class="f">Mode de réception<select id="mode"><option value="Colissimo">Colissimo · ${cartTotal()>=60?"offert":"6,90 €"}</option><option value="Retrait atelier">Retrait à l'atelier · gratuit</option></select></label>
+  <div class="lines">${panier.map(l=>{const p=P(l.id);if(!p)return"";return`<div class="line"><div class="mini">${pic(p)}</div><div><b>${esc(p.nom)}</b><div class="meta">${eur(p.prix)}</div></div><div class="qty"><button data-q="${p.id}:-1" aria-label="Moins">−</button><span>${l.q}</span><button data-q="${p.id}:1" aria-label="Plus">+</button></div></div>`}).join("")||`<p class="hint">Votre panier est vide.</p>`}</div>
+  ${!panier.length&&err?`<div class="err">${esc(err)}</div>`:""}
+  ${panier.length?`<div class="form"><label class="f">Mode de réception<select id="mode"><option value="Colissimo">Colissimo · ${st>=60?"offert":"6,90 €"}</option><option value="Retrait atelier">Retrait à l'atelier · gratuit</option></select></label>
   <div class="hint">Livraison offerte dès 60 € d'achat.</div>
-  <div class="total"><span>Total</span><span id="tot">${eur(cartTotal()+ship)}</span></div>
+  ${c&&c.bons>0?`<label class="check"><input type="checkbox" id="bon" ${bon?"checked":""}><span>Utiliser mon bon fidélité de ${VALEUR_BON} €${c.bons>1?` (vous en avez ${c.bons})`:""}</span></label>`:""}
+  ${c?`<div class="hint">Cette commande ajoutera un tampon à votre carte (${Math.min(c.tampons+1,TAMPONS_PAR_BON)}/${TAMPONS_PAR_BON}).</div>`:`<div class="hint">Avec la carte de fidélité, cette commande vous rapporterait un tampon.</div>`}
+  <div class="total"><span>Total</span><span id="tot">${eur(st-remise+port)}</span></div>
   <div class="err">${esc(err)}</div>
-  <button class="btn brass" data-act="checkout">${me()?"Valider la commande":"Se connecter pour commander"}</button></div>`:""}</aside>`;
+  ${SERVEUR?`<button class="btn brass" data-act="checkout">${c?"Valider la commande":"Créer ma carte ou me connecter pour commander"}</button>`:`<button class="btn brass" disabled>Commandes bientôt ouvertes</button>`}</div>`:""}</aside>`;
  } else if(layer.startsWith("prod:")){
   const p=P(layer.slice(5));
   if(!p){layer=null;L.innerHTML="";return}
   L.innerHTML=`<div class="veil" data-close></div><div class="modal" data-close><div class="box" role="dialog" aria-label="${esc(p.nom)}"><div class="frame wood"><div class="pic">${pic(p)}</div></div><div class="txt">
-   <span class="stamp" style="align-self:flex-start">${CATS[p.cat]}</span><h3>${esc(p.nom)}</h3><p style="margin:0">${esc(p.desc)}</p>
+   <span class="stamp" style="align-self:flex-start">${CATS[p.cat]||""}</span><h3>${esc(p.nom)}</h3><p style="margin:0">${esc(p.desc)}</p>
    <dl class="spec"><dt>Parfum</dt><dd>${esc(p.parfum)}</dd><dt>Cire</dt><dd>${esc(p.cire)}</dd><dt>Poids</dt><dd>${p.poids} g</dd><dt>Combustion</dt><dd>≈ ${p.duree} h</dd><dt>Disponibilité</dt><dd>${p.stock===0?"Épuisée, Mélanie en refait":p.stock<=2?`Plus que ${p.stock} à l’atelier`:`En stock (${p.stock})`}</dd></dl>
    <div class="row" style="margin-top:auto"><span class="tag">${eur(p.prix)}</span><button class="btn" data-add="${p.id}" ${p.stock?"":"disabled"}>Ajouter au panier</button><button class="btn ghost" data-close>Fermer</button></div></div></div></div>`;
  } else if(layer==="edit"){
@@ -476,16 +631,16 @@ function renderLayer(){
   L.innerHTML=`<div class="veil" data-close></div><div class="modal"><form class="box form" id="fProd" style="display:block;padding:22px">
    <h3 style="font-family:var(--f-display);font-weight:400;font-size:26px;margin:0 0 12px">${p.id?"Modifier la création":"Nouvelle création"}</h3>
    <div class="two" style="gap:12px">
-    <label class="f">Nom<input id="eNom" required value="${esc(p.nom||"")}"></label>
+    <label class="f">Nom<input id="eNom" required maxlength="80" value="${esc(p.nom||"")}"></label>
     <label class="f">Catégorie<select id="eCat">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${p.cat===k?"selected":""}>${l}</option>`).join("")}</select></label>
-    <label class="f">Parfum<input id="eParfum" value="${esc(p.parfum||"")}"></label>
+    <label class="f">Parfum<input id="eParfum" maxlength="120" value="${esc(p.parfum||"")}"></label>
     <label class="f">Cire<select id="eCire">${["Soja","Colza","Cire d'abeille","Coco"].map(c=>`<option ${p.cire===c?"selected":""}>${c}</option>`).join("")}</select></label>
     <label class="f">Prix (€)<input id="ePrix" type="number" step="0.5" min="0" required value="${p.prix??""}"></label>
     <label class="f">Stock<input id="eStock" type="number" min="0" value="${p.stock??1}"></label>
     <label class="f">Poids (g)<input id="ePoids" type="number" min="0" value="${p.poids??250}"></label>
     <label class="f">Combustion (heures)<input id="eDuree" type="number" min="0" value="${p.duree??40}"></label>
    </div>
-   <label class="f" style="margin-top:12px">Description<textarea id="eDesc" rows="3">${esc(p.desc||"")}</textarea></label>
+   <label class="f" style="margin-top:12px">Description<textarea id="eDesc" rows="3" maxlength="1000">${esc(p.desc||"")}</textarea></label>
    <label class="f" style="margin-top:12px">Photo (facultative · sinon illustration vintage)<input id="ePhoto" type="file" accept="image/*"></label>
    <div class="row" style="margin-top:16px"><button class="btn brass">Enregistrer</button><button type="button" class="btn ghost" data-close>Annuler</button></div></form></div>`;
  }
@@ -494,78 +649,89 @@ function renderLayer(){
 function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
 
 /* ---------- Actions ---------- */
-function addToCart(id){const p=P(id);const l=DB.cart.find(x=>x.id===id);const cur=l?l.q:0;if(cur>=p.stock){toast("Stock atteint pour cette bougie");return}l?l.q++:DB.cart.push({id,q:1});save();renderNav();toast(`« ${p.nom} » ajoutée au panier`)}
-// Ramène le panier au stock réel ; renvoie true si quelque chose a changé
-function fitCart(){const before=JSON.stringify(DB.cart);DB.cart=DB.cart.map(l=>({...l,q:Math.min(l.q,P(l.id)?.stock||0)})).filter(l=>l.q>0);return JSON.stringify(DB.cart)!==before}
+// Une action serveur à la fois ; message clair en cas d'échec
+async function agir(fn){if(occupe)return;occupe=true;try{await fn()}catch(e){toast(e.message);if(e.statut===401&&!atelier()){setJeton(null);MOI=null;render()}}finally{occupe=false}}
+function addToCart(id){const p=P(id);const l=panier.find(x=>x.id===id);const cur=l?l.q:0;if(cur>=p.stock){toast("Stock atteint pour cette bougie");return}l?l.q++:panier.push({id,q:1});savePanier();renderNav();toast(`« ${p.nom} » ajoutée au panier`)}
+
 document.addEventListener("click",async e=>{
- const t=e.target.closest("[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],#goHome");
+ const t=e.target.closest("[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],[data-tampon],[data-fiche],#goHome");
  if(!t)return; const d=t.dataset;
  if(d.close!==undefined&&e.target!==t&&t.classList.contains("modal"))return;
  if(t.id==="goHome"){view="boutique";layer=null;render();scrollTo(0,0);return}
- if(d.nav){view=d.nav;err="";layer=null;render();scrollTo(0,0)}
+ if(d.nav){view=d.nav==="compte"&&atelier()?"atelier":d.nav;if(view==="atelier")ATL=null;err="";layer=null;pending=null;render();scrollTo(0,0)}
  else if(d.open){layer=d.open;err="";renderLayer()}
  else if(d.close!==undefined){layer=null;editing=null;renderLayer()}
  else if(d.filtre){filtre=d.filtre;render();document.getElementById("vitrine").scrollIntoView({block:"start"})}
  else if(d.scroll){document.getElementById(d.scroll).scrollIntoView({behavior:"smooth"})}
  else if(d.add){addToCart(d.add);if(layer==="cart")renderLayer()}
- else if(d.q){const[id,s]=d.q.split(":");const l=DB.cart.find(x=>x.id===id);const p=P(id);l.q+=+s;if(l.q>p.stock)l.q=p.stock;if(l.q<=0)DB.cart=DB.cart.filter(x=>x!==l);save();renderNav();renderLayer()}
- else if(d.atab){adminTab=d.atab;pending=null;render()}
- else if(d.stock){const[id,s]=d.stock.split(":");const p=P(id);p.stock=Math.max(0,p.stock+ +s);save();render()}
+ else if(d.q){const[id,s]=d.q.split(":");const l=panier.find(x=>x.id===id);const p=P(id);if(!l||!p)return;l.q+=+s;if(l.q>p.stock)l.q=p.stock;if(l.q<=0)panier=panier.filter(x=>x!==l);savePanier();renderNav();renderLayer()}
+ else if(d.atab){adminTab=d.atab;pending=null;render();agir(async()=>{await rechargerAtelier();render()})}
+ else if(d.act==="flip"){flip=!flip;document.querySelector(".carte")?.classList.toggle("tournee",flip)}
+ else if(d.act==="dlCarte"){const c=client();if(!c)return;const cv=await dessinerCarte(c);const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=`carte-la-madeleine-${num4(c.numero)}.png`;document.body.appendChild(a);a.click();a.remove()}
+ else if(d.act==="saveProfil")agir(async()=>{const r=await api("profil",{tel:document.getElementById("iTel").value,adresse:document.getElementById("iAdr").value,...(photoNeuve?{photo:photoNeuve}:{})});MOI.client=r.client;photoNeuve=null;LS.set("madeleine.moi",MOI);render();toast("Informations enregistrées")});
+ else if(d.act==="liaison")agir(async()=>{const r=await api("code-liaison",{});codeLiaison=r.code;render();setTimeout(()=>{if(codeLiaison===r.code){codeLiaison=null;if(view==="compte")render()}},r.minutes*60000)});
+ else if(d.act==="askLogout"){pending="logout";render()}
+ else if(d.act==="cancelDel"){pending=null;render()}
+ else if(d.act==="logout")agir(async()=>{try{await api("deconnexion",{})}catch(e){}setJeton(null);MOI=null;pending=null;codeLiaison=null;view="boutique";render();toast("Carte fermée sur cet appareil")});
+ else if(d.act==="sortirAtelier")agir(async()=>{try{await api("atelier/sortir",{})}catch(e){}setJeton(null);MOI=null;ATL=null;view="boutique";render();toast("Atelier fermé sur cet appareil")});
+ else if(d.act==="checkout"){
+  if(!client()){layer=null;view="compte";err="Créez votre carte ou ouvrez-la sur cet appareil pour commander.";render();scrollTo(0,0);return}
+  agir(async()=>{
+   if(fitCart()){renderNav();err="Le stock a changé pendant votre visite : votre panier a été ajusté. Vérifiez-le avant de valider.";renderLayer();return}
+   const avant=client().bons,bon=!!document.getElementById("bon")?.checked;
+   try{
+    const r=await api("commande",{items:panier,mode:document.getElementById("mode").value,bon});
+    panier=[];savePanier();MOI.client=r.client;(MOI.commandes=MOI.commandes||[]).unshift(r.commande);LS.set("madeleine.moi",MOI);
+    await rechargerCatalogue();layer=null;view="compte";err="";flip=true;render();scrollTo(0,0);
+    toast(r.client.bons>avant-(bon?1:0)?`Commande ${r.commande.ref} enregistrée · 10e tampon : ${VALEUR_BON} € offerts sur votre prochain achat !`:`Commande ${r.commande.ref} enregistrée · +1 tampon sur votre carte`);
+   }catch(e){
+    if(e.statut===409){await rechargerCatalogue();fitCart();renderNav()}
+    if(e.statut===401)throw e;
+    err=e.message;renderLayer();
+   }
+  });
+ }
  else if(d.edit){editing={...P(d.edit)};layer="edit";renderLayer()}
  else if(d.askdel){pending=d.askdel;render()}
- else if(d.del){DB.products=DB.products.filter(p=>p.id!==d.del);DB.cart=DB.cart.filter(l=>l.id!==d.del);pending=null;save();render();toast("Création retirée de la vitrine")}
- else if(d.act==="cancelDel"){pending=null;render()}
- else if(d.act==="newProd"){editing={c1:"#e9a7b4",c2:"#c2405a"};layer="edit";renderLayer()}
- else if(d.act==="logout"){DB.session=null;save();view="boutique";render();toast("Vous êtes déconnecté·e")}
- else if(d.act==="saveAdr"){me().adresse=document.getElementById("iAdr").value.trim();if(save())toast("Adresse enregistrée")}
- else if(d.act==="saveLettre"){const prev=DB.lettre;DB.lettre=document.getElementById("aLettre").value.trim();if(save())toast("Texte enregistré");else DB.lettre=prev}
- else if(d.act==="resetLettre"){DB.lettre=LETTRE_DEFAUT;save();render();toast("Texte d'origine rétabli")}
- else if(d.act==="checkout"){
-  if(!me()){layer=null;view="compte";err="Connectez-vous pour finaliser la commande.";render();return}
-  // Le stock a pu changer depuis l'ajout au panier
-  if(fitCart()){save();renderNav();err="Le stock a changé pendant votre visite : votre panier a été ajusté. Vérifiez-le avant de valider.";renderLayer();return}
-  const mode=document.getElementById("mode").value;
-  if(mode==="Colissimo"&&!me().adresse){err="Ajoutez une adresse de livraison dans votre compte, ou choisissez le retrait à l'atelier.";renderLayer();return}
-  const port=mode==="Colissimo"&&cartTotal()<60?6.9:0;
-  const n=String(DB.orders.reduce((m,o)=>Math.max(m,parseInt(o.id.slice(4),10)||0),0)+1).padStart(4,"0");
-  const o={id:"CMD-"+n,user:me().id,date:new Date().toISOString().slice(0,10),items:DB.cart.map(l=>({id:l.id,q:l.q,prix:P(l.id).prix})),mode,port,statut:"nouvelle"};
-  o.items.forEach(i=>{P(i.id).stock-=i.q});
-  DB.orders.push(o);DB.cart=[];save();layer=null;view="compte";err="";render();toast(`Commande ${o.id} enregistrée`);
- }
+ else if(d.del)agir(async()=>{await api("atelier/supprimer",{id:d.del});pending=null;await rechargerAtelier();render();toast("Création retirée de la vitrine")});
+ else if(d.stock){const[id,s]=d.stock.split(":");agir(async()=>{await api("atelier/stock",{id,delta:+s});await rechargerAtelier();render()})}
+ else if(d.act==="newProd"){editing={c1:"#e9a7b4",c2:"#c2405a",cat:"gateau"};layer="edit";renderLayer()}
+ else if(d.fiche){fiche=+d.fiche;ficheCode=null;render();scrollTo(0,0)}
+ else if(d.tampon)agir(async()=>{const r=await api("atelier/tampon",{numero:fiche,delta:+d.tampon});const c=ATL.clients.find(x=>x.numero===fiche);const gagne=r.client.bons>c.bons;Object.assign(c,r.client);render();toast(gagne?`10e tampon ! ${c.prenom} gagne un bon de ${VALEUR_BON} €`:`Carte ${num4(fiche)} : ${c.tampons}/${TAMPONS_PAR_BON} tampons`)});
+ else if(d.act==="utiliserBon")agir(async()=>{const r=await api("atelier/bon",{numero:fiche});Object.assign(ATL.clients.find(x=>x.numero===fiche),r.client);render();toast(`Bon de ${VALEUR_BON} € utilisé`)});
+ else if(d.act==="reactivation")agir(async()=>{const r=await api("atelier/reactivation",{numero:fiche});ficheCode=r.code;render()});
+ else if(d.act==="saveLettre")agir(async()=>{const texte=document.getElementById("aLettre").value.trim();await api("atelier/lettre",{texte});LETTRE=texte;toast("Texte enregistré")});
+ else if(d.act==="resetLettre")agir(async()=>{await api("atelier/lettre",{texte:null});LETTRE=null;render();toast("Texte d'origine rétabli")});
 });
-document.addEventListener("change",e=>{
- if(e.target.id==="mode"){const ship=e.target.value==="Colissimo"&&cartTotal()<60?6.9:0;document.getElementById("tot").textContent=eur(cartTotal()+ship)}
- if(e.target.dataset.statut){
-  const o=DB.orders.find(x=>x.id===e.target.dataset.statut);const now=e.target.value;
-  if(now==="annulee"&&o.statut!=="annulee")o.items.forEach(i=>{const p=P(i.id);if(p)p.stock+=i.q});
-  else if(o.statut==="annulee"&&now!=="annulee"){
-   // Réactiver une commande annulée reprend les bougies dans le stock
-   if(o.items.some(i=>{const p=P(i.id);return !p||p.stock<i.q})){toast("Stock insuffisant pour réactiver cette commande");render();return}
-   o.items.forEach(i=>{P(i.id).stock-=i.q});fitCart();
-  }
-  o.statut=now;save();render();toast(`${o.id} : ${STAT[o.statut]}`)}
+document.addEventListener("change",async e=>{
+ const t=e.target;
+ if(t.id==="mode"||t.id==="bon"){const c=client(),st=cartTotal(),mode=document.getElementById("mode").value;const port=mode==="Colissimo"&&st<60?6.9:0;const remise=document.getElementById("bon")?.checked?Math.min(VALEUR_BON,st):0;document.getElementById("tot").textContent=eur(st-remise+port)}
+ if(t.id==="rPhoto"||t.id==="iPhoto"){const f=t.files[0];if(!f)return;try{photoNeuve=await lirePhoto(f,360,480);const v=document.querySelector(".avatar");if(v)v.innerHTML=`<img src="${photoNeuve}" alt="">`}catch(x){toast("Cette image n'a pas pu être lue.")}}
+ if(t.dataset.statut){const id=+t.dataset.statut;agir(async()=>{try{await api("atelier/statut",{id,statut:t.value})}finally{await rechargerAtelier();render()}toast(`Commande ${ATL.commandes.find(o=>o.id===id)?.ref||""} : ${STAT[t.value]}`)})}
 });
 document.addEventListener("input",e=>{if(e.target.id==="search"){q=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("search");s.focus();s.setSelectionRange(pos,pos)}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&layer){layer=null;editing=null;renderLayer()}});
-document.addEventListener("submit",async e=>{
- e.preventDefault();const f=e.target;
- if(f.id==="fLogin"){const em=f.querySelector("#lEmail").value.trim().toLowerCase();const h=await hash(f.querySelector("#lPwd").value);const u=DB.users.find(x=>x.email.toLowerCase()===em&&x.pwd===h);
-  if(!u){err="E-mail ou mot de passe incorrect. Vérifiez la saisie ou créez un compte.";render();return}
-  DB.session=u.id;err="";save();view=u.role==="admin"?"atelier":(DB.cart.length?"boutique":"compte");render();if(u.role!=="admin"&&DB.cart.length){layer="cart";renderLayer()}toast(`Bienvenue ${u.nom}`)}
- if(f.id==="fReg"){const em=f.querySelector("#rEmail").value.trim().toLowerCase();if(DB.users.some(x=>x.email.toLowerCase()===em)){err="Un compte existe déjà avec cet e-mail. Connectez-vous à gauche.";render();return}
-  const u={id:uid(),nom:f.querySelector("#rNom").value.trim(),email:em,pwd:await hash(f.querySelector("#rPwd").value),role:"client",adresse:f.querySelector("#rAdr").value.trim()};
-  DB.users.push(u);DB.session=u.id;err="";save();view="compte";render();toast("Compte créé, bienvenue !")}
- if(f.id==="fProd"){const g=id=>f.querySelector(id).value;
-  const p=Object.assign(editing,{nom:g("#eNom").trim(),cat:g("#eCat"),parfum:g("#eParfum").trim(),cire:g("#eCire"),prix:+g("#ePrix"),stock:+g("#eStock")||0,poids:+g("#ePoids")||0,duree:+g("#eDuree")||0,desc:g("#eDesc").trim()});
-  const file=f.querySelector("#ePhoto").files[0];
-  const finish=()=>{const before=DB.products.slice(),isNew=!p.id;
-   if(isNew){p.id=uid();DB.products.unshift(p)}else{const i=DB.products.findIndex(x=>x.id===p.id);DB.products[i]=p}
-   if(!save()){DB.products=before;if(isNew)delete p.id;return} // mémoire pleine : on garde la fenêtre ouverte, rien n'est perdu en silence
-   fitCart();save();layer=null;editing=null;render();toast("Création enregistrée")};
-  // Photo réduite (480 px, JPEG) pour tenir dans la mémoire du navigateur
-  if(file){const img=new Image();const r=new FileReader();r.onload=()=>{img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,480/Math.max(img.width,img.height));c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);p.photo=c.toDataURL("image/jpeg",.72);finish()};img.src=r.result};r.readAsDataURL(file)}else finish();
- }
+document.addEventListener("submit",e=>{
+ e.preventDefault();const f=e.target,v=id=>f.querySelector(id).value;
+ if(f.id==="fReg")agir(async()=>{
+  try{const r=await api("inscription",{prenom:v("#rPrenom"),nom:v("#rNom"),email:v("#rEmail"),tel:v("#rTel"),adresse:v("#rAdr"),photo:photoNeuve});
+   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[]};LS.set("madeleine.moi",MOI);photoNeuve=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`)}
+  catch(x){err=x.message;render()}});
+ if(f.id==="fCode")agir(async()=>{
+  try{const r=await api("connexion",{code:v("#cCode")});setJeton(r.jeton);await rechargerMoi();err="";render();scrollTo(0,0);toast(`Carte n° ${num4(r.client.numero)} ouverte sur cet appareil`)}
+  catch(x){err="!"+x.message;render()}});
+ if(f.id==="fAtelier")agir(async()=>{const r=await api("atelier/entrer",{code:v("#aCode")});setJeton(r.jeton);MOI={role:"atelier"};LS.set("madeleine.moi",MOI);ATL=null;view="atelier";render();toast("Bienvenue dans l'atelier")});
+ if(f.id==="fTampon"){const n=parseInt(v("#tNum"),10);agir(async()=>{const r=await api("atelier/client",{numero:n});fiche=r.client.numero;ficheCode=null;const c=ATL.clients.find(x=>x.numero===fiche);if(c)Object.assign(c,{tampons:r.client.tampons,bons:r.client.bons});render()})}
+ if(f.id==="fProd")agir(async()=>{
+  const g=id=>f.querySelector(id).value,file=f.querySelector("#ePhoto").files[0];
+  const p={...editing,nom:g("#eNom").trim(),cat:g("#eCat"),parfum:g("#eParfum").trim(),cire:g("#eCire"),prix:+g("#ePrix"),stock:+g("#eStock")||0,poids:+g("#ePoids")||0,duree:+g("#eDuree")||0,desc:g("#eDesc").trim()};
+  if(file)p.photo=await lireImage(file);else delete p.photo;
+  await api("atelier/produit",{produit:p});layer=null;editing=null;await rechargerAtelier();render();toast("Création enregistrée");
+ });
 });
+// Atelier ouvert : nouvelles commandes et inscriptions récupérées toutes les minutes (sauf pendant une saisie)
+setInterval(()=>{if(view==="atelier"&&ATL&&!layer&&!occupe&&document.visibilityState==="visible"&&!document.activeElement?.matches("input,textarea,select"))
+ api("atelier").then(d=>{ATL=d;PRODUITS=d.produits;render()}).catch(()=>{})},60000);
 init();
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
