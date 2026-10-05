@@ -15,6 +15,8 @@
 <title>Boudoir & Vanille</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="img/bois-h.jpg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap">
 <style>
 /* Layout : salon d'époque — boiseries vernies (en-tête, lambris du pied de page, cadres), papier peint rayé, plaques laiton */
@@ -60,7 +62,7 @@ html{background:var(--paper)}
 body{margin:0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
   color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;
   /* Mur lambrissé : lames de noyer verni (img/bois-v.jpg), un peu assombries en haut et en bas */
-  background:linear-gradient(180deg,rgba(20,8,2,.35),rgba(20,8,2,0) 30%,rgba(20,8,2,0) 70%,rgba(20,8,2,.35)),url(img/bois-v.jpg) 0 0/900px repeat,#4a2a17;background-attachment:fixed,scroll,scroll}
+  background:linear-gradient(180deg,rgba(20,8,2,.35),rgba(20,8,2,0) 30%,rgba(20,8,2,0) 70%,rgba(20,8,2,.35)),url(img/bois-v.jpg) 0 0/900px repeat,#4a2a17}
 main{flex:1;padding:10px 0 26px}
 /* Panneau encastré dans la boiserie : moulure sombre, filet de laiton, papier peint rayé à l'intérieur */
 main>.wrap{width:calc(100% - 28px);max-width:1120px;margin:16px auto;padding:6px clamp(14px,3vw,34px) 26px;border-radius:3px;
@@ -443,7 +445,7 @@ input[type=range]{accent-color:var(--brass-2);width:100%}
 <div class="demo">Photos d’inspiration à remplacer par les créations de Mélanie · paiement en ligne pas encore branché</div>
 <div class="demo" id="hors" hidden style="background:var(--rose-deep)">Boutique en ligne pas encore ouverte sur cette adresse : vitrine seulement (inscriptions et commandes indisponibles)</div>
 <header class="top"><div class="wood"><div class="wrap">
-  <button class="logo" id="goHome" aria-label="Accueil Boudoir & Vanille"><img src="img/logo-160.png" alt="" width="64" height="64"><span><b>Boudoir & Vanille</b><small>Candle studio · Boutique vintage</small></span></button>
+  <button class="logo" id="goHome" aria-label="Accueil Boudoir & Vanille"><img src="img/logo-160.webp" alt="" width="64" height="64"><span><b>Boudoir & Vanille</b><small>Candle studio · Boutique vintage</small></span></button>
   <nav class="main" id="nav"></nav>
 </div></div><div class="brass-rule"></div></header>
 <main id="app"></main>
@@ -453,7 +455,7 @@ input[type=range]{accent-color:var(--brass-2);width:100%}
 <div id="invite"></div>
 <div id="layer"></div>
 
-<script src="vendor/qrcode.js"></script>
+<script src="vendor/qrcode.js" async onload="window.qrPret&&qrPret()"></script>
 <script>
 const PHOTOS={"p1": "img/p1.jpg", "p2": "img/p2.jpg", "p3": "img/p3.jpg", "p4": "img/p4.jpg", "p5": "img/p5.jpg", "p6": "img/p6.jpg", "p7": "img/p7.jpg", "p8": "img/p8.jpg", "p9": "img/p9.jpg", "p10": "img/p10.jpg"};
 /* ---------- Illustrations vintage (SVG maison) ---------- */
@@ -467,7 +469,7 @@ flacon:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="108" rx="30" ry
 ART.verrine=ART.pot;ART.douceur=ART.gateau;
 
 // Numéro de cette version de l'appli (à augmenter avec public/version.json et CACHE dans sw.js à chaque publication)
-const VERSION="1.12";
+const VERSION="1.13";
 
 /* ---------- Mémoire de l'appareil ---------- */
 // Seulement ce qui appartient à cet appareil : son jeton de connexion, son panier, une copie de la carte pour l'afficher hors ligne
@@ -534,7 +536,7 @@ let PARRAIN=LS.get("madeleine.parrain");
 const client=()=>MOI&&MOI.role==="client"?MOI.client:null;
 const atelier=()=>MOI&&MOI.role==="atelier";
 const P=id=>PRODUITS.find(p=>p.id===id);
-const pic=p=>{const src=p.photo||(p.img&&PHOTOS[p.img]);return src?`<img src="${src}" alt="${esc(p.nom)}">`:(ART[p.cat]||ART.gateau)(p.c1,p.c2)};
+const pic=p=>{const src=p.photo||(p.img&&PHOTOS[p.img]);return src?`<img src="${src}" alt="${esc(p.nom)}" loading="lazy" decoding="async">`:(ART[p.cat]||ART.gateau)(p.c1,p.c2)};
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}
 const dispo=p=>p.stock===0?`<span class="low out">Épuisée · bientôt de retour</span>`:p.stock<=2?`<span class="low">Plus que ${p.stock}</span>`:`<span class="low ok">En stock</span>`;
@@ -628,12 +630,12 @@ function vBoutique(){
  const list=PRODUITS.filter(p=>(filtre==="tous"||p.cat===filtre)&&(!q||(p.nom+" "+p.parfum).toLowerCase().includes(q.toLowerCase())));
  return `<div class="wrap">
  <section class="hero">
-  <div><img class="enseigne" src="img/logo.png" alt="Boudoir & Vanille, candle studio"><span class="stamp">Vintage · Fait main</span>
+  <div><img class="enseigne" src="img/logo.webp" alt="Boudoir & Vanille, candle studio" width="600" height="600" fetchpriority="high"><span class="stamp">Vintage · Fait main</span>
    <h1 class="big">${accroche(R.accrocheTitre)}</h1>
    <p>${esc(R.accrocheTexte)}</p>
    <p>Avec la carte de fidélité, chaque commande vous rapporte un tampon. <b>Au ${TAMPONS_PAR_BON}<sup>e</sup>, ${eurRond(VALEUR_BON)} offerts.</b></p>
    <div class="row"><button class="btn" data-scroll="vitrine">Voir la vitrine</button><button class="btn ghost" data-nav="${client()||atelier()?"histoire":"compte"}">${client()||atelier()?"Lire notre histoire":"Créer ma carte de fidélité"}</button></div></div>
-  <div class="hero-art frame wood" aria-hidden="true">${R.images.accueil.map(u=>`<img src="${esc(u)}" alt="">`).join("")}</div>
+  <div class="hero-art frame wood" aria-hidden="true">${R.images.accueil.map(u=>`<img src="${esc(u)}" alt="" decoding="async">`).join("")}</div>
  </section>
  <div class="bar" id="vitrine">
   ${[["tous","Tout"],...Object.entries(CATS).filter(([k])=>PRODUITS.some(p=>p.cat===k))].map(([k,l])=>`<button class="chip ${filtre===k?"on":""}" data-filtre="${k}">${l}</button>`).join("")}
@@ -737,11 +739,11 @@ function vHistoire(){
  const lettre=String(LETTRE??LETTRE_DEFAUT).split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
  return `<div class="wrap">
  <section class="hero">
-  <div><img src="img/logo.png" alt="Boudoir & Vanille, candle studio" class="logo-histoire"><span class="stamp">Notre histoire</span>
+  <div><img src="img/logo.webp" alt="Boudoir & Vanille, candle studio" class="logo-histoire"><span class="stamp">Notre histoire</span>
    <h1 class="big">Le goût <em>d’avant</em>, retrouvé dans la cire.</h1>
    <p>Il y a des odeurs qui ouvrent des portes. Une brioche qui dore, un caramel qui frémit, la vanille sur les doigts : en une seconde, on a de nouveau huit ans, assis à la table de la cuisine, les jambes qui ne touchent pas le sol.</p>
    <p>Boudoir & Vanille est né de cette envie-là : retrouver les odeurs des années 80 et 90, ces plaisirs simples qu’on a laissés filer, et les rallumer, le temps d’une bougie.</p></div>
-  <div class="hero-art frame wood" aria-hidden="true">${R.images.histoire.map(u=>`<img src="${esc(u)}" alt="">`).join("")}</div>
+  <div class="hero-art frame wood" aria-hidden="true">${R.images.histoire.map(u=>`<img src="${esc(u)}" alt="" decoding="async">`).join("")}</div>
  </section>
 
  <figure class="plaque wood"><blockquote>« Quand d’un passé ancien rien ne subsiste, après la mort des êtres, après la destruction des choses, seules, plus frêles mais plus vivaces, plus immatérielles, plus persistantes, plus fidèles, l’odeur et la saveur restent encore longtemps, comme des âmes… »</blockquote>
@@ -750,7 +752,7 @@ function vHistoire(){
 
  <h2 class="sec">Les plaisirs qu’on croyait perdus</h2>
  <p class="lead">On ne les a pas vus partir. Un jour, le goûter de quatre heures est devenu une barre avalée debout, la pâtisserie du coin a fermé, et les dimanches ont pris le goût du pressé. Ces petits bonheurs n’ont pas disparu : ils attendent qu’on les rallume.</p>
- <div class="memoires">${MEMOIRES.map(([id,t,txt],i)=>`<article class="memoire"><div class="frame wood"><img src="${esc(R.images.souvenirs[i]||PHOTOS[id])}" alt=""></div><div class="txt"><h3>${t}</h3><p>${txt}</p>${P(id)?`<button class="btn small" data-open="prod:${id}">Retrouver ce parfum</button>`:""}</div></article>`).join("")}</div>
+ <div class="memoires">${MEMOIRES.map(([id,t,txt],i)=>`<article class="memoire"><div class="frame wood"><img src="${esc(R.images.souvenirs[i]||PHOTOS[id])}" alt="" loading="lazy" decoding="async"></div><div class="txt"><h3>${t}</h3><p>${txt}</p>${P(id)?`<button class="btn small" data-open="prod:${id}">Retrouver ce parfum</button>`:""}</div></article>`).join("")}</div>
 
  <h2 class="sec">Le mot de Mélanie</h2>
  <div class="lettre">${lettre.map(s=>`<p>${esc(s).replace(/\n/g,"<br>")}</p>`).join("")}<p class="sig">Mélanie</p></div>
@@ -768,6 +770,8 @@ function vHistoire(){
 
 /* ---------- Carte client ---------- */
 // QR code en SVG (bibliothèque qrcode.js, libre, rangée dans vendor/)
+// La bibliothèque arrive après la page : on redessine si un QR code est à l'écran
+window.qrPret=()=>{if(view==="compte"||view==="reglages"||layer==="grand")render()};
 function qrSVG(texte){try{const q=qrcode(0,"M");q.addData(texte);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true})}catch(e){return ""}}
 const lienCarte=c=>`${location.origin}${location.pathname}#carte=${c.numero}.${c.cle}`;
 const lienAppli=c=>`${location.origin}${location.pathname}${c?`?parrain=${c.numero}.${c.cle}`:""}`;
@@ -987,7 +991,7 @@ function aProduits(){
  <td><div class="row" style="justify-content:flex-end"><button class="btn ghost small" data-edit="${p.id}">Modifier</button>${pending===p.id?`<span class="confirm">Supprimer ? <button class="btn small" data-del="${p.id}">Oui</button><button class="btn ghost small" data-act="cancelDel">Non</button></span>`:`<button class="btn ghost small" data-askdel="${p.id}">Supprimer</button>`}</div></td></tr>`).join("")}</tbody></table></div>`;
 }
 // Photo envoyée depuis l'atelier : réduite dans le navigateur, rangée sur le serveur, adresse api/image/…
-async function envoyerPhoto(file,max=1400){
+async function envoyerPhoto(file,max=1200){
  const data=await new Promise((ok,ko)=>{const u=URL.createObjectURL(file),im=new Image();im.onerror=()=>ko(new Error("Image illisible"));im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL("image/jpeg",.82))};im.src=u});
  return (await api("atelier/image",{data})).url;
 }
@@ -1142,7 +1146,7 @@ function renderInvite(){
  const z=document.getElementById("invite"),f=document.getElementById("fInstaller");
  if(f)f.hidden=installe();
  const voir=!installe()&&LS.get("madeleine.invite")!=="non"&&(invitePWA||surIOS)&&matchMedia("(max-width:760px)").matches;
- z.innerHTML=voir?`<div class="invite wood" role="dialog" aria-label="Installer l’application"><img src="icons/icon-192.png" alt=""><div><b>L’appli Boudoir & Vanille</b>Votre carte de fidélité et vos messages, sur l’écran d’accueil.</div><button class="btn brass small" data-act="installer">Installer</button><button class="x" data-act="pasInstaller" aria-label="Plus tard">×</button></div>`:"";
+ z.innerHTML=voir?`<div class="invite wood" role="dialog" aria-label="Installer l’application"><img src="icons/icon-192.jpg" alt=""><div><b>L’appli Boudoir & Vanille</b>Votre carte de fidélité et vos messages, sur l’écran d’accueil.</div><button class="btn brass small" data-act="installer">Installer</button><button class="x" data-act="pasInstaller" aria-label="Plus tard">×</button></div>`:"";
 }
 function vInstaller(){
  const ici=surIOS?"ios":surAndroid?"android":"pc";
@@ -1153,7 +1157,7 @@ function vInstaller(){
   pc:bloc("pc","Ordinateur (Windows, Mac)",[`Ouvrez ce site dans <b>Chrome</b> ou <b>Edge</b>.`,`Cliquez sur l’icône <span class="touche">${ico("installer")}</span> à droite de la barre d’adresse (ou menu ⋮ › <b>Installer Boudoir & Vanille</b>).`,`Confirmez : l’application s’ouvre dans sa propre fenêtre et se range avec vos autres logiciels.`])
  };
  return `<div class="veil" data-close></div><div class="modal" data-close><div class="box form" role="dialog" aria-label="Installer l’application" style="display:block;padding:22px">
-  <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div class="row" style="flex-wrap:nowrap"><img src="icons/icon-192.png" alt="" style="width:56px;height:56px;border-radius:12px"><div><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">Installer Boudoir & Vanille</h3><p class="hint" style="margin:2px 0 0">Une icône sur l’écran d’accueil, votre carte toujours sous la main, même sans réseau.</p></div></div><button class="btn ghost small" data-close aria-label="Fermer" style="font-size:20px;line-height:1;padding:4px 10px">×</button></div>
+  <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div class="row" style="flex-wrap:nowrap"><img src="icons/icon-192.jpg" alt="" style="width:56px;height:56px;border-radius:12px"><div><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">Installer Boudoir & Vanille</h3><p class="hint" style="margin:2px 0 0">Une icône sur l’écran d’accueil, votre carte toujours sous la main, même sans réseau.</p></div></div><button class="btn ghost small" data-close aria-label="Fermer" style="font-size:20px;line-height:1;padding:4px 10px">×</button></div>
   ${invitePWA?`<button class="btn brass" data-act="installerMaintenant" style="width:100%;margin-top:16px">Installer maintenant</button>`:""}
   <div style="display:grid;gap:12px;margin-top:16px">${[ici,...["ios","android","pc"].filter(k=>k!==ici)].map(k=>blocs[k]).join("")}</div>
   <p class="hint" style="margin:14px 0 0">L’application se met à jour toute seule : rien à télécharger depuis un magasin d’applications.</p></div></div>`;

@@ -3,7 +3,8 @@
 Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidélité.
 
 ## Identité
-- Logo : `public/img/logo.png` (médaillon détouré) et `logo-160.png` (en-tête) ; icônes de l'appli dans `public/icons/`.
+- Logo : `public/img/logo.webp` (médaillon détouré, 600 px) et `logo-160.webp` (en-tête) ; icônes de l'appli dans `public/icons/` (JPEG légers).
+- Vitesse : `public/_headers` (cache navigateur des images), service worker « appareil d'abord » pour les images, photos hors écran chargées à la demande.
 - Boiserie : textures de noyer verni `public/img/bois-v.jpg` (mur, lames verticales) et `bois-h.jpg` (en-tête, barre, boutons).
 - Le nom technique Cloudflare reste `la-madeleine` (adresse …workers.dev et base D1) : le changer créerait un nouveau site vide.
 

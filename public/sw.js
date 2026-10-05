@@ -1,9 +1,8 @@
-// Boudoir & Vanille · service worker : mise en cache pour ouverture hors ligne
+// Boudoir & Vanille · service worker : ouverture rapide et hors ligne
 // Change le numéro à chaque mise à jour du site pour forcer le rafraîchissement
-const CACHE = "madeleine-v12";
-const FILES = ["./", "index.html", "manifest.webmanifest", "produits.json", "vendor/qrcode.js",
-  "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-48.png", "img/logo-160.png", "img/bois-v.jpg", "img/bois-h.jpg",
-  ...Array.from({ length: 10 }, (_, i) => `img/p${i + 1}.jpg`)];
+const CACHE = "madeleine-v13";
+// Le strict nécessaire à l'ouverture hors ligne ; le reste (photos, icônes…) est rangé au fil de la navigation
+const FILES = ["./", "index.html", "manifest.webmanifest", "produits.json"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
@@ -14,16 +13,28 @@ self.addEventListener("activate", e => {
 });
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
-  // Boutique en ligne (comptes, commandes, stock) : toujours en direct, jamais en cache
-  // (sauf les photos envoyées par l'atelier, qui ne changent jamais)
-  const chemin = new URL(e.request.url).pathname;
+  const url = new URL(e.request.url), chemin = url.pathname;
+  // Boutique en ligne (comptes, commandes, stock) et numéro de version : toujours en direct
   if (chemin.includes("/api/") && !chemin.includes("/api/image/")) return;
-  // Numéro de version : toujours demandé au serveur (recherche de mise à jour)
   if (chemin.endsWith("/version.json")) return;
-  // Réseau d'abord (pour avoir la dernière version), cache en secours
+  const local = url.origin === location.origin;
+  const polices = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
+  if (!local && !polices) return;
+  // Photos, icônes, textures, bibliothèques, polices : servies tout de suite depuis l'appareil,
+  // puis rafraîchies en arrière-plan (une photo remplacée apparaît à la visite suivante)
+  if (polices || /\.(jpe?g|png|webp|svg|woff2?|js)$/.test(chemin) || chemin.includes("/api/image/")) {
+    e.respondWith(caches.open(CACHE).then(async c => {
+      const garde = await c.match(e.request);
+      const frais = fetch(e.request).then(r => { if (r.ok || r.type === "opaque") c.put(e.request, r.clone()); return r; }).catch(() => garde);
+      if (garde) { e.waitUntil(frais); return garde; }
+      return frais;
+    }));
+    return;
+  }
+  // Page et données : le réseau d'abord (dernière version), l'appareil en secours
   e.respondWith(fetch(e.request).then(r => {
-    const copy = r.clone();
-    if (r.ok && new URL(e.request.url).origin === location.origin) caches.open(CACHE).then(c => c.put(e.request, copy));
+    const copie = r.clone();
+    if (r.ok) caches.open(CACHE).then(c => c.put(e.request, copie));
     return r;
   }).catch(() => caches.match(e.request)));
 });
@@ -35,7 +46,7 @@ self.addEventListener("push", e => {
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(fenetres => {
     fenetres.forEach(f => f.postMessage({ type: "madeleine-push", tag: d.tag }));
     return self.registration.showNotification(d.titre || "Boudoir & Vanille", {
-      body: d.texte || "", icon: "icons/icon-192.png", badge: "icons/icon-192.png", tag: d.tag || "madeleine", renotify: true,
+      body: d.texte || "", icon: "icons/icon-192.jpg", badge: "icons/favicon-48.png", tag: d.tag || "madeleine", renotify: true,
       data: { url: new URL(d.url || "./", self.registration.scope).href }
     });
   }));

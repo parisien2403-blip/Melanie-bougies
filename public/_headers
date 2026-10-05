@@ -1,0 +1,13 @@
+# Mise en cache par le navigateur (Cloudflare) : les images changent rarement
+/img/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/icons/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/vendor/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+/captures/*
+  Cache-Control: public, max-age=86400
+/sw.js
+  Cache-Control: no-cache
+/version.json
+  Cache-Control: no-cache
