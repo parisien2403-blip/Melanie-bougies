@@ -37,6 +37,21 @@ Le serveur revérifie et rechiffre la composition à la commande. Options et pri
   frais de port et livraison offerte, règles de fidélité (tampons, valeur du bon) et de parrainage, catégories.
 - **Mon mot** : le texte de la page « Notre histoire ».
 
+## Barre du bas, Réglages, notifications
+- Barre du bas (téléphone) : Boutique · Ma carte · Discussion · Panier · Réglages (sur ordinateur, menu du haut).
+- Réglages : ma carte et son QR code, discussion, mes informations et appareils, notifications, mise à jour
+  (version, nouveautés, bouton « Mettre à jour »), thème clair / sombre / automatique, installer et partager l'appli.
+- Notifications (Web Push, comme TRIGONE ; sur iPhone, une fois l'appli installée) : messages de Mélanie, suivi de
+  commande, nouveautés de l'atelier (annonces envoyées depuis Atelier › Ma boutique), mises à jour de l'appli.
+  Mélanie reçoit les nouveaux messages et les nouvelles commandes. Clés VAPID créées par le serveur à la première
+  utilisation ; seuls les services de notification des navigateurs sont acceptés comme destinataires.
+
+## Publier une nouvelle version
+1. `public/index.html` : augmenter `VERSION` (ex. 1.10 → 1.11).
+2. `public/version.json` : même numéro dans `version`, ajouter en tête de `historique` les nouveautés,
+   `notifier` à `true` pour prévenir les abonnés (la tâche planifiée Cloudflare l'annonce une seule fois, dans les 30 min).
+3. `public/sw.js` : augmenter `CACHE`.
+
 ## QR codes et parrainage
 - « Ma carte en grand · QR code » : recto (photo, infos), QR code personnel, verso (tampons).
   L'atelier le scanne (« Clients & tampons › Scanner une carte ») : la fiche s'ouvre avec la photo, pour tamponner.
@@ -76,10 +91,9 @@ Le site est une application installable (PWA), sans passer par les magasins d'ap
 3. Ouvrir l'adresse donnée par Cloudflare (…workers.dev) suivie de `#atelier`, avec ce code.
 
 ## Essai en local
-Créer un fichier `.dev.vars` (ignoré par git) contenant `CODE_ATELIER="essai"`, puis `npx wrangler dev`.
+Créer un fichier `.dev.vars` (ignoré par git) contenant `CODE_ATELIER="essai"` (et `MODE_TEST="1"` pour essayer
+les notifications vers un faux téléphone local), puis `npx wrangler dev --test-scheduled`.
 
 ## Limites
 Le paiement en ligne n'est pas branché (Stripe ou SumUp à ajouter) : les commandes sont réglées à part.
 
-## Mise à jour
-À chaque modification, incrémenter `CACHE` dans `public/sw.js` (madeleine-v9 → madeleine-v10…).

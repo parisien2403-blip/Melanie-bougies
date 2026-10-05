@@ -1,0 +1,42 @@
+{
+ "version": "1.10",
+ "date": "2026-10-05",
+ "notifier": true,
+ "historique": [
+  {
+   "version": "1.10",
+   "date": "2026-10-05",
+   "notes": [
+    "Onglet Discussion pour écrire à Mélanie",
+    "Réglages : votre carte, vos notifications, le thème",
+    "Notifications : messages, suivi de commande, nouveautés",
+    "Onglet Mise à jour avec les nouveautés de l’appli"
+   ]
+  },
+  {
+   "version": "1.9",
+   "date": "2026-10-05",
+   "notes": [
+    "Créez votre propre verrine",
+    "Codes de réduction dans le panier"
+   ]
+  },
+  {
+   "version": "1.8",
+   "date": "2026-10-05",
+   "notes": [
+    "QR code de votre carte",
+    "Parrainage : 5 % pour votre parrain",
+    "Un grand tampon au 10e !"
+   ]
+  },
+  {
+   "version": "1.7",
+   "date": "2026-10-05",
+   "notes": [
+    "Suivi de vos commandes étape par étape",
+    "Votre adresse La Madeleine sur la carte"
+   ]
+  }
+ ]
+}

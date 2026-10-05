@@ -13,6 +13,10 @@
 // (ou ouvre le lien partagé par son parrain) : numéro + clé secrète, vérifiés ici. Le parrain gagne alors 5 % de réduction
 // sur sa prochaine commande, puis 1 € de cagnotte à chaque commande du filleul. Annulation : tout est repris ou rendu.
 //
+// Notifications (Web Push, comme TRIGONE) : chaque appareil qui les accepte s'abonne ; le client choisit ce qu'il reçoit
+// (messages, suivi de commande, nouveautés de l'atelier, mises à jour de l'appli). Mélanie est prévenue des nouveaux
+// messages et des nouvelles commandes. Les mises à jour sont annoncées par la tâche planifiée (voir version.json).
+//
 // Carte de fidélité : numéro client 0001, 0002… dans l'ordre des inscriptions. Un tampon par commande (retiré si la
 // commande est annulée) ; au 10e tampon, un bon de 10 € à utiliser sur l'achat de son choix.
 //
@@ -127,6 +131,8 @@ const SCHEMA = [
      objet TEXT, texte TEXT NOT NULL, commande INTEGER, date TEXT NOT NULL, lu INTEGER NOT NULL DEFAULT 0)`,
   `CREATE INDEX IF NOT EXISTS messages_numero ON messages (numero, id)`,
   `CREATE TABLE IF NOT EXISTS limites (cle TEXT PRIMARY KEY, n INTEGER NOT NULL, fin INTEGER NOT NULL)`,
+  // Appareils abonnés aux notifications : role 'client' (numero), 'atelier' ou 'visiteur' ; choix = ce qu'il veut recevoir
+  `CREATE TABLE IF NOT EXISTS abonnements (endpoint TEXT PRIMARY KEY, numero INTEGER, role TEXT NOT NULL, cles TEXT NOT NULL, choix TEXT NOT NULL, cree TEXT)`,
   // Photos du site et des bougies envoyées depuis l'atelier (servies par /api/image/<id>)
   `CREATE TABLE IF NOT EXISTS images (id TEXT PRIMARY KEY, type TEXT NOT NULL, data TEXT NOT NULL, cree TEXT)`,
   // Codes de réduction : type 'pourcent' ou 'euros'
@@ -180,6 +186,81 @@ function texteStatut(statut, o) {
   return null;
 }
 const messagePublic = m => ({ id: m.id, de: m.de, objet: m.objet, texte: m.texte, commande: m.commande, ref: m.commande ? refCmd(m.commande) : null, date: m.date, lu: m.lu });
+
+// ---------- Notifications (Web Push, RFC 8291 aes128gcm + VAPID) ----------
+let attendre = p => p;   // remplacé à chaque requête par ctx.waitUntil : l'envoi ne retarde pas la réponse
+const b64url = o => btoa(String.fromCharCode(...o)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+function depuisB64url(t) { const s = atob(String(t).replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((String(t).length + 3) % 4)); return Uint8Array.from(s, c => c.charCodeAt(0)); }
+const concat = (...p) => { const o = new Uint8Array(p.reduce((n, x) => n + x.length, 0)); let i = 0; for (const x of p) { o.set(x, i); i += x.length; } return o; };
+async function hkdf(sel, ikm, info, n) {
+  const k = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits']);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt: sel, info }, k, n * 8));
+}
+// Clés VAPID créées à la première utilisation, gardées dans la table des réglages
+async function clesVapid(env) {
+  let l = await env.DB.prepare("SELECT v FROM reglages WHERE k = 'vapid'").first();
+  if (!l) {
+    const k = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+    const v = { prive: await crypto.subtle.exportKey('jwk', k.privateKey), pub: b64url(new Uint8Array(await crypto.subtle.exportKey('raw', k.publicKey))) };
+    await env.DB.prepare("INSERT INTO reglages (k, v) VALUES ('vapid', ?) ON CONFLICT(k) DO NOTHING").bind(JSON.stringify(v)).run();
+    l = await env.DB.prepare("SELECT v FROM reglages WHERE k = 'vapid'").first();
+  }
+  return JSON.parse(l.v);
+}
+async function envoyerPush(env, ab, message) {
+  const vapid = await clesVapid(env), t = new TextEncoder();
+  const tete = b64url(t.encode(JSON.stringify({ typ: 'JWT', alg: 'ES256' })));
+  const corpsJwt = b64url(t.encode(JSON.stringify({ aud: new URL(ab.endpoint).origin, exp: maintenant() + 12 * 3600, sub: 'mailto:atelier@la-madeleine.invalid' })));
+  const cleSig = await crypto.subtle.importKey('jwk', vapid.prive, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
+  const sig = new Uint8Array(await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, cleSig, t.encode(tete + '.' + corpsJwt)));
+  const uaPub = depuisB64url(ab.cles.p256dh), auth = depuisB64url(ab.cles.auth);
+  const eph = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
+  const asPub = new Uint8Array(await crypto.subtle.exportKey('raw', eph.publicKey));
+  const uaCle = await crypto.subtle.importKey('raw', uaPub, { name: 'ECDH', namedCurve: 'P-256' }, false, []);
+  const partage = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: uaCle }, eph.privateKey, 256));
+  const ikm = await hkdf(auth, partage, concat(t.encode('WebPush: info\0'), uaPub, asPub), 32);
+  const sel = crypto.getRandomValues(new Uint8Array(16));
+  const cle = await crypto.subtle.importKey('raw', await hkdf(sel, ikm, t.encode('Content-Encoding: aes128gcm\0'), 16), 'AES-GCM', false, ['encrypt']);
+  const nonce = await hkdf(sel, ikm, t.encode('Content-Encoding: nonce\0'), 12);
+  const chiffre = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, cle, concat(t.encode(JSON.stringify(message)), new Uint8Array([2]))));
+  return fetch(ab.endpoint, { method: 'POST', body: concat(sel, new Uint8Array([0, 0, 16, 0, 65]), asPub, chiffre), headers: {
+    Authorization: `vapid t=${tete}.${corpsJwt}.${b64url(sig)}, k=${vapid.pub}`, 'Content-Encoding': 'aes128gcm',
+    'Content-Type': 'application/octet-stream', TTL: '86400', Urgency: 'high' } });
+}
+// Seuls les services de notification des navigateurs sont acceptés (jamais une adresse quelconque)
+function serviceDePush(adresse, env) {
+  let u; try { u = new URL(adresse); } catch { return false; }
+  if (env.MODE_TEST === '1' && u.protocol === 'http:' && u.hostname === '127.0.0.1') return true;   // essais en local uniquement
+  return u.protocol === 'https:' && String(adresse).length < 900 &&
+    /(^|\.)(fcm\.googleapis\.com|android\.googleapis\.com|push\.services\.mozilla\.com|push\.apple\.com|notify\.windows\.com)$/.test(u.hostname);
+}
+// Envoie une notification aux appareils choisis ; un abonnement expiré (404/410) est oublié
+async function pousser(env, ou, liens, genre, message) {
+  const { results } = await env.DB.prepare(`SELECT * FROM abonnements WHERE ${ou}`).bind(...liens).all();
+  await Promise.all(results.filter(a => { try { return JSON.parse(a.choix)[genre] !== false; } catch { return true; } }).map(async a => {
+    try {
+      const r = await envoyerPush(env, { endpoint: a.endpoint, cles: JSON.parse(a.cles) }, message);
+      if (r.status === 404 || r.status === 410) await env.DB.prepare('DELETE FROM abonnements WHERE endpoint = ?').bind(a.endpoint).run();
+    } catch (e) { console.error('notification', e); }
+  }));
+}
+const prevenirClient = (env, numero, genre, titre, texte, vue = 'messages') =>
+  attendre(pousser(env, "role = 'client' AND numero = ?", [numero], genre, { titre, texte, url: './?vue=' + vue, tag: genre }).catch(e => console.error(e)));
+const prevenirAtelier = (env, genre, titre, texte) =>
+  attendre(pousser(env, "role = 'atelier'", [], genre, { titre, texte, url: './#atelier', tag: 'atelier-' + genre }).catch(e => console.error(e)));
+const prevenirTous = (env, genre, titre, texte) =>
+  attendre(pousser(env, "role IN ('client', 'visiteur')", [], genre, { titre, texte, url: './?vue=reglages', tag: genre }).catch(e => console.error(e)));
+
+// Tâche planifiée : une nouvelle version (version.json, « notifier » à vrai) est annoncée une seule fois
+async function annoncerVersion(env) {
+  await preparer(env);
+  const v = await (await env.ASSETS.fetch(new Request('https://assets/version.json'))).json();
+  const deja = await env.DB.prepare("SELECT v FROM reglages WHERE k = 'version_annoncee'").first();
+  if (!v.notifier || (deja && deja.v === v.version)) return;
+  await env.DB.prepare("INSERT INTO reglages (k, v) VALUES ('version_annoncee', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(v.version).run();
+  await pousser(env, "role IN ('client', 'visiteur', 'atelier')", [], 'majs',
+    { titre: `La Madeleine ${v.version} est disponible`, texte: (v.historique && v.historique[0] && v.historique[0].notes || []).slice(0, 2).join(' · ') || 'Ouvrez l’appli pour la mettre à jour.', url: './?vue=reglages', tag: 'majs' });
+}
 
 // Compteur par adresse IP (essais de code, inscriptions) : false une fois la limite atteinte sur la période.
 async function limite(env, cle, max, secondes) {
@@ -325,6 +406,31 @@ async function api(request, env, chemin) {
     return json({ prenom: p.prenom, initiale: (p.nom || '')[0] || '', numero: p.numero });
   }
 
+  // --- Notifications ---
+  case 'notifs/cle': return json({ cle: (await clesVapid(env)).pub });
+  case 'notifs/abonner': {
+    const ab = corps.abonnement || {};
+    if (!serviceDePush(ab.endpoint, env) || !ab.keys || !ab.keys.p256dh || !ab.keys.auth) throw new Refus(400, 'Abonnement illisible.');
+    const role = moi ? moi.role : 'visiteur', choix = {};
+    for (const k of ['messages', 'suivi', 'nouveautes', 'majs', 'commandes']) choix[k] = corps.choix ? corps.choix[k] !== false : true;
+    await env.DB.prepare(`INSERT INTO abonnements (endpoint, numero, role, cles, choix, cree) VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(endpoint) DO UPDATE SET numero = excluded.numero, role = excluded.role, cles = excluded.cles, choix = excluded.choix`)
+      .bind(ab.endpoint, moi && moi.role === 'client' ? moi.client.numero : null, role, JSON.stringify({ p256dh: txt(ab.keys.p256dh, 200), auth: txt(ab.keys.auth, 100) }), JSON.stringify(choix), new Date().toISOString()).run();
+    return json({ ok: true, choix });
+  }
+  case 'notifs/desabonner': {
+    await env.DB.prepare('DELETE FROM abonnements WHERE endpoint = ?').bind(txt(corps.endpoint, 900)).run();
+    return json({ ok: true });
+  }
+  case 'notifs/essai': {
+    const a = await env.DB.prepare('SELECT * FROM abonnements WHERE endpoint = ?').bind(txt(corps.endpoint, 900)).first();
+    if (!a) throw new Refus(404, 'Cet appareil n\'est pas abonné aux notifications.');
+    if (!await limite(env, 'essai:' + ip, 10, 3600)) throw new Refus(429, 'Assez d\'essais pour aujourd\'hui !');
+    const r = await envoyerPush(env, { endpoint: a.endpoint, cles: JSON.parse(a.cles) }, { titre: 'La Madeleine', texte: 'Les notifications fonctionnent : vous serez prévenu(e) ici.', url: './?vue=reglages', tag: 'essai' });
+    if (!r.ok) throw new Refus(502, 'Le service de notification de l\'appareil a refusé l\'envoi (' + r.status + ').');
+    return json({ ok: true });
+  }
+
   // --- Comptes clients ---
   case 'inscription': {
     if (!await limite(env, 'inscription:' + ip, 20, 3600)) throw new Refus(429, 'Trop d\'inscriptions depuis cette connexion. Réessayez dans une heure.');
@@ -341,6 +447,7 @@ async function api(request, env, chemin) {
     }
     const c = await env.DB.prepare(`INSERT INTO clients (prenom, nom, courriel, cle, email, tel, adresse, photo, cree, parrain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`)
       .bind(prenom, nom, await adresseLibre(env, prenom, nom), hasard(8), email, txt(corps.tel, 30), txt(corps.adresse, 300), photo, new Date().toISOString().slice(0, 10), parrain ? parrain.numero : null).first();
+    if (parrain) prevenirClient(env, parrain.numero, 'messages', 'Un nouveau filleul !', `${prenom} a rejoint La Madeleine grâce à vous : ${Math.round(TAUX_REDUCTION * 100)} % offerts sur votre prochaine commande.`, 'compte');
     if (parrain) await env.DB.batch([
       env.DB.prepare('UPDATE clients SET reductions = reductions + 1 WHERE numero = ?').bind(parrain.numero),
       messageAuto(env, parrain.numero, `Un nouveau filleul : ${Math.round(TAUX_REDUCTION * 100)} % offerts !`,
@@ -381,6 +488,7 @@ async function api(request, env, chemin) {
     }
     await env.DB.prepare("INSERT INTO messages (numero, de, objet, texte, commande, date) VALUES (?, 'client', ?, ?, ?, ?)")
       .bind(c.numero, txt(corps.objet, 120) || 'Sans objet', texte, commande, new Date().toISOString()).run();
+    prevenirAtelier(env, 'messages', `Message de ${c.prenom} ${c.nom}`, txt(corps.objet, 120) || texte.slice(0, 100));
     return json({ ok: true });
   }
   case 'profil': {
@@ -462,6 +570,10 @@ async function api(request, env, chemin) {
       `Merci pour votre commande ! Mélanie va la préparer à la main.\n\n${items.map(i => `${i.q} × ${i.nom}${i.detail ? ` (${i.detail})` : ''}`).join('\n')}\nTotal : ${eurosTexte(nouvelle.total)}${remise ? ' (bon fidélité déduit)' : ''}${promo ? ` (code ${promo.code} : −${eurosTexte(promoMontant)})` : ''}${reduction ? ` (réduction parrainage : −${eurosTexte(reduction)})` : ''}${cagnotte ? ` (cagnotte parrainage : −${eurosTexte(cagnotte)})` : ''}\n\nVous recevrez ici chaque étape. Une question ? Répondez simplement à ce message.`, nouvelle.id).run();
     if (parrainage) await messageAuto(env, c.parrain, `Parrainage : +${eurosTexte(parrainage)}`,
       `${c.prenom}, votre filleul(e), vient de passer commande : ${eurosTexte(parrainage)} de plus dans votre cagnotte parrainage. Vous pouvez l'utiliser dans le panier sur votre prochaine commande.`).run();
+    prevenirClient(env, c.numero, 'suivi', `Commande ${nouvelle.ref} bien reçue`, 'Mélanie va la préparer à la main. Vous serez prévenu(e) à chaque étape.', 'compte');
+    if (parrainage) prevenirClient(env, c.parrain, 'messages', `Parrainage : +${eurosTexte(parrainage)}`, `${c.prenom} vient de passer commande.`);
+    if (c.bons > bonsAvant) prevenirClient(env, c.numero, 'messages', `Bravo ! ${eurosTexte(VALEUR_BON)} offerts`, `Votre ${TAMPONS_PAR_BON}e tampon vous offre un bon pour votre prochaine commande.`, 'compte');
+    prevenirAtelier(env, 'commandes', `Nouvelle commande ${nouvelle.ref}`, `${c.prenom} ${c.nom} · ${eurosTexte(nouvelle.total)} · ${mode}`);
     return json({ commande: nouvelle, client: clientPublic(c) });
   }
 
@@ -496,6 +608,15 @@ async function api(request, env, chemin) {
     const id = hasard(12);
     await env.DB.prepare('INSERT INTO images (id, type, data, cree) VALUES (?, ?, ?, ?)').bind(id, m[1], m[2], new Date().toISOString()).run();
     return json({ url: 'api/image/' + id });
+  }
+  case 'atelier/annonce': {
+    // Annonce de Mélanie (nouvelle collection, marché…) envoyée en notification à tous les abonnés « nouveautés »
+    exigerAtelier();
+    const titre = txt(corps.titre, 80), texte = txt(corps.texte, 200);
+    if (!titre) throw new Refus(400, 'Donnez un titre à votre annonce.');
+    const { n } = await env.DB.prepare("SELECT COUNT(*) AS n FROM abonnements WHERE role IN ('client', 'visiteur')").first();
+    prevenirTous(env, 'nouveautes', titre, texte);
+    return json({ ok: true, appareils: n });
   }
   case 'atelier/promo': {
     exigerAtelier();
@@ -566,6 +687,7 @@ async function api(request, env, chemin) {
       commande = o ? o.id : null;
     }
     await messageAuto(env, numero, txt(corps.objet, 120) || 'Message de Mélanie', texte, commande).run();
+    prevenirClient(env, numero, 'messages', 'Mélanie vous a répondu', txt(corps.objet, 120) || texte.slice(0, 100));
     return json({ ok: true });
   }
   case 'atelier/carte': {
@@ -607,6 +729,7 @@ async function api(request, env, chemin) {
       if (o.promo) suite.push(env.DB.prepare('UPDATE promos SET utilisations = utilisations + 1 WHERE code = ?').bind(o.promo));
     }
     const texte = statut !== o.statut ? texteStatut(statut, o) : null;
+    if (texte) prevenirClient(env, o.numero, 'suivi', `Commande ${refCmd(o.id)}`, texte, 'compte');
     if (texte) suite.push(messageAuto(env, o.numero, `Commande ${refCmd(o.id)} : ${{ preparation: 'en préparation', prete: o.mode === 'Retrait atelier' ? 'prête à retirer' : 'expédiée', livree: 'livrée', annulee: 'annulée' }[statut]}`, texte, o.id));
     await env.DB.batch([env.DB.prepare('UPDATE commandes SET statut = ?, tampon = ? WHERE id = ?').bind(statut, tampon, o.id), ...suite]);
     return json({ ok: true });
@@ -619,7 +742,7 @@ async function api(request, env, chemin) {
     const bonsAvant = c.bons;
     if (corps.delta > 0) ajouterTampon(c); else retirerTampon(c);
     await enregistrerCarte(env, c).run();
-    if (c.bons > bonsAvant) await messageBon(env, c).run();
+    if (c.bons > bonsAvant) { await messageBon(env, c).run(); prevenirClient(env, c.numero, 'messages', `Bravo ${c.prenom} ! ${eurosTexte(VALEUR_BON)} offerts`, `Votre ${TAMPONS_PAR_BON}e tampon vous offre un bon pour votre prochaine commande.`, 'compte'); }
     return json({ client: clientPublic(c) });
   }
   case 'atelier/bon': {
@@ -699,7 +822,8 @@ async function api(request, env, chemin) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
+    attendre = p => (ctx && ctx.waitUntil ? ctx.waitUntil(p) : p);
     const url = new URL(request.url);
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
     const img = url.pathname.match(/^\/api\/image\/([0-9a-f]{24})$/);
@@ -720,5 +844,10 @@ export default {
       console.error(e);
       return json({ erreur: 'Erreur du serveur. Réessayez dans un instant.' }, 500);
     }
+  },
+  // Tâche planifiée (wrangler.jsonc › triggers) : annonce d'une nouvelle version de l'appli
+  async scheduled(event, env, ctx) {
+    attendre = p => ctx.waitUntil(p);
+    ctx.waitUntil(annoncerVersion(env).catch(e => console.error('annonce version', e)));
   },
 };
