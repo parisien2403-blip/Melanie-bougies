@@ -14,14 +14,14 @@
   "dir": "ltr",
   "categories": ["shopping", "lifestyle"],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "icons/icon-192.jpg", "sizes": "192x192", "type": "image/jpeg", "purpose": "any" },
+    { "src": "icons/icon-512.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Ma carte de fidélité", "short_name": "Ma carte", "url": "./?vue=compte", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Mes messages", "short_name": "Messages", "url": "./?vue=messages", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "La boutique", "short_name": "Boutique", "url": "./?vue=boutique", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+    { "name": "Ma carte de fidélité", "short_name": "Ma carte", "url": "./?vue=compte", "icons": [{ "src": "icons/icon-192.jpg", "sizes": "192x192" }] },
+    { "name": "Mes messages", "short_name": "Messages", "url": "./?vue=messages", "icons": [{ "src": "icons/icon-192.jpg", "sizes": "192x192" }] },
+    { "name": "La boutique", "short_name": "Boutique", "url": "./?vue=boutique", "icons": [{ "src": "icons/icon-192.jpg", "sizes": "192x192" }] }
   ],
   "screenshots": [
     { "src": "captures/telephone.jpg", "sizes": "780x1688", "type": "image/jpeg", "form_factor": "narrow", "label": "La boutique sur téléphone" },

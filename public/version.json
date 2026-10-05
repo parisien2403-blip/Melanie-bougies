@@ -1,8 +1,16 @@
 {
- "version": "1.12",
+ "version": "1.13",
  "date": "2026-10-05",
  "notifier": false,
  "historique": [
+  {
+   "version": "1.13",
+   "date": "2026-10-05",
+   "notes": [
+    "Ouverture beaucoup plus rapide : images allégées",
+    "Les photos déjà vues s’affichent tout de suite"
+   ]
+  },
   {
    "version": "1.12",
    "date": "2026-10-05",
