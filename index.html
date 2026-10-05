@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Mél'Antan, bougies gourmandes artisanales façonnées à la main par Mélanie.">
+<meta name="theme-color" content="#5b3a27">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Mél'Antan Bougies</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap">
+<style>
+/* Layout : salon d'époque — lambris de noyer en tête et pied de page, vitrine sur lin mauve, étiquettes laiton */
+:root{
+  --paper:#f1e9ea; --paper-2:#e4d6da; --card:#fbf6f5;
+  --ink:#38231f; --ink-soft:#6d5452;
+  --rose:#9a7398; --rose-deep:#6e4a74;
+  --bottle:#5b3a27; --mustard:#b08d4a;
+  --wood:#5b3a27; --wood-2:#4a2e1f; --wood-hi:#7a5038; --on-wood:#f3e6dc;
+  --line:#d7c5c8; --shadow:rgba(60,30,40,.14);
+  --ok:#4f7a4a; --warn:#b07a1f; --bad:#a3423a;
+  --f-display:"Abril Fatface", "Playfair Display", Georgia, serif;
+  --f-body:"Libre Baskerville", Georgia, "Times New Roman", serif;
+  --f-tag:"Special Elite", "Courier New", monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#211a1e; --paper-2:#2b2227; --card:#30262b;
+  --ink:#f0e4e3; --ink-soft:#c4b0b3;
+  --rose:#c4a0c8; --rose-deep:#d6b6da;
+  --bottle:#d9b28f; --mustard:#d8b46a;
+  --wood:#3a2418; --wood-2:#2c1b12; --wood-hi:#563626; --on-wood:#f3e6dc;
+  --line:#4a3a40; --shadow:rgba(0,0,0,.4);
+  --ok:#8cc184; --warn:#e2b65a; --bad:#e58a80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#211a1e; --paper-2:#2b2227; --card:#30262b;
+  --ink:#f0e4e3; --ink-soft:#c4b0b3;
+  --rose:#c4a0c8; --rose-deep:#d6b6da;
+  --bottle:#d9b28f; --mustard:#d8b46a;
+  --wood:#3a2418; --wood-2:#2c1b12; --wood-hi:#563626; --on-wood:#f3e6dc;
+  --line:#4a3a40; --shadow:rgba(0,0,0,.4);
+  --ok:#8cc184; --warn:#e2b65a; --bad:#e58a80; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  background-image:radial-gradient(var(--paper-2) 1px,transparent 1px);background-size:18px 18px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+
+/* Bandeau démo */
+.demo{background:var(--wood-2);color:var(--on-wood);font-family:var(--f-tag);font-size:12.5px;text-align:center;padding:6px 16px;letter-spacing:.03em}
+
+/* En-tête */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;color:var(--on-wood);border-bottom:4px solid var(--mustard);
+  background:repeating-linear-gradient(90deg,var(--wood) 0 118px,var(--wood-2) 118px 121px,var(--wood-hi) 121px 123px,var(--wood) 123px 240px),var(--wood);
+  box-shadow:inset 0 -6px 12px rgba(0,0,0,.25)}
+.wood{background:repeating-linear-gradient(90deg,var(--wood) 0 118px,var(--wood-2) 118px 121px,var(--wood-hi) 121px 123px,var(--wood) 123px 240px),var(--wood);color:var(--on-wood)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:12px;flex-wrap:wrap}
+.logo{display:flex;flex-direction:column;line-height:1;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.logo b{font-family:var(--f-display);font-weight:400;font-size:30px;color:var(--on-wood);letter-spacing:.01em}
+.logo small{font-family:var(--f-tag);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mustard);margin-top:4px}
+nav.main{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.nbtn{background:none;color:var(--on-wood);border:1px solid transparent;border-radius:999px;padding:6px 14px;cursor:pointer;font-size:14px}
+.nbtn:hover{border-color:var(--mustard)}
+.nbtn.on{background:var(--on-wood);color:var(--wood-2)}
+.badge{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:999px;background:var(--rose);color:#fff;font-size:11px;margin-left:6px;font-family:var(--f-tag);padding:0 5px}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:32px;align-items:center;padding-block:40px 24px}
+.hero h1{font-family:var(--f-display);font-weight:400;font-size:clamp(34px,6vw,60px);line-height:1.02;margin:0 0 14px;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--rose-deep)}
+.hero p{max-width:52ch;color:var(--ink-soft);margin:0 0 18px}
+.stamp{font-family:var(--f-tag);display:inline-block;border:2px solid var(--rose-deep);color:var(--rose-deep);padding:4px 10px;transform:rotate(-2deg);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.hero-art{padding:14px;border:4px solid var(--mustard);box-shadow:0 10px 24px var(--shadow);display:grid;grid-template-columns:1.2fr 1fr;gap:10px}
+.hero-art img{width:100%;height:100%;object-fit:cover;display:block;border:2px solid var(--wood-2);aspect-ratio:1/1;max-width:100%}
+.hero-art img:first-child{grid-row:span 2}
+
+/* Filtres */
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-block:10px 18px;border-top:1px dashed var(--line)}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 14px;cursor:pointer;font-size:13.5px}
+.chip.on{background:var(--rose-deep);color:var(--card);border-color:var(--rose-deep)}
+.bar input{margin-left:auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;min-width:0;width:220px;max-width:100%}
+
+/* Vitrine */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px;padding-bottom:48px}
+.prod{background:var(--card);border:1px solid var(--line);box-shadow:0 2px 0 var(--paper-2);display:flex;flex-direction:column;position:relative;transition:transform .2s}
+.prod:hover{transform:translateY(-3px)}
+.prod .pic{aspect-ratio:1/1;background:var(--paper-2);display:grid;place-items:center;border-bottom:1px solid var(--line);cursor:pointer;overflow:hidden;max-width:100%}
+.prod .pic img{width:100%;height:100%;object-fit:cover}
+.prod .pic svg{width:72%;height:auto}
+.prod .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.prod h3{font-family:var(--f-display);font-weight:400;font-size:20px;margin:0;line-height:1.15}
+.meta{font-size:12.5px;color:var(--ink-soft)}
+.prod .foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px}
+.tag{font-family:var(--f-tag);background:var(--paper);border:1px solid var(--line);padding:3px 10px 3px 14px;position:relative;font-size:16px;font-variant-numeric:tabular-nums}
+.tag::before{content:"";position:absolute;left:5px;top:50%;width:5px;height:5px;border-radius:50%;background:var(--line);transform:translateY(-50%)}
+.cat{position:absolute;top:10px;left:10px;font-family:var(--f-tag);font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:var(--card);border:1px solid var(--line);padding:2px 8px}
+.low{position:absolute;top:10px;right:10px;font-family:var(--f-tag);font-size:11px;background:var(--mustard);color:#2b1d10;padding:2px 8px}
+.low.out{background:var(--bad);color:#fff}.low.ok{background:var(--ok);color:#fff}
+.insp{position:absolute;left:8px;bottom:8px;font-family:var(--f-tag);font-size:10px;letter-spacing:.06em;background:rgba(40,25,20,.72);color:#f3e6dc;padding:2px 7px}
+.prod .pic{position:relative}.prod.sold .pic img{filter:grayscale(.7) opacity(.75)}
+.btn{border:0;background:var(--rose-deep);color:var(--card);padding:8px 16px;border-radius:2px;cursor:pointer;font-size:14px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn.green{background:var(--bottle);color:var(--paper)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Panneaux */
+.panel{background:var(--card);border:1px solid var(--line);padding:22px;margin-bottom:22px}
+h2.sec{font-family:var(--f-display);font-weight:400;font-size:32px;margin:28px 0 14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.two>*{min-width:0}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-soft)}
+label.f input,label.f select,label.f textarea{border:1px solid var(--line);background:var(--paper);padding:9px 11px;border-radius:2px;color:var(--ink);font-size:15px}
+.form{display:grid;gap:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.err{color:var(--bad);font-size:13.5px;min-height:1em}
+.hint{font-size:12.5px;color:var(--ink-soft)}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px dashed var(--line);vertical-align:middle}
+th{font-family:var(--f-tag);font-weight:400;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.pill{font-family:var(--f-tag);font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.s-nouvelle{color:var(--rose-deep)} .s-preparation{color:var(--warn)} .s-prete{color:var(--bottle)} .s-livree{color:var(--ok)} .s-annulee{color:var(--bad)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{border:1px solid var(--line);background:var(--card);padding:14px}
+.kpi span{font-family:var(--f-tag);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.kpi b{display:block;font-family:var(--f-display);font-weight:400;font-size:28px;font-variant-numeric:tabular-nums}
+
+/* Tiroir panier & modale */
+.veil{position:fixed;inset:0;background:rgba(30,18,12,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--paper);z-index:41;display:flex;flex-direction:column;border-left:3px double var(--line);padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px)}
+.drawer h2{font-family:var(--f-display);font-weight:400;margin:0 0 12px;font-size:28px}
+.lines{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.line{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;border-bottom:1px dashed var(--line);padding-bottom:10px}
+.line .mini{width:56px;height:56px;background:var(--paper-2);display:grid;place-items:center;overflow:hidden}
+.line .mini svg{width:80%}.line .mini img{width:100%;height:100%;object-fit:cover}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:26px;height:26px;border:1px solid var(--line);background:var(--card);cursor:pointer;border-radius:2px}
+.total{display:flex;justify-content:space-between;font-family:var(--f-display);font-size:22px;padding-top:12px;border-top:3px double var(--line);font-variant-numeric:tabular-nums}
+.modal{position:fixed;inset:0;z-index:41;display:grid;place-items:center;padding:16px}
+.modal .box{background:var(--card);border:1px solid var(--line);max-width:760px;width:100%;max-height:90%;overflow:auto;display:grid;grid-template-columns:1fr 1fr}
+.modal .box>*{min-width:0}
+.modal .pic{background:var(--paper-2);display:grid;place-items:center;aspect-ratio:1/1;max-width:100%}
+.modal .pic svg{width:70%}.modal .pic img{width:100%;height:100%;object-fit:cover}
+.modal .txt{padding:22px;display:flex;flex-direction:column;gap:10px}
+.modal h3{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0;line-height:1.1}
+dl.spec{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:13.5px}
+dl.spec dt{font-family:var(--f-tag);color:var(--ink-soft)}dl.spec dd{margin:0}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;font-family:var(--f-tag);z-index:60;font-size:13.5px}
+.confirm{display:inline-flex;gap:6px;align-items:center;font-size:13px}
+footer{border-top:4px solid var(--mustard);padding-block:22px;font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media (max-width:760px){
+  .hero{grid-template-columns:1fr;padding-top:24px}
+  .two,.modal .box{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .bar input{margin-left:0;width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+<div class="demo">Maquette de démonstration · photos d’inspiration à remplacer par les créations de Mélanie · données stockées dans ce navigateur · paiement non branché</div>
+<header class="top"><div class="wrap">
+  <button class="logo" id="goHome" aria-label="Accueil Mél'Antan"><b>Mél'Antan</b><small>Bougies d'autrefois</small></button>
+  <nav class="main" id="nav"></nav>
+</div></header>
+<main id="app"></main>
+<footer class="wood"><div class="wrap"><span>Mél'Antan · bougies artisanales façonnées à la main par Mélanie</span><span>Cire végétale · mèches coton · fabrication française</span></div></footer>
+<div id="layer"></div>
+
+<script>
+const PHOTOS={"p1": "img/p1.jpg", "p2": "img/p2.jpg", "p3": "img/p3.jpg", "p4": "img/p4.jpg", "p5": "img/p5.jpg", "p6": "img/p6.jpg", "p7": "img/p7.jpg", "p8": "img/p8.jpg", "p9": "img/p9.jpg", "p10": "img/p10.jpg"};
+/* ---------- Illustrations vintage (SVG maison) ---------- */
+const ART={
+gateau:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="104" rx="46" ry="7" fill="var(--line)"/><rect x="18" y="58" width="84" height="44" rx="4" fill="${c1}"/><rect x="18" y="74" width="84" height="6" fill="${c2}"/><path d="M18 62 q7 10 14 0 q7 10 14 0 q7 10 14 0 q7 10 14 0 q7 10 14 0 q7 10 14 0 v-6 h-84z" fill="#fbf1e4"/><circle cx="40" cy="52" r="6" fill="${c2}"/><circle cx="60" cy="50" r="6" fill="${c2}"/><circle cx="80" cy="52" r="6" fill="${c2}"/><rect x="58" y="24" width="4" height="22" fill="#e9dcc8"/><path d="M60 10 q6 8 0 14 q-6 -6 0 -14z" fill="#e8a33a"/></svg>`,
+bouteille:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="108" rx="26" ry="5" fill="var(--line)"/><rect x="52" y="14" width="16" height="26" rx="2" fill="${c1}"/><rect x="50" y="10" width="20" height="8" rx="2" fill="${c2}"/><path d="M52 40 q-18 10 -18 30 v34 q0 4 4 4 h44 q4 0 4 -4 v-34 q0 -20 -18 -30z" fill="${c1}"/><rect x="40" y="62" width="40" height="28" fill="#f7ead2" stroke="${c2}" stroke-width="2"/><line x1="46" y1="72" x2="74" y2="72" stroke="${c2}" stroke-width="2"/><line x1="50" y1="80" x2="70" y2="80" stroke="${c2}"/><path d="M60 0 q5 6 0 11 q-5 -5 0 -11z" fill="#e8a33a"/></svg>`,
+pot:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="106" rx="38" ry="6" fill="var(--line)"/><path d="M28 46 h64 v52 q0 8 -8 8 h-48 q-8 0 -8 -8z" fill="${c1}" opacity=".9"/><path d="M24 36 h72 l-6 12 h-60z" fill="#f2e6d4"/><path d="M24 36 l6 -8 l6 8 l6 -8 l6 8 l6 -8 l6 8 l6 -8 l6 8 l6 -8 l6 8 l6 -8 l6 8z" fill="${c2}"/><rect x="38" y="62" width="44" height="22" rx="2" fill="#f7ead2"/><line x1="44" y1="73" x2="76" y2="73" stroke="${c2}" stroke-width="2"/><rect x="58" y="16" width="4" height="14" fill="#e9dcc8"/><path d="M60 4 q5 6 0 11 q-5 -5 0 -11z" fill="#e8a33a"/></svg>`,
+tasse:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="58" cy="100" rx="48" ry="9" fill="${c2}" opacity=".5"/><path d="M22 50 h72 v18 q0 26 -36 26 q-36 0 -36 -26z" fill="${c1}"/><path d="M94 56 q16 0 16 12 q0 12 -18 12" fill="none" stroke="${c1}" stroke-width="6"/><ellipse cx="58" cy="50" rx="36" ry="7" fill="#f2e6d4"/><circle cx="40" cy="70" r="4" fill="${c2}"/><circle cx="58" cy="76" r="4" fill="${c2}"/><circle cx="76" cy="70" r="4" fill="${c2}"/><rect x="56" y="26" width="4" height="22" fill="#e9dcc8"/><path d="M58 14 q5 6 0 11 q-5 -5 0 -11z" fill="#e8a33a"/></svg>`,
+flacon:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="108" rx="30" ry="5" fill="var(--line)"/><rect x="48" y="20" width="24" height="12" fill="${c2}"/><path d="M50 32 h20 v8 q22 6 22 30 v32 q0 6 -6 6 h-52 q-6 0 -6 -6 v-32 q0 -24 22 -30z" fill="${c1}" opacity=".88"/><path d="M40 62 h40 v30 h-40z" fill="#f7ead2"/><text x="60" y="81" text-anchor="middle" font-family="Special Elite, monospace" font-size="10" fill="${c2}">N°7</text><path d="M60 6 q5 6 0 11 q-5 -5 0 -11z" fill="#e8a33a"/></svg>`
+};
+const CATS={gateau:"Gâteaux",verrine:"Verrines",douceur:"Petites douceurs",pot:"Pots",bouteille:"Bouteilles",tasse:"Tasses"};
+ART.verrine=ART.pot;ART.douceur=ART.gateau;
+
+/* ---------- Stockage (navigateur) ---------- */
+const KEY="melantan.v2";
+function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
+async function hash(s){try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("mel:"+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch(e){return"x"+btoa(unescape(encodeURIComponent(s)))}}
+const uid=()=>Math.random().toString(36).slice(2,9);
+const eur=n=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR"});
+
+const SEED_PRODUCTS=[
+ {id:"p1",img:"p1",cat:"gateau",nom:"Le Petit Fraisier",parfum:"Fraise des bois & chantilly",cire:"Soja",poids:180,duree:30,prix:22,stock:5,c1:"#f3ece6",c2:"#c2405a",desc:"Un petit gâteau blanc à collerette de crème, coiffé de trois fraises. Le dessert des goûters d’anniversaire d’autrefois."},
+ {id:"p2",img:"p2",cat:"douceur",nom:"Beignets de la Kermesse",parfum:"Barbe à papa & vanille",cire:"Soja",poids:150,duree:20,prix:15,stock:9,c1:"#e9a7c4",c2:"#8e6a8f",desc:"Lot de 3 beignets glacés aux vermicelles multicolores, couleurs au choix. L’odeur sucrée des fêtes foraines du dimanche."},
+ {id:"p3",img:"p3",cat:"gateau",nom:"Le Framboisier Nappé",parfum:"Framboise & sucre glace",cire:"Soja",poids:220,duree:35,prix:26,stock:2,c1:"#d98ea0",c2:"#9e4558",desc:"Biscuit rose nappé de glaçage blanc coulant, framboises et paillettes dorées. Vendu à l’unité."},
+ {id:"p4",img:"p4",cat:"douceur",nom:"Fondants Caramel Doré",parfum:"Caramel au beurre salé",cire:"Colza",poids:120,duree:24,prix:12,stock:0,c1:"#d6b38c",c2:"#b08d4a",desc:"Lot de 4 fondants parfumés pour brûle-parfum, en cannelé et en cœur, saupoudrés de feuille d’or. Sans mèche."},
+ {id:"p5",img:"p5",cat:"douceur",nom:"Petits Kouglofs Pêche",parfum:"Pêche de vigne & fleur d’oranger",cire:"Colza",poids:150,duree:30,prix:13,stock:7,c1:"#f2b9a0",c2:"#c8775a",desc:"Lot de 5 mini-kouglofs à faire fondre, tout en douceur fruitée. Joli dans une coupelle sur la commode."},
+ {id:"p6",img:"p6",cat:"verrine",nom:"Forêt-Noire en Verrine",parfum:"Cerise noire & cacao",cire:"Soja",poids:320,duree:50,prix:32,stock:4,c1:"#6b3d2e",c2:"#a3233a",desc:"Deux étages de génoise chocolat et de chantilly dans un verre épais, vermicelles rouges au sommet."},
+ {id:"p7",img:"p7",cat:"verrine",nom:"Le Goûter Choco-Biscuit",parfum:"Petit-beurre & chocolat au lait",cire:"Soja",poids:300,duree:45,prix:29,stock:6,c1:"#8a5a3c",c2:"#d6b38c",desc:"Biscuits émiettés, crème fouettée, carré de chocolat et petit sablé : le cartable du mercredi après-midi."},
+ {id:"p8",img:"p8",cat:"pot",nom:"La Brioche du Dimanche",parfum:"Brioche au beurre & fleur d’oranger",cire:"Soja",poids:350,duree:55,prix:27,stock:8,c1:"#e3b56a",c2:"#8a5a3c",desc:"Grand bocal à couvercle de verre, parfum de boulangerie de village le dimanche matin."},
+ {id:"p9",img:"p9",cat:"verrine",nom:"Le Liégeois Café",parfum:"Café crème & chocolat noir",cire:"Soja",poids:250,duree:40,prix:28,stock:1,c1:"#7a4f34",c2:"#3b2418",desc:"Crème café montée, grains de café et carré de chocolat, comme à la terrasse du café de la place."},
+ {id:"p10",img:"p10",cat:"verrine",nom:"Sorbet Pastèque",parfum:"Pastèque & menthe fraîche",cire:"Soja",poids:280,duree:45,prix:26,stock:5,c1:"#c8443c",c2:"#4d7a3a",desc:"Édition d’été : crème rouge pastèque et tranches de fruit en cire, pour les soirées sur la terrasse."}
+];
+let DB=load();
+async function init(){
+ if(!DB){
+  DB={products:SEED_PRODUCTS,users:[
+    {id:"u0",nom:"Mélanie",email:"melanie@melantan.fr",pwd:await hash("bougie"),role:"admin"},
+    {id:"u1",nom:"Client démo",email:"client@exemple.fr",pwd:await hash("demo"),role:"client",adresse:"12 rue des Lilas, 33500 Libourne"}],
+   orders:[
+    {id:"CMD-0001",user:"u1",date:"2026-10-01",items:[{id:"p1",q:1,prix:22},{id:"p5",q:2,prix:13}],mode:"Colissimo",port:6.9,statut:"preparation"},
+    {id:"CMD-0002",user:"u1",date:"2026-10-03",items:[{id:"p8",q:1,prix:27}],mode:"Retrait atelier",port:0,statut:"nouvelle"}],
+   session:null,cart:[]};
+  save();
+ }
+ render();
+}
+
+/* ---------- État de vue ---------- */
+let view="boutique",filtre="tous",q="",layer=null,err="",adminTab="commandes",editing=null,pending=null;
+const me=()=>DB.users.find(u=>u.id===DB.session);
+const P=id=>DB.products.find(p=>p.id===id);
+const pic=(p,cls="")=>{const src=p.photo||(p.img&&PHOTOS[p.img]);return src?`<img src="${src}" alt="${esc(p.nom)}">`:(ART[p.cat]||ART.gateau)(p.c1,p.c2)};
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+const dispo=p=>p.stock===0?`<span class="low out">Épuisée · bientôt de retour</span>`:p.stock<=2?`<span class="low">Plus que ${p.stock}</span>`:`<span class="low ok">En stock</span>`;
+const cartCount=()=>DB.cart.reduce((a,l)=>a+l.q,0);
+const cartTotal=()=>DB.cart.reduce((a,l)=>a+l.q*(P(l.id)?.prix||0),0);
+
+function renderNav(){
+ const u=me();
+ const items=[["boutique","Boutique"]];
+ if(u&&u.role==="admin")items.push(["atelier","Atelier de Mélanie"]);
+ items.push(["compte",u?u.nom:"Se connecter"]);
+ document.getElementById("nav").innerHTML=items.map(([k,l])=>`<button class="nbtn ${view===k?"on":""}" data-nav="${k}">${esc(l)}</button>`).join("")+
+  `<button class="nbtn" data-open="cart">Panier<span class="badge">${cartCount()}</span></button>`;
+}
+
+function vBoutique(){
+ const list=DB.products.filter(p=>(filtre==="tous"||p.cat===filtre)&&(!q||(p.nom+" "+p.parfum).toLowerCase().includes(q.toLowerCase())));
+ return `<div class="wrap">
+ <section class="hero">
+  <div><span class="stamp">Fait main · petites séries</span>
+   <h1>Des bougies qui sentent <em>le goûter</em> de grand-mère.</h1>
+   <p>Gâteaux de cire, verrines gourmandes, beignets et fondants parfumés : chaque pièce est coulée et décorée à la main par Mélanie, en cire végétale, dans l’esprit des salons d’antan.</p>
+   <button class="btn" data-scroll="vitrine">Voir la vitrine</button></div>
+  <div class="hero-art wood" aria-hidden="true"><img src="${PHOTOS.p6}" alt=""><img src="${PHOTOS.p1}" alt=""><img src="${PHOTOS.p3}" alt=""></div>
+ </section>
+ <div class="bar" id="vitrine">
+  ${[["tous","Tout"],...Object.entries(CATS).filter(([k])=>DB.products.some(p=>p.cat===k))].map(([k,l])=>`<button class="chip ${filtre===k?"on":""}" data-filtre="${k}">${l}</button>`).join("")}
+  <input id="search" type="search" placeholder="Chercher un parfum, un nom…" value="${esc(q)}" aria-label="Rechercher">
+ </div>
+ <div class="grid">${list.map(p=>`<article class="prod ${p.stock?"":"sold"}">
+  <span class="cat">${CATS[p.cat]}</span>${dispo(p)}
+  <div class="pic" data-open="prod:${p.id}">${pic(p)}${p.img&&!p.photo?`<span class="insp">Photo d’inspiration</span>`:""}</div>
+  <div class="body"><h3>${esc(p.nom)}</h3><div class="meta">${esc(p.parfum)}</div><div class="meta">${p.poids} g · ≈ ${p.duree} h de combustion</div>
+   <div class="foot"><span class="tag">${eur(p.prix)}</span><button class="btn small" data-add="${p.id}" ${p.stock?"":"disabled"}>${p.stock?"Ajouter":"Bientôt"}</button></div></div>
+ </article>`).join("")||`<p class="hint">Aucune bougie ne correspond à cette recherche.</p>`}</div></div>`;
+}
+
+function vCompte(){
+ const u=me();
+ if(!u) return `<div class="wrap"><h2 class="sec">Mon compte</h2><div class="two">
+  <form class="panel form" id="fLogin"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:22px">Déjà cliente ou client</h3>
+   <label class="f">E-mail<input id="lEmail" type="email" required autocomplete="username"></label>
+   <label class="f">Mot de passe<input id="lPwd" type="password" required autocomplete="current-password"></label>
+   <div class="err">${esc(err)}</div><button class="btn">Se connecter</button>
+   <p class="hint">Comptes de démonstration : client@exemple.fr / demo · melanie@melantan.fr / bougie (atelier)</p></form>
+  <form class="panel form" id="fReg"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:22px">Créer un compte</h3>
+   <label class="f">Prénom et nom<input id="rNom" required></label>
+   <label class="f">E-mail<input id="rEmail" type="email" required></label>
+   <label class="f">Mot de passe (6 caractères min.)<input id="rPwd" type="password" minlength="6" required autocomplete="new-password"></label>
+   <label class="f">Adresse de livraison<textarea id="rAdr" rows="2"></textarea></label>
+   <button class="btn green">Créer mon compte</button></form></div></div>`;
+ const mine=DB.orders.filter(o=>o.user===u.id).sort((a,b)=>b.date.localeCompare(a.date));
+ return `<div class="wrap"><h2 class="sec">Bonjour ${esc(u.nom)}</h2>
+ <div class="two"><div class="panel form"><b>Mes informations</b>
+   <label class="f">E-mail<input value="${esc(u.email)}" disabled id="iEmail"></label>
+   <label class="f">Adresse de livraison<textarea id="iAdr" rows="2">${esc(u.adresse||"")}</textarea></label>
+   <div class="row"><button class="btn green small" data-act="saveAdr">Enregistrer l'adresse</button><button class="btn ghost small" data-act="logout">Se déconnecter</button></div></div>
+  <div class="panel"><b>Mes commandes</b>${mine.length?`<div class="tbl"><table><thead><tr><th>N°</th><th>Date</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>${mine.map(o=>`<tr><td>${o.id}</td><td>${fdate(o.date)}</td><td class="num">${eur(oTotal(o))}</td><td>${spill(o.statut)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="hint">Pas encore de commande. La vitrine vous attend.</p>`}</div></div></div>`;
+}
+const STAT={nouvelle:"Nouvelle",preparation:"En préparation",prete:"Prête / expédiée",livree:"Livrée",annulee:"Annulée"};
+const spill=s=>`<span class="pill s-${s}">${STAT[s]}</span>`;
+const oTotal=o=>o.items.reduce((a,i)=>a+i.q*i.prix,0)+o.port;
+const fdate=d=>new Date(d+"T12:00").toLocaleDateString("fr-FR");
+
+function vAtelier(){
+ const u=me(); if(!u||u.role!=="admin") return `<div class="wrap"><p>Accès réservé.</p></div>`;
+ const ca=DB.orders.filter(o=>o.statut!=="annulee").reduce((a,o)=>a+oTotal(o),0);
+ const aFaire=DB.orders.filter(o=>o.statut==="nouvelle"||o.statut==="preparation").length;
+ const stockBas=DB.products.filter(p=>p.stock<=3).length;
+ return `<div class="wrap"><h2 class="sec">L'atelier de Mélanie</h2>
+ <div class="kpis"><div class="kpi"><span>Chiffre d'affaires</span><b>${eur(ca)}</b></div><div class="kpi"><span>Commandes à traiter</span><b>${aFaire}</b></div><div class="kpi"><span>Bougies en vitrine</span><b>${DB.products.length}</b></div><div class="kpi"><span>Stock bas (≤ 3)</span><b>${stockBas}</b></div></div>
+ <div class="bar" style="border:0;padding-top:0">${[["commandes","Commandes"],["produits","Mes créations"],["clients","Clients"]].map(([k,l])=>`<button class="chip ${adminTab===k?"on":""}" data-atab="${k}">${l}</button>`).join("")}
+  ${adminTab==="produits"?`<button class="btn small" style="margin-left:auto" data-act="newProd">+ Nouvelle création</button>`:""}</div>
+ ${adminTab==="commandes"?aCommandes():adminTab==="produits"?aProduits():aClients()}</div>`;
+}
+function aCommandes(){
+ const os=[...DB.orders].sort((a,b)=>b.date.localeCompare(a.date));
+ return `<div class="panel tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Contenu</th><th>Mode</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>
+ ${os.map(o=>{const c=DB.users.find(u=>u.id===o.user);return`<tr><td>${o.id}</td><td>${fdate(o.date)}</td><td>${esc(c?.nom||"?")}</td><td>${o.items.map(i=>`${i.q}× ${esc(P(i.id)?.nom||"supprimée")}`).join("<br>")}</td><td>${esc(o.mode)}</td><td class="num">${eur(oTotal(o))}</td>
+ <td><select id="st-${o.id}" data-statut="${o.id}">${Object.entries(STAT).map(([k,l])=>`<option value="${k}" ${o.statut===k?"selected":""}>${l}</option>`).join("")}</select></td></tr>`}).join("")||`<tr><td colspan="7">Aucune commande.</td></tr>`}</tbody></table></div>`;
+}
+function aProduits(){
+ return `<div class="panel tbl"><table><thead><tr><th></th><th>Création</th><th>Catégorie</th><th class="num">Prix</th><th class="num">Stock</th><th></th></tr></thead><tbody>
+ ${DB.products.map(p=>`<tr><td><div class="line" style="border:0;padding:0;display:block"><div class="mini">${pic(p)}</div></div></td><td><b>${esc(p.nom)}</b><div class="meta">${esc(p.parfum)}</div></td><td>${CATS[p.cat]}</td><td class="num">${eur(p.prix)}</td>
+ <td class="num"><div class="qty" style="justify-content:flex-end"><button data-stock="${p.id}:-1" aria-label="Retirer un">−</button><b style="min-width:2ch;text-align:center">${p.stock}</b><button data-stock="${p.id}:1" aria-label="Ajouter un">+</button></div></td>
+ <td><div class="row" style="justify-content:flex-end"><button class="btn ghost small" data-edit="${p.id}">Modifier</button>${pending===p.id?`<span class="confirm">Supprimer ? <button class="btn small" data-del="${p.id}">Oui</button><button class="btn ghost small" data-act="cancelDel">Non</button></span>`:`<button class="btn ghost small" data-askdel="${p.id}">Supprimer</button>`}</div></td></tr>`).join("")}</tbody></table></div>`;
+}
+function aClients(){
+ const cs=DB.users.filter(u=>u.role==="client");
+ return `<div class="panel tbl"><table><thead><tr><th>Nom</th><th>E-mail</th><th>Adresse</th><th class="num">Commandes</th><th class="num">Total</th></tr></thead><tbody>
+ ${cs.map(c=>{const os=DB.orders.filter(o=>o.user===c.id);return`<tr><td>${esc(c.nom)}</td><td>${esc(c.email)}</td><td>${esc(c.adresse||"—")}</td><td class="num">${os.length}</td><td class="num">${eur(os.reduce((a,o)=>a+oTotal(o),0))}</td></tr>`}).join("")}</tbody></table></div>`;
+}
+
+/* ---------- Calques ---------- */
+function renderLayer(){
+ const L=document.getElementById("layer");
+ if(!layer){L.innerHTML="";return}
+ if(layer==="cart"){
+  const ship=DB.cart.length?(cartTotal()>=60?0:6.9):0;
+  L.innerHTML=`<div class="veil" data-close></div><aside class="drawer" role="dialog" aria-label="Panier"><div class="row" style="justify-content:space-between"><h2>Mon panier</h2><button class="btn ghost small" data-close>Fermer</button></div>
+  <div class="lines">${DB.cart.map(l=>{const p=P(l.id);if(!p)return"";return`<div class="line"><div class="mini">${pic(p)}</div><div><b>${esc(p.nom)}</b><div class="meta">${eur(p.prix)}</div></div><div class="qty"><button data-q="${p.id}:-1" aria-label="Moins">−</button><span>${l.q}</span><button data-q="${p.id}:1" aria-label="Plus">+</button></div></div>`}).join("")||`<p class="hint">Votre panier est vide.</p>`}</div>
+  ${DB.cart.length?`<div class="form"><label class="f">Mode de réception<select id="mode"><option value="Colissimo">Colissimo · ${cartTotal()>=60?"offert":"6,90 €"}</option><option value="Retrait atelier">Retrait à l'atelier · gratuit</option></select></label>
+  <div class="hint">Livraison offerte dès 60 € d'achat.</div>
+  <div class="total"><span>Total</span><span id="tot">${eur(cartTotal()+ship)}</span></div>
+  <div class="err">${esc(err)}</div>
+  <button class="btn" data-act="checkout">${me()?"Valider la commande":"Se connecter pour commander"}</button></div>`:""}</aside>`;
+ } else if(layer.startsWith("prod:")){
+  const p=P(layer.slice(5));
+  L.innerHTML=`<div class="veil" data-close></div><div class="modal" data-close><div class="box" role="dialog" aria-label="${esc(p.nom)}"><div class="pic">${pic(p)}</div><div class="txt">
+   <span class="stamp" style="align-self:flex-start">${CATS[p.cat]}</span><h3>${esc(p.nom)}</h3><p style="margin:0">${esc(p.desc)}</p>
+   <dl class="spec"><dt>Parfum</dt><dd>${esc(p.parfum)}</dd><dt>Cire</dt><dd>${esc(p.cire)}</dd><dt>Poids</dt><dd>${p.poids} g</dd><dt>Combustion</dt><dd>≈ ${p.duree} h</dd><dt>Disponibilité</dt><dd>${p.stock===0?"Épuisée, Mélanie en refait":p.stock<=2?`Plus que ${p.stock} à l’atelier`:`En stock (${p.stock})`}</dd></dl>
+   <div class="row" style="margin-top:auto"><span class="tag">${eur(p.prix)}</span><button class="btn" data-add="${p.id}" ${p.stock?"":"disabled"}>Ajouter au panier</button><button class="btn ghost" data-close>Fermer</button></div></div></div></div>`;
+ } else if(layer==="edit"){
+  const p=editing||{};
+  L.innerHTML=`<div class="veil" data-close></div><div class="modal"><form class="box form" id="fProd" style="display:block;padding:22px">
+   <h3 style="font-family:var(--f-display);font-weight:400;font-size:26px;margin:0 0 12px">${p.id?"Modifier la création":"Nouvelle création"}</h3>
+   <div class="two" style="gap:12px">
+    <label class="f">Nom<input id="eNom" required value="${esc(p.nom||"")}"></label>
+    <label class="f">Catégorie<select id="eCat">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${p.cat===k?"selected":""}>${l}</option>`).join("")}</select></label>
+    <label class="f">Parfum<input id="eParfum" value="${esc(p.parfum||"")}"></label>
+    <label class="f">Cire<select id="eCire">${["Soja","Colza","Cire d'abeille","Coco"].map(c=>`<option ${p.cire===c?"selected":""}>${c}</option>`).join("")}</select></label>
+    <label class="f">Prix (€)<input id="ePrix" type="number" step="0.5" min="0" required value="${p.prix??""}"></label>
+    <label class="f">Stock<input id="eStock" type="number" min="0" value="${p.stock??1}"></label>
+    <label class="f">Poids (g)<input id="ePoids" type="number" min="0" value="${p.poids??250}"></label>
+    <label class="f">Combustion (heures)<input id="eDuree" type="number" min="0" value="${p.duree??40}"></label>
+   </div>
+   <label class="f" style="margin-top:12px">Description<textarea id="eDesc" rows="3">${esc(p.desc||"")}</textarea></label>
+   <label class="f" style="margin-top:12px">Photo (facultative · sinon illustration vintage)<input id="ePhoto" type="file" accept="image/*"></label>
+   <div class="row" style="margin-top:16px"><button class="btn green">Enregistrer</button><button type="button" class="btn ghost" data-close>Annuler</button></div></form></div>`;
+ }
+}
+
+function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="atelier"?vAtelier():vBoutique();renderLayer()}
+
+/* ---------- Actions ---------- */
+function addToCart(id){const p=P(id);const l=DB.cart.find(x=>x.id===id);const cur=l?l.q:0;if(cur>=p.stock){toast("Stock atteint pour cette bougie");return}l?l.q++:DB.cart.push({id,q:1});save();renderNav();toast(`« ${p.nom} » ajoutée au panier`)}
+document.addEventListener("click",async e=>{
+ const t=e.target.closest("[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],#goHome");
+ if(!t)return; const d=t.dataset;
+ if(d.close!==undefined&&e.target!==t&&t.classList.contains("modal"))return;
+ if(t.id==="goHome"){view="boutique";layer=null;render();scrollTo(0,0);return}
+ if(d.nav){view=d.nav;err="";layer=null;render();scrollTo(0,0)}
+ else if(d.open){layer=d.open;err="";renderLayer()}
+ else if(d.close!==undefined){layer=null;editing=null;renderLayer()}
+ else if(d.filtre){filtre=d.filtre;render();document.getElementById("vitrine").scrollIntoView({block:"start"})}
+ else if(d.scroll){document.getElementById(d.scroll).scrollIntoView({behavior:"smooth"})}
+ else if(d.add){addToCart(d.add);if(layer==="cart")renderLayer()}
+ else if(d.q){const[id,s]=d.q.split(":");const l=DB.cart.find(x=>x.id===id);const p=P(id);l.q+=+s;if(l.q>p.stock)l.q=p.stock;if(l.q<=0)DB.cart=DB.cart.filter(x=>x!==l);save();renderNav();renderLayer()}
+ else if(d.atab){adminTab=d.atab;pending=null;render()}
+ else if(d.stock){const[id,s]=d.stock.split(":");const p=P(id);p.stock=Math.max(0,p.stock+ +s);save();render()}
+ else if(d.edit){editing={...P(d.edit)};layer="edit";renderLayer()}
+ else if(d.askdel){pending=d.askdel;render()}
+ else if(d.del){DB.products=DB.products.filter(p=>p.id!==d.del);DB.cart=DB.cart.filter(l=>l.id!==d.del);pending=null;save();render();toast("Création retirée de la vitrine")}
+ else if(d.act==="cancelDel"){pending=null;render()}
+ else if(d.act==="newProd"){editing={c1:"#e9a7b4",c2:"#c2405a"};layer="edit";renderLayer()}
+ else if(d.act==="logout"){DB.session=null;save();view="boutique";render();toast("Vous êtes déconnecté·e")}
+ else if(d.act==="saveAdr"){me().adresse=document.getElementById("iAdr").value.trim();save();toast("Adresse enregistrée")}
+ else if(d.act==="checkout"){
+  if(!me()){layer=null;view="compte";err="Connectez-vous pour finaliser la commande.";render();return}
+  const mode=document.getElementById("mode").value;
+  if(mode==="Colissimo"&&!me().adresse){err="Ajoutez une adresse de livraison dans votre compte, ou choisissez le retrait à l'atelier.";renderLayer();return}
+  const port=mode==="Colissimo"&&cartTotal()<60?6.9:0;
+  const n=String(DB.orders.length+1).padStart(4,"0");
+  const o={id:"CMD-"+n,user:me().id,date:new Date().toISOString().slice(0,10),items:DB.cart.map(l=>({id:l.id,q:l.q,prix:P(l.id).prix})),mode,port,statut:"nouvelle"};
+  o.items.forEach(i=>{P(i.id).stock-=i.q});
+  DB.orders.push(o);DB.cart=[];save();layer=null;view="compte";render();toast(`Commande ${o.id} enregistrée`);
+ }
+});
+document.addEventListener("change",e=>{
+ if(e.target.id==="mode"){const ship=e.target.value==="Colissimo"&&cartTotal()<60?6.9:0;document.getElementById("tot").textContent=eur(cartTotal()+ship)}
+ if(e.target.dataset.statut){const o=DB.orders.find(x=>x.id===e.target.dataset.statut);if(e.target.value==="annulee"&&o.statut!=="annulee")o.items.forEach(i=>{const p=P(i.id);if(p)p.stock+=i.q});o.statut=e.target.value;save();render();toast(`${o.id} : ${STAT[o.statut]}`)}
+});
+document.addEventListener("input",e=>{if(e.target.id==="search"){q=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("search");s.focus();s.setSelectionRange(pos,pos)}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&layer){layer=null;editing=null;renderLayer()}});
+document.addEventListener("submit",async e=>{
+ e.preventDefault();const f=e.target;
+ if(f.id==="fLogin"){const em=f.querySelector("#lEmail").value.trim().toLowerCase();const h=await hash(f.querySelector("#lPwd").value);const u=DB.users.find(x=>x.email.toLowerCase()===em&&x.pwd===h);
+  if(!u){err="E-mail ou mot de passe incorrect. Vérifiez la saisie ou créez un compte.";render();return}
+  DB.session=u.id;err="";save();view=u.role==="admin"?"atelier":(DB.cart.length?"boutique":"compte");render();if(u.role!=="admin"&&DB.cart.length){layer="cart";renderLayer()}toast(`Bienvenue ${u.nom}`)}
+ if(f.id==="fReg"){const em=f.querySelector("#rEmail").value.trim().toLowerCase();if(DB.users.some(x=>x.email.toLowerCase()===em)){err="Un compte existe déjà avec cet e-mail. Connectez-vous à gauche.";render();return}
+  const u={id:uid(),nom:f.querySelector("#rNom").value.trim(),email:em,pwd:await hash(f.querySelector("#rPwd").value),role:"client",adresse:f.querySelector("#rAdr").value.trim()};
+  DB.users.push(u);DB.session=u.id;err="";save();view="compte";render();toast("Compte créé, bienvenue !")}
+ if(f.id==="fProd"){const g=id=>f.querySelector(id).value;
+  const p=Object.assign(editing,{nom:g("#eNom").trim(),cat:g("#eCat"),parfum:g("#eParfum").trim(),cire:g("#eCire"),prix:+g("#ePrix"),stock:+g("#eStock")||0,poids:+g("#ePoids")||0,duree:+g("#eDuree")||0,desc:g("#eDesc").trim()});
+  const file=f.querySelector("#ePhoto").files[0];
+  const finish=()=>{if(!p.id){p.id=uid();DB.products.unshift(p)}else{const i=DB.products.findIndex(x=>x.id===p.id);DB.products[i]=p}save();layer=null;editing=null;render();toast("Création enregistrée")};
+  if(file){const img=new Image();const r=new FileReader();r.onload=()=>{img.onload=()=>{const c=document.createElement("canvas");const s=600/Math.max(img.width,img.height);c.width=img.width*Math.min(1,s);c.height=img.height*Math.min(1,s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);p.photo=c.toDataURL("image/jpeg",.8);finish()};img.src=r.result};r.readAsDataURL(file)}else finish();
+ }
+});
+init();
+if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+</script>
+</body>
+</html>
