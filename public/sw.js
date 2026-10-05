@@ -1,6 +1,6 @@
 // La Madeleine · service worker : mise en cache pour ouverture hors ligne
 // Change le numéro à chaque mise à jour du site pour forcer le rafraîchissement
-const CACHE = "madeleine-v3";
+const CACHE = "madeleine-v4";
 const FILES = ["./", "index.html", "manifest.webmanifest", "produits.json",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png",
   ...Array.from({ length: 10 }, (_, i) => `img/p${i + 1}.jpg`)];
