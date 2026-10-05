@@ -31,6 +31,14 @@ Aucun lien visible pour les clients. Mélanie ouvre l'adresse du site suivie de 
 (ex. `https://la-madeleine.….workers.dev/#atelier`), saisit le code `CODE_ATELIER` une fois :
 l'atelier reste ouvert sur cet appareil et apparaît dans le menu.
 
+## Application (PC, Android, iPhone)
+Le site est une application installable (PWA), sans passer par les magasins d'applications :
+- Android et ordinateur (Chrome, Edge) : bouton « Installer l'application » (pied de page, menu, ou bandeau sur téléphone).
+- iPhone / iPad : dans Safari, Partager › « Sur l'écran d'accueil » (mode d'emploi affiché par le même bouton).
+- Une fois installée : icône, plein écran, barre d'onglets en bas sur téléphone, bouton retour d'Android,
+  raccourcis par appui long (Ma carte, Messages, Boutique), ouverture hors ligne, mise à jour automatique.
+- `public/captures/` : captures montrées dans la fenêtre d'installation d'Android et de Chrome.
+
 ## Mise en ligne sur Cloudflare (une seule fois)
 1. Cloudflare › Workers & Pages › Créer › Importer un dépôt Git › choisir `Melanie-bougies`.
    Cloudflare lit `wrangler.jsonc`, crée la base D1 `la-madeleine` et redéploie à chaque publication sur `main`.
