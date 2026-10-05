@@ -277,6 +277,14 @@ footer .wrap b{font-family:var(--f-script);font-weight:400;font-size:26px;color:
 .touche .ico{width:16px;height:16px}
 footer .installer{background:none;border:1px solid var(--brass-2);color:var(--brass-1);padding:5px 12px;border-radius:2px;cursor:pointer;font-size:13px;margin-top:8px}
 
+/* Recadrage de la photo de carte */
+.cadre-zone{position:relative;width:min(270px,68vw);margin:14px auto;aspect-ratio:3/4;border:5px solid var(--brass-2);overflow:hidden;touch-action:none;cursor:grab;box-shadow:0 8px 20px var(--shadow)}
+.cadre-zone:active{cursor:grabbing}
+.cadre-zone canvas{width:100%;height:100%;display:block}
+.cadre-zone .guide{position:absolute;left:20%;right:20%;top:12%;bottom:28%;border:2px dashed rgba(255,255,255,.85);border-radius:50%;pointer-events:none;box-shadow:0 0 0 999px rgba(30,15,8,.28)}
+.avatar[data-act]{cursor:pointer}
+input[type=range]{accent-color:var(--brass-2);width:100%}
+
 /* Messagerie */
 .adresse-interne{font-family:var(--f-tag);background:var(--card);border:1px dashed var(--mustard);padding:2px 8px;overflow-wrap:anywhere}
 .mail{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--brass-2);padding:12px 16px;margin-bottom:12px;box-shadow:0 2px 6px var(--shadow)}
@@ -382,6 +390,7 @@ let view="boutique",filtre="tous",q="",layer=null,err="",adminTab="commandes",ed
 let flip=false,codeLiaison=null,photoNeuve=null,fiche=null,ficheCode=null,occupe=false;
 // Messagerie : non lus, messages du client, conversations de l'atelier, brouillon en cours
 let NONLUS=0,MSG=null,BOITE=null,CONV=null,brouillon={};
+let appuisLogo=[];
 const client=()=>MOI&&MOI.role==="client"?MOI.client:null;
 const atelier=()=>MOI&&MOI.role==="atelier";
 const P=id=>PRODUITS.find(p=>p.id===id);
@@ -587,9 +596,27 @@ async function dessinerCarte(c){
 }
 
 // Photo d'identité : recadrée en portrait 3:4, réduite pour rester légère
-function lirePhoto(file,w,h){return new Promise((ok,ko)=>{const r=new FileReader();r.onerror=ko;r.onload=()=>{const im=new Image();im.onerror=()=>ko(new Error("Image illisible"));im.onload=()=>{
- const c=document.createElement("canvas");c.width=w;c.height=h;const k=Math.max(w/im.width,h/im.height),dw=im.width*k,dh=im.height*k;
- c.getContext("2d").drawImage(im,(w-dw)/2,(h-dh)/2,dw,dh);ok(c.toDataURL("image/jpeg",.8))};im.src=r.result};r.readAsDataURL(file)})}
+// Photo de carte : choisie puis recadrée à la main (glisser + zoom), enregistrée en portrait 3:4 (360 × 480)
+const CW=360,CH=480;let REC=null,glisse=null;
+function ouvrirImage(file){return new Promise((ok,ko)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>ok(im);im.onerror=()=>ko(new Error("Image illisible"));im.src=u})}
+function dessinerCadre(){
+ const c=document.getElementById("cadre");if(!c||!REC)return;const x=c.getContext("2d"),im=REC.im;
+ const k=Math.max(CW/im.naturalWidth,CH/im.naturalHeight)*REC.zoom,w=im.naturalWidth*k,h=im.naturalHeight*k;
+ const mx=(w-CW)/2,my=(h-CH)/2;REC.x=Math.max(-mx,Math.min(mx,REC.x));REC.y=Math.max(-my,Math.min(my,REC.y));
+ x.fillStyle="#e7dacd";x.fillRect(0,0,CW,CH);x.imageSmoothingQuality="high";x.drawImage(im,(CW-w)/2+REC.x,(CH-h)/2+REC.y,w,h);
+}
+function vRecadrer(){
+ return `<div class="veil"></div><div class="modal"><div class="box" role="dialog" aria-label="Recadrer la photo" style="display:block;padding:22px;max-width:420px">
+  <h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">Recadrer ma photo</h3>
+  <p class="hint" style="margin:4px 0 0">Faites glisser la photo pour placer votre visage dans l’ovale, et zoomez avec le curseur.</p>
+  <div class="cadre-zone"><canvas id="cadre" width="${CW}" height="${CH}"></canvas><span class="guide"></span></div>
+  <label class="f">Zoom<input type="range" id="zoom" min="1" max="4" step="0.01" value="${REC?REC.zoom:1}"></label>
+  <div class="row" style="margin-top:14px"><button class="btn brass" data-act="validerCadre">Valider</button><button class="btn ghost" data-close>Annuler</button></div></div></div>`;
+}
+document.addEventListener("pointerdown",e=>{if(e.target.id!=="cadre"||!REC)return;e.preventDefault();e.target.setPointerCapture(e.pointerId);glisse={x:e.clientX,y:e.clientY,k:CW/e.target.clientWidth}});
+document.addEventListener("pointermove",e=>{if(!glisse||!REC)return;REC.x+=(e.clientX-glisse.x)*glisse.k;REC.y+=(e.clientY-glisse.y)*glisse.k;glisse.x=e.clientX;glisse.y=e.clientY;dessinerCadre()});
+addEventListener("pointerup",()=>{glisse=null});addEventListener("pointercancel",()=>{glisse=null});
+document.addEventListener("wheel",e=>{if(e.target.id!=="cadre"||!REC)return;e.preventDefault();REC.zoom=Math.max(1,Math.min(4,REC.zoom*(e.deltaY<0?1.08:1/1.08)));const z=document.getElementById("zoom");if(z)z.value=REC.zoom;dessinerCadre()},{passive:false});
 function lireImage(file){return new Promise((ok,ko)=>{const r=new FileReader();r.onerror=ko;r.onload=()=>{const im=new Image();im.onerror=()=>ko(new Error("Image illisible"));im.onload=()=>{
  const s=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
  c.getContext("2d").drawImage(im,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.75))};im.src=r.result};r.readAsDataURL(file)})}
@@ -603,7 +630,7 @@ function vCompte(){
   ${SERVEUR?"":`<p class="err" style="text-align:center">Les inscriptions ouvriront avec la boutique en ligne.</p>`}
   <div class="two">
   <form class="panel form" id="fReg"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:22px">Créer ma carte</h3>
-   <div class="row" style="align-items:flex-end"><div class="avatar">${photoNeuve?`<img src="${photoNeuve}" alt="">`:`<span class="hint">Photo</span>`}</div>
+   <div class="row" style="align-items:flex-end"><div class="avatar" ${REC?`data-act="recadrer" title="Recadrer la photo"`:""}>${photoNeuve?`<img src="${photoNeuve}" alt="">`:`<span class="hint">Photo</span>`}</div>
     <label class="f" style="flex:1;min-width:180px">Votre photo (facultative)<input id="rPhoto" type="file" accept="image/*"></label></div>
    <label class="f">Prénom<input id="rPrenom" required maxlength="60" autocomplete="given-name"></label>
    <label class="f">Nom<input id="rNom" required maxlength="60" autocomplete="family-name"></label>
@@ -624,7 +651,7 @@ function vCompte(){
  ${carteHTML(c)}
  <p class="lead" style="margin-top:18px">${c.tampons}/${TAMPONS_PAR_BON} tampons${c.bons?` · <b>${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} €</b> à utiliser dans le panier`:` · encore ${TAMPONS_PAR_BON-c.tampons} commande${TAMPONS_PAR_BON-c.tampons>1?"s":""} avant vos ${VALEUR_BON} € offerts`}</p>
  <div class="two"><div class="panel form"><b>Mes informations</b>
-   <div class="row" style="align-items:flex-end"><div class="avatar">${(photoNeuve||c.photo)?`<img src="${photoNeuve||c.photo}" alt="">`:`<span class="hint">Photo</span>`}</div>
+   <div class="row" style="align-items:flex-end"><div class="avatar" ${REC?`data-act="recadrer" title="Recadrer la photo"`:""}>${(photoNeuve||c.photo)?`<img src="${photoNeuve||c.photo}" alt="">`:`<span class="hint">Photo</span>`}</div>
     <label class="f" style="flex:1;min-width:160px">Changer de photo<input id="iPhoto" type="file" accept="image/*"></label></div>
    <label class="f">Mon adresse La Madeleine (messagerie du site)<input value="${esc(c.courriel||"")}" disabled style="font-family:var(--f-tag)"></label>
    <label class="f">E-mail<input value="${esc(c.email)}" disabled></label>
@@ -792,6 +819,9 @@ function renderLayer(){
    <span class="stamp" style="align-self:flex-start">${CATS[p.cat]||""}</span><h3>${esc(p.nom)}</h3><p style="margin:0">${esc(p.desc)}</p>
    <dl class="spec"><dt>Parfum</dt><dd>${esc(p.parfum)}</dd><dt>Cire</dt><dd>${esc(p.cire)}</dd><dt>Poids</dt><dd>${p.poids} g</dd><dt>Combustion</dt><dd>≈ ${p.duree} h</dd><dt>Disponibilité</dt><dd>${p.stock===0?"Épuisée, Mélanie en refait":p.stock<=2?`Plus que ${p.stock} à l’atelier`:`En stock (${p.stock})`}</dd></dl>
    <div class="row" style="margin-top:auto"><span class="tag">${eur(p.prix)}</span><button class="btn" data-add="${p.id}" ${p.stock?"":"disabled"}>Ajouter au panier</button><button class="btn ghost" data-close>Fermer</button></div></div></div></div>`;
+ } else if(layer==="recadrer"){
+  if(!REC){layer=null;L.innerHTML="";return}
+  L.innerHTML=vRecadrer();dessinerCadre();
  } else if(layer==="installer"){
   L.innerHTML=vInstaller();
  } else if(layer==="edit"){
@@ -835,11 +865,17 @@ document.addEventListener("click",async e=>{
  if(d.repondre){const ms=atelier()?CONV?.messages:MSG;const m=ms&&ms.find(x=>x.id===+d.repondre);if(m){brouillon={objet:m.objet.startsWith("Re : ")?m.objet:"Re : "+m.objet,commande:m.commande};render();const z=document.getElementById(atelier()?"amTexte":"mTexte");z.scrollIntoView({block:"center"});z.focus()}return}
  if(d.conv){brouillon={};agir(()=>ouvrirConv(+d.conv));return}
  if(d.ecrire){const[n,id]=d.ecrire.split(":").map(Number);adminTab="messagerie";brouillon=id?{objet:`Votre commande CMD-${num4(id)}`,commande:id}:{};agir(async()=>{await ouvrirConv(n);scrollTo(0,0)});return}
- if(t.id==="goHome"){if(layer){layer=null;history.replaceState({v:view},"")}aller("boutique");return}
+ if(t.id==="goHome"){
+  // Accès secret à l'atelier : 5 appuis rapides sur le titre (utile dans l'appli installée, sans barre d'adresse)
+  const n=Date.now();appuisLogo=appuisLogo.filter(x=>n-x<2500).concat(n);
+  if(appuisLogo.length>=5){appuisLogo=[];if(layer){layer=null;history.replaceState({v:view},"")}aller(atelier()?"atelier":"entree");return}
+  if(layer){layer=null;history.replaceState({v:view},"")}if(view!=="boutique")aller("boutique");return}
  if(d.nav){const v=d.nav==="compte"&&atelier()?"atelier":d.nav;if(v==="atelier")ATL=null;if(v==="messages")MSG=null;err="";pending=null;if(layer){layer=null;history.replaceState({v:view},"")}aller(v)}
  else if(d.open){ouvrir(d.open)}
  else if(d.close!==undefined){fermer()}
  else if(d.act==="installer"){installer()}
+ else if(d.act==="recadrer"){if(REC)ouvrir("recadrer")}
+ else if(d.act==="validerCadre"){const c=document.getElementById("cadre");if(c){photoNeuve=c.toDataURL("image/jpeg",.85);document.querySelectorAll(".avatar").forEach(v=>{v.innerHTML=`<img src="${photoNeuve}" alt="">`;v.dataset.act="recadrer";v.title="Recadrer la photo"})}fermer();if(view==="compte"&&client())toast("Photo prête : touchez « Enregistrer » pour la garder")}
  else if(d.act==="installerMaintenant"){installer()}
  else if(d.act==="pasInstaller"){LS.set("madeleine.invite","non");renderInvite()}
  else if(d.filtre){filtre=d.filtre;render();document.getElementById("vitrine").scrollIntoView({block:"start"})}
@@ -849,11 +885,11 @@ document.addEventListener("click",async e=>{
  else if(d.atab){adminTab=d.atab;pending=null;if(d.atab==="messagerie")BOITE=null;render();agir(async()=>{await rechargerAtelier();render()})}
  else if(d.act==="flip"){flip=!flip;document.querySelector(".carte")?.classList.toggle("tournee",flip)}
  else if(d.act==="dlCarte"){const c=client();if(!c)return;const cv=await dessinerCarte(c);const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=`carte-la-madeleine-${num4(c.numero)}.png`;document.body.appendChild(a);a.click();a.remove()}
- else if(d.act==="saveProfil")agir(async()=>{const r=await api("profil",{tel:document.getElementById("iTel").value,adresse:document.getElementById("iAdr").value,...(photoNeuve?{photo:photoNeuve}:{})});MOI.client=r.client;photoNeuve=null;LS.set("madeleine.moi",MOI);render();toast("Informations enregistrées")});
+ else if(d.act==="saveProfil")agir(async()=>{const r=await api("profil",{tel:document.getElementById("iTel").value,adresse:document.getElementById("iAdr").value,...(photoNeuve?{photo:photoNeuve}:{})});MOI.client=r.client;photoNeuve=null;REC=null;LS.set("madeleine.moi",MOI);render();toast("Informations enregistrées")});
  else if(d.act==="liaison")agir(async()=>{const r=await api("code-liaison",{});codeLiaison=r.code;render();setTimeout(()=>{if(codeLiaison===r.code){codeLiaison=null;if(view==="compte")render()}},r.minutes*60000)});
  else if(d.act==="askLogout"){pending="logout";render()}
  else if(d.act==="cancelDel"){pending=null;render()}
- else if(d.act==="logout")agir(async()=>{try{await api("deconnexion",{})}catch(e){}setJeton(null);MOI=null;pending=null;codeLiaison=null;MSG=null;NONLUS=0;view="boutique";render();toast("Carte fermée sur cet appareil")});
+ else if(d.act==="logout")agir(async()=>{try{await api("deconnexion",{})}catch(e){}setJeton(null);MOI=null;pending=null;codeLiaison=null;MSG=null;NONLUS=0;REC=null;photoNeuve=null;view="boutique";render();toast("Carte fermée sur cet appareil")});
  else if(d.act==="sortirAtelier")agir(async()=>{try{await api("atelier/sortir",{})}catch(e){}setJeton(null);MOI=null;ATL=null;BOITE=null;CONV=null;NONLUS=0;view="boutique";render();toast("Atelier fermé sur cet appareil")});
  else if(d.act==="checkout"){
   if(!client()){layer=null;history.replaceState({v:view},"");err="Créez votre carte ou ouvrez-la sur cet appareil pour commander.";aller("compte");return}
@@ -887,16 +923,16 @@ document.addEventListener("click",async e=>{
 document.addEventListener("change",async e=>{
  const t=e.target;
  if(t.id==="mode"||t.id==="bon"){const c=client(),st=cartTotal(),mode=document.getElementById("mode").value;const port=mode==="Colissimo"&&st<60?6.9:0;const remise=document.getElementById("bon")?.checked?Math.min(VALEUR_BON,st):0;document.getElementById("tot").textContent=eur(st-remise+port)}
- if(t.id==="rPhoto"||t.id==="iPhoto"){const f=t.files[0];if(!f)return;try{photoNeuve=await lirePhoto(f,360,480);const v=document.querySelector(".avatar");if(v)v.innerHTML=`<img src="${photoNeuve}" alt="">`}catch(x){toast("Cette image n'a pas pu être lue.")}}
+ if(t.id==="rPhoto"||t.id==="iPhoto"){const f=t.files[0];if(!f)return;try{REC={im:await ouvrirImage(f),zoom:1,x:0,y:0};t.value="";ouvrir("recadrer")}catch(x){toast("Cette image n'a pas pu être lue.")}}
  if(t.dataset.statut){const id=+t.dataset.statut;agir(async()=>{try{await api("atelier/statut",{id,statut:t.value})}finally{await rechargerAtelier();render()}toast(`Commande ${ATL.commandes.find(o=>o.id===id)?.ref||""} : ${STAT[t.value]}`)})}
 });
-document.addEventListener("input",e=>{if(e.target.id==="search"){q=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("search");s.focus();s.setSelectionRange(pos,pos)}});
+document.addEventListener("input",e=>{if(e.target.id==="zoom"&&REC){REC.zoom=+e.target.value;dessinerCadre();return}if(e.target.id==="search"){q=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("search");s.focus();s.setSelectionRange(pos,pos)}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&layer)fermer()});
 document.addEventListener("submit",e=>{
  e.preventDefault();const f=e.target,v=id=>f.querySelector(id).value;
  if(f.id==="fReg")agir(async()=>{
   try{const r=await api("inscription",{prenom:v("#rPrenom"),nom:v("#rNom"),email:v("#rEmail"),tel:v("#rTel"),adresse:v("#rAdr"),photo:photoNeuve});
-   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[]};NONLUS=1;MSG=null;LS.set("madeleine.moi",MOI);photoNeuve=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`)}
+   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[]};NONLUS=1;MSG=null;LS.set("madeleine.moi",MOI);photoNeuve=null;REC=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`)}
   catch(x){err=x.message;render()}});
  if(f.id==="fCode")agir(async()=>{
   try{const r=await api("connexion",{code:v("#cCode")});setJeton(r.jeton);await rechargerMoi();NONLUS=MOI.nonlus||0;MSG=null;err="";render();scrollTo(0,0);toast(`Carte n° ${num4(r.client.numero)} ouverte sur cet appareil`)}
