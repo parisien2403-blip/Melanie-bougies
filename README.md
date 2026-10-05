@@ -13,7 +13,9 @@ Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidél
 
 ## Carte de fidélité
 - Inscription sans mot de passe : prénom, nom, e-mail, téléphone, adresse, photo. La carte reste ouverte sur l'appareil.
-- Numéro de client dans l'ordre des inscriptions : 0001, 0002…
+- Numéro de client dans l'ordre des inscriptions : 0001, 0002…, et adresse de l'application `prenom.nom@la-madeleine`
+  (imprimée sur la carte), présentées dans un écran de bienvenue après l'inscription.
+- Suivi des commandes dans « Ma carte » : frise Reçue › En préparation › Prête / expédiée › Livrée.
 - Photo recadrée à l'inscription (glisser + zoom, ovale pour placer le visage), modifiable ensuite dans « Ma carte ».
 - Carte recto (photo, nom, numéro) / verso (10 cases), à retourner et à télécharger en image.
 - Un tampon par commande, retiré si la commande est annulée. Au 10e tampon : un bon de 10 € à utiliser dans le panier.
