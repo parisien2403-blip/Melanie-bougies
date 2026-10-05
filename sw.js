@@ -1,8 +1,8 @@
-// Mél'Antan · service worker : mise en cache pour ouverture hors ligne
+// La Madeleine · service worker : mise en cache pour ouverture hors ligne
 // Change le numéro à chaque mise à jour du site pour forcer le rafraîchissement
-const CACHE = "melantan-v1";
+const CACHE = "madeleine-v2";
 const FILES = ["./", "index.html", "manifest.webmanifest",
-  "icons/icon-192.png", "icons/icon-512.png",
+  "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png",
   ...Array.from({ length: 10 }, (_, i) => `img/p${i + 1}.jpg`)];
 
 self.addEventListener("install", e => {
