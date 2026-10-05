@@ -279,6 +279,8 @@ footer .wrap b{font-family:var(--f-script);font-weight:400;font-size:26px;color:
 .touche .ico{width:16px;height:16px}
 footer .installer{background:none;border:1px solid var(--brass-2);color:var(--brass-1);padding:5px 12px;border-radius:2px;cursor:pointer;font-size:13px;margin-top:8px}
 
+dl.recap{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin:0;font-size:13.5px;color:var(--ink-soft)}dl.recap dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+
 /* Carte en grand, QR codes, parrainage, scanner */
 .box.grand{display:grid;gap:16px;padding:18px;max-width:480px;grid-template-columns:1fr}
 .carte.fixe{cursor:default;transform:none}
@@ -306,6 +308,38 @@ footer .installer{background:none;border:1px solid var(--brass-2);color:var(--br
 @media (max-width:520px){.qr-perso,.parrain{flex-direction:column;text-align:center}.parrain .row{justify-content:center}}
 
 .parrain-choisi{display:flex;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--mustard);padding:8px 10px;flex-wrap:wrap}
+
+/* Atelier : réglages */
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:6px}
+.slot{display:grid;gap:4px;justify-items:start}.slot img{width:100%;aspect-ratio:1;object-fit:cover;border:3px solid var(--brass-2)}
+.ligne-opt{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;border-bottom:1px dashed var(--line);padding-bottom:8px}
+.ligne-opt label.f{flex:1;min-width:90px}.ligne-opt input[type=color]{width:44px;height:38px;padding:2px;border:1px solid var(--line);background:var(--paper)}
+.barre-enreg{position:sticky;bottom:0;background:var(--paper);padding:12px 0;border-top:1px dashed var(--line);margin-bottom:22px}
+@media (max-width:760px){.barre-enreg{bottom:calc(env(safe-area-inset-bottom,0px) + 66px)}}
+tr.masquee td{opacity:.6}
+.panel input:not([type=checkbox]):not([type=file]):not([type=color]),.panel textarea{border:1px solid var(--line);background:var(--paper);padding:8px 10px;border-radius:2px;color:var(--ink);font-size:15px;min-width:0;max-width:100%}
+
+/* Verrine sur mesure */
+.compo{display:grid;grid-template-columns:minmax(260px,380px) 1fr;gap:28px;align-items:start;padding-bottom:40px}
+.apercu-zone{position:sticky;top:110px}
+.apercu{padding:14px;border-radius:4px}.apercu #apercu{background:radial-gradient(circle at 50% 40%,#fbf3e6,#e9dccb);display:grid;place-items:center;padding:10px}
+.apercu svg{width:100%;max-width:300px;height:auto;display:block}
+.prix-compo{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:12px}.prix-compo .tag{font-size:22px}
+.etapes-compo{display:grid;gap:18px}
+.etapes-compo fieldset{border:1px solid var(--line);background:var(--card);padding:14px 16px 16px;margin:0}
+.etapes-compo legend{font-family:var(--f-display);font-size:20px;padding:0 6px;display:flex;align-items:center;gap:8px}
+.etapes-compo legend span{width:26px;height:26px;border-radius:50%;background:var(--brass);color:#2b1a0c;display:grid;place-items:center;font-family:var(--f-tag);font-size:13px}
+.choix-liste{display:flex;flex-wrap:wrap;gap:8px}
+.choix{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:7px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;font-size:14px}
+.choix small{color:var(--ink-soft);font-size:12px}.choix b{font-weight:400}
+.choix.on{border:2px solid var(--rose-deep);background:var(--card);box-shadow:0 2px 6px var(--shadow)}.choix.on b{font-weight:700}
+.etage{margin-top:12px}.pastilles-couleur{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.couleur{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--c);cursor:pointer;box-shadow:inset 0 -3px 6px rgba(0,0,0,.15)}
+.couleur.on{border:3px solid var(--rose-deep);box-shadow:0 0 0 3px rgba(110,74,116,.25)}
+.ajout-compo{position:sticky;bottom:0;background:var(--paper);padding:12px 0;border-top:1px dashed var(--line)}
+.prod.compose{border:2px solid var(--brass-2)}.prod.compose .pic{background:radial-gradient(circle at 50% 40%,#fbf3e6,#e9dccb)}.prod.compose .pic svg{width:78%}
+.mini svg{width:100%;height:100%}
+@media (max-width:760px){.compo{grid-template-columns:1fr}.apercu-zone{position:static}.apercu svg{max-width:220px}.ajout-compo{bottom:calc(env(safe-area-inset-bottom,0px) + 66px)}}
 
 /* Bienvenue et suivi des commandes */
 .bienvenue{position:relative;border:2px solid var(--mustard);max-width:620px;margin:0 auto 24px}
@@ -400,7 +434,6 @@ pot:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="106" rx="38" ry="6
 tasse:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="58" cy="100" rx="48" ry="9" fill="${c2}" opacity=".5"/><path d="M22 50 h72 v18 q0 26 -36 26 q-36 0 -36 -26z" fill="${c1}"/><path d="M94 56 q16 0 16 12 q0 12 -18 12" fill="none" stroke="${c1}" stroke-width="6"/><ellipse cx="58" cy="50" rx="36" ry="7" fill="#f2e6d4"/><circle cx="40" cy="70" r="4" fill="${c2}"/><circle cx="58" cy="76" r="4" fill="${c2}"/><circle cx="76" cy="70" r="4" fill="${c2}"/><rect x="56" y="26" width="4" height="22" fill="#e9dcc8"/><path d="M58 14 q5 6 0 11 q-5 -5 0 -11z" fill="#e8a33a"/></svg>`,
 flacon:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="108" rx="30" ry="5" fill="var(--line)"/><rect x="48" y="20" width="24" height="12" fill="${c2}"/><path d="M50 32 h20 v8 q22 6 22 30 v32 q0 6 -6 6 h-52 q-6 0 -6 -6 v-32 q0 -24 22 -30z" fill="${c1}" opacity=".88"/><path d="M40 62 h40 v30 h-40z" fill="#f7ead2"/><text x="60" y="81" text-anchor="middle" font-family="Special Elite, monospace" font-size="10" fill="${c2}">N°7</text><path d="M60 6 q5 6 0 11 q-5 -5 0 -11z" fill="#e8a33a"/></svg>`
 };
-const CATS={gateau:"Gâteaux",verrine:"Verrines",douceur:"Petites douceurs",pot:"Pots",bouteille:"Bouteilles",tasse:"Tasses"};
 ART.verrine=ART.pot;ART.douceur=ART.gateau;
 
 /* ---------- Mémoire de l'appareil ---------- */
@@ -415,7 +448,23 @@ function setJeton(j){jeton=j;if(j)LS.set("madeleine.jeton",j);else{LS.del("madel
 
 const eur=n=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR"});
 const num4=n=>String(n).padStart(4,"0");
-const TAMPONS_PAR_BON=10,VALEUR_BON=10;
+// Règles de la boutique, réglées par Mélanie (Atelier › Ma boutique) et reçues avec le catalogue
+const R_DEFAUT={bandeau:"Photos d’inspiration à remplacer par les créations de Mélanie · paiement en ligne pas encore branché",
+ accrocheTitre:"Des bougies qui sentent *le goûter* de grand-mère.",
+ accrocheTexte:"Gâteaux de cire, verrines gourmandes, beignets et fondants parfumés : chaque pièce est coulée et décorée à la main par Mélanie, en cire végétale, dans l’esprit des salons d’antan.",
+ port:6.9,portOffert:60,tamponsParBon:10,valeurBon:10,gainParrain:1,tauxReduction:5,
+ categories:[["gateau","Gâteaux"],["verrine","Verrines"],["douceur","Petites douceurs"],["pot","Pots"],["bouteille","Bouteilles"],["tasse","Tasses"]],
+ images:{accueil:["img/p6.jpg","img/p1.jpg","img/p3.jpg"],histoire:["img/p8.jpg","img/p9.jpg","img/p5.jpg"],souvenirs:["img/p7.jpg","img/p8.jpg","img/p2.jpg","img/p1.jpg"]}};
+let R=R_DEFAUT,V=null,CATS={},TAMPONS_PAR_BON=10,VALEUR_BON=10;
+function appliquerReglages(r,v){
+ R={...R_DEFAUT,...(r||{})};R.images={...R_DEFAUT.images,...((r||{}).images||{})};if(v!==undefined)V=v;
+ CATS=Object.fromEntries(R.categories);TAMPONS_PAR_BON=R.tamponsParBon;VALEUR_BON=R.valeurBon;
+ const b=document.querySelector(".demo");if(b){b.textContent=R.bandeau;b.hidden=!R.bandeau}
+}
+appliquerReglages();
+const arr=n=>Math.round(n*100)/100;
+// « Des bougies qui sentent *le goûter*… » : les mots entre étoiles passent en italique de couleur
+const accroche=t=>esc(t).replace(/\*([^*]+)\*/g,"<em>$1</em>");
 const LETTRE_DEFAUT=`Je crois que nous avons tous une cuisine quelque part dans la mémoire. Une table en chêne ou en formica, une toile cirée, une boîte en fer pleine de biscuits, et cette odeur qui disait que tout allait bien.
 
 Ces moments-là, on ne peut pas les rattraper. Mais on peut les rappeler. C’est ce que j’essaie de faire avec chaque bougie : façonner un gâteau qu’on ne mangera pas, mais qu’on respirera, et qui ramènera pour quelques heures le goût d’avant.
@@ -452,17 +501,21 @@ function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt
 function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}
 const dispo=p=>p.stock===0?`<span class="low out">Épuisée · bientôt de retour</span>`:p.stock<=2?`<span class="low">Plus que ${p.stock}</span>`:`<span class="low ok">En stock</span>`;
 const cartCount=()=>panier.reduce((a,l)=>a+l.q,0);
-const cartTotal=()=>panier.reduce((a,l)=>a+l.q*(P(l.id)?.prix||0),0);
+// Ligne de panier : bougie de la vitrine {id,q}, ou verrine composée {id:"verrine",q,perso,cle}
+const ligneProduit=l=>l.id==="verrine"?verrineInfo(l.perso):P(l.id);
+const cleLigne=l=>l.cle||l.id;
+const cartTotal=()=>panier.reduce((a,l)=>a+l.q*(ligneProduit(l)?.prix||0),0);
+const ligneTxt=i=>`${i.q} × ${esc(i.nom)}${i.detail?`<div class="meta">${esc(i.detail)}</div>`:""}`;
 const STAT={nouvelle:"Nouvelle",preparation:"En préparation",prete:"Prête / expédiée",livree:"Livrée",annulee:"Annulée"};
 const spill=s=>`<span class="pill s-${s}">${STAT[s]}</span>`;
 const fdate=d=>new Date(d+"T12:00").toLocaleDateString("fr-FR");
 const fdt=d=>new Date(d).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 const fmois=d=>new Date(d+"T12:00").toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
 // Panier ramené au stock réel ; true si quelque chose a changé
-function fitCart(){const avant=JSON.stringify(panier);panier=panier.map(l=>({...l,q:Math.min(l.q,P(l.id)?.stock||0)})).filter(l=>l.q>0);savePanier();return JSON.stringify(panier)!==avant}
+function fitCart(){const avant=JSON.stringify(panier);panier=panier.map(l=>l.id==="verrine"?(verrineInfo(l.perso)?l:{...l,q:0}):{...l,q:Math.min(l.q,P(l.id)?.stock||0)}).filter(l=>l.q>0);savePanier();return JSON.stringify(panier)!==avant}
 
 async function init(){
- try{const c=await api("catalogue");PRODUITS=c.produits;LETTRE=c.lettre;SERVEUR=true}
+ try{const c=await api("catalogue");PRODUITS=c.produits;LETTRE=c.lettre;appliquerReglages(c.reglages,c.verrine);SERVEUR=true}
  catch(e){SERVEUR=false;try{PRODUITS=await(await fetch("produits.json")).json()}catch(e2){PRODUITS=[]}}
  document.getElementById("hors").hidden=SERVEUR;
  if(SERVEUR&&jeton){
@@ -485,9 +538,9 @@ async function init(){
 }
 addEventListener("hashchange",()=>{if(location.hash==="#atelier"){view=atelier()?"atelier":"entree";render();scrollTo(0,0)}
  const carte=location.hash.match(/^#carte=(\d+)\.([0-9a-f]+)$/);if(carte){history.replaceState({v:view},"",location.pathname);if(atelier())ouvrirCarteScannee(+carte[1],carte[2]).catch(e=>toast(e.message));else{view="carteInfo";render()}}});
-async function rechargerCatalogue(){try{const c=await api("catalogue");PRODUITS=c.produits;LETTRE=c.lettre}catch(e){}}
+async function rechargerCatalogue(){try{const c=await api("catalogue");PRODUITS=c.produits;LETTRE=c.lettre;appliquerReglages(c.reglages,c.verrine)}catch(e){}}
 async function rechargerMoi(){MOI=await api("moi");LS.set("madeleine.moi",MOI);verifierFete()}
-async function rechargerAtelier(){ATL=await api("atelier");PRODUITS=ATL.produits;NONLUS=ATL.nonlus||0}
+async function rechargerAtelier(){ATL=await api("atelier");PRODUITS=ATL.produits;NONLUS=ATL.nonlus||0;appliquerReglages(ATL.reglages,ATL.verrine)}
 
 const ICO={
  boutique:'<path d="M4 9h16l-1.2 11H5.2L4 9Z"/><path d="M8.5 9V7a3.5 3.5 0 0 1 7 0v2"/>',
@@ -527,23 +580,102 @@ function vBoutique(){
  return `<div class="wrap">
  <section class="hero">
   <div><span class="stamp">Fait main · petites séries</span>
-   <h1 class="big">Des bougies qui sentent <em>le goûter</em> de grand-mère.</h1>
-   <p>Gâteaux de cire, verrines gourmandes, beignets et fondants parfumés : chaque pièce est coulée et décorée à la main par Mélanie, en cire végétale, dans l’esprit des salons d’antan.</p>
-   <p>Avec la carte de fidélité, chaque commande vous rapporte un tampon. <b>Au 10e, 10 € offerts.</b></p>
+   <h1 class="big">${accroche(R.accrocheTitre)}</h1>
+   <p>${esc(R.accrocheTexte)}</p>
+   <p>Avec la carte de fidélité, chaque commande vous rapporte un tampon. <b>Au ${TAMPONS_PAR_BON}<sup>e</sup>, ${eur(VALEUR_BON)} offerts.</b></p>
    <div class="row"><button class="btn" data-scroll="vitrine">Voir la vitrine</button><button class="btn ghost" data-nav="${client()||atelier()?"histoire":"compte"}">${client()||atelier()?"Lire notre histoire":"Créer ma carte de fidélité"}</button></div></div>
-  <div class="hero-art frame wood" aria-hidden="true"><img src="${PHOTOS.p6}" alt=""><img src="${PHOTOS.p1}" alt=""><img src="${PHOTOS.p3}" alt=""></div>
+  <div class="hero-art frame wood" aria-hidden="true">${R.images.accueil.map(u=>`<img src="${esc(u)}" alt="">`).join("")}</div>
  </section>
  <div class="bar" id="vitrine">
   ${[["tous","Tout"],...Object.entries(CATS).filter(([k])=>PRODUITS.some(p=>p.cat===k))].map(([k,l])=>`<button class="chip ${filtre===k?"on":""}" data-filtre="${k}">${l}</button>`).join("")}
   <input id="search" type="search" placeholder="Chercher un parfum, un nom…" value="${esc(q)}" aria-label="Rechercher">
  </div>
- <div class="grid">${list.map(p=>`<article class="prod ${p.stock?"":"sold"}">
+ <div class="grid">${V&&V.actif&&(filtre==="tous"||filtre==="verrine")&&!q?(()=>{const d=compoDefaut(),i=verrineInfo(d);return i?`<article class="prod compose"><span class="cat">Sur mesure</span>
+  <div class="frame wood"><div class="pic" data-nav="verrine">${i.svg}</div></div>
+  <div class="body"><h3>Créez votre verrine</h3><div class="meta">Le verre, les étages, le parfum, le décor et même un petit mot : composez-la, Mélanie la fabrique.</div>
+   <div class="foot"><span class="meta">dès <span class="tag">${eur(Math.min(...V.verres.map(x=>x.prix)))}</span></span><button class="btn brass small" data-nav="verrine">Composer</button></div></div></article>`:""})():""}${list.map(p=>`<article class="prod ${p.stock?"":"sold"}">
   <span class="cat">${CATS[p.cat]||""}</span>${dispo(p)}
   <div class="frame wood"><div class="pic" data-open="prod:${p.id}">${pic(p)}${p.img&&!p.photo?`<span class="insp">Photo d’inspiration</span>`:""}</div></div>
   <div class="body"><h3>${esc(p.nom)}</h3><div class="meta">${esc(p.parfum)}</div><div class="meta">${p.poids} g · ≈ ${p.duree} h de combustion</div>
-   <div class="foot"><span class="tag">${eur(p.prix)}</span><button class="btn small" data-add="${p.id}" ${p.stock?"":"disabled"}>${p.stock?"Ajouter":"Bientôt"}</button></div></div>
+   <div class="foot"><span>${p.prixAvant?`<s class="meta">${eur(p.prixAvant)}</s> `:""}<span class="tag">${eur(p.prix)}</span></span><button class="btn small" data-add="${p.id}" ${p.stock?"":"disabled"}>${p.stock?"Ajouter":"Bientôt"}</button></div></div>
  </article>`).join("")||`<p class="hint">Aucune bougie ne correspond à cette recherche.</p>`}</div></div>`;
 }
+
+/* ---------- Verrine sur mesure ---------- */
+// Composition en cours : {verre, etages:[du bas vers le haut], parfum, decors:[], mot}
+let COMPO=null,qteCompo=1;
+function compoDefaut(){return V?{verre:V.verres[0]?.id,etages:V.etages.slice(0,2).map(x=>x.id),parfum:V.parfums[0]?.id,decors:V.decors[0]?[V.decors[0].id]:[],mot:""}:null}
+// Même contrôle et même prix que le serveur ; null si une option n'existe plus
+function verrineInfo(p){
+ if(!V||!V.actif||!p)return null;
+ const verre=V.verres.find(x=>x.id===p.verre),parfum=V.parfums.find(x=>x.id===p.parfum);
+ const etages=(p.etages||[]).map(id=>V.etages.find(x=>x.id===id)),decors=[...new Set(p.decors||[])].map(id=>V.decors.find(x=>x.id===id));
+ const mot=String(p.mot||"").trim().slice(0,V.maxMot);
+ if(!verre||!parfum||etages.length<2||etages.length>3||etages.includes(undefined)||decors.includes(undefined)||decors.length>V.maxDecors)return null;
+ const prix=arr(verre.prix+(etages.length===3?V.prixTroisEtages:0)+decors.reduce((a,x)=>a+x.prix,0)+(mot?V.prixMot:0));
+ const detail=[verre.nom,etages.map(x=>x.nom).join(" / "),"parfum "+parfum.nom,decors.length?"décor : "+decors.map(x=>x.nom.toLowerCase()).join(", "):"",mot?`mot « ${mot} »`:""].filter(Boolean).join(" · ");
+ return{nom:"Verrine sur mesure",prix,detail,svg:verrineSVG(p),poids:verre.poids,duree:verre.duree};
+}
+let numSVG=0;
+// Dessin de la verrine : verre, étages de couleur (vagues de crème), décor, étiquette du petit mot, mèche et flamme
+function verrineSVG(p){
+ if(!V||!p)return"";
+ const n=++numSVG,iv=Math.max(0,V.verres.findIndex(x=>x.id===p.verre)),h=140+Math.min(iv,3)*22,bas=244,haut=bas-h,g=44,d=156;
+ const couleurs=(p.etages||[]).map(id=>(V.etages.find(x=>x.id===id)||{}).couleur||"#e7dacd");
+ const rempli=h*.74,eh=rempli/Math.max(1,couleurs.length);
+ const vague=(y,amp)=>`M${g} ${y} q 9 ${-amp} 18 0 t 18 0 t 18 0 t 18 0 t 18 0 t 18 0 t 18 0 V ${bas+20} H ${g} Z`;
+ // Du haut vers le bas : chaque étage recouvre le bas du précédent, sa vague de crème reste visible
+ let couches="";couleurs.map((c,i)=>[c,i]).reverse().forEach(([c,i])=>{const y=bas-eh*(i+1);couches+=`<path d="${vague(y,4)}" fill="${c}"/>`});
+ const dessus=bas-rempli,cx=100,D=new Set(p.decors||[]);
+ let deco="";
+ if(D.has("chantilly"))deco+=`<g fill="#fffaf2" stroke="#e8dccb" stroke-width="1.2"><ellipse cx="${cx}" cy="${dessus-6}" rx="34" ry="11"/><ellipse cx="${cx}" cy="${dessus-16}" rx="24" ry="10"/><ellipse cx="${cx}" cy="${dessus-25}" rx="14" ry="8"/><path d="M${cx} ${dessus-38} q6 6 0 9 q-6-3 0-9z"/></g>`;
+ const top=D.has("chantilly")?dessus-16:dessus-4;
+ if(D.has("fraises"))deco+=[[cx-24,top-2],[cx+22,top]].map(([x,y])=>`<path d="M${x} ${y+9} c-9-6-9-14-2-15 c3 0 2 3 2 3 c0 0-1-3 2-3 c7 1 7 9-2 15z" fill="#c8323f"/><path d="M${x-3} ${y-5} l3 3 l3-3" stroke="#4d7a3a" stroke-width="2" fill="none"/>`).join("");
+ if(D.has("framboises"))deco+=[[cx-12,top-6],[cx+12,top-8]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="6" fill="#d24a6c"/><circle cx="${x-2}" cy="${y-2}" r="1.3" fill="#f3a3b6"/><circle cx="${x+2}" cy="${y+1}" r="1.3" fill="#f3a3b6"/>`).join("");
+ if(D.has("vermicelles"))deco+=["#e85a8a","#f3c74a","#5aa0e8","#7cc46a","#f08a3a","#b07ad8"].map((c,i)=>`<rect x="${cx-30+i*11}" y="${top-4+(i%2)*5}" width="7" height="2.4" rx="1.2" fill="${c}" transform="rotate(${i*37%80-40} ${cx-26+i*11} ${top+(i%2)*5})"/>`).join("");
+ if(D.has("grains"))deco+=[[cx-30,top+2],[cx+30,top+3],[cx+6,top-10]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="5" ry="3.4" fill="#3b2418"/><path d="M${x-4} ${y} h8" stroke="#7a4f34" stroke-width="1"/>`).join("");
+ if(D.has("chocolat"))deco+=`<rect x="${cx+10}" y="${top-24}" width="18" height="18" rx="2" fill="#4a2a1a" transform="rotate(14 ${cx+19} ${top-15})"/><path d="M${cx+14} ${top-20} h10 M${cx+14} ${top-14} h10" stroke="#6b3d2e" stroke-width="1.4" transform="rotate(14 ${cx+19} ${top-15})"/>`;
+ if(D.has("biscuit"))deco+=`<rect x="${cx-34}" y="${top-24}" width="22" height="14" rx="3" fill="#d9a865" transform="rotate(-16 ${cx-23} ${top-17})"/><g fill="#a8743a" transform="rotate(-16 ${cx-23} ${top-17})"><circle cx="${cx-29}" cy="${top-19}" r="1.2"/><circle cx="${cx-23}" cy="${top-15}" r="1.2"/><circle cx="${cx-17}" cy="${top-19}" r="1.2"/></g>`;
+ if(D.has("paillettes"))deco+=Array.from({length:9},(_,i)=>`<circle cx="${cx-32+i*8}" cy="${top-8-(i*13%11)}" r="1.4" fill="#e8c46a"/>`).join("");
+ [...D].filter(x=>!["chantilly","fraises","framboises","vermicelles","grains","chocolat","biscuit","paillettes"].includes(x)).forEach((x,k)=>{deco+=`<circle cx="${cx-20+k*20}" cy="${top-10}" r="5" fill="#b08d4a"/>`});
+ const meche=Math.min(top,dessus)-(D.has("chantilly")?26:10);
+ const mot=String(p.mot||"").trim().slice(0,V.maxMot);
+ const etiquette=mot?`<rect x="${g+6}" y="${bas-46}" width="${d-g-12}" height="26" rx="3" fill="#f3e6cf" stroke="#b08d4a"/><text x="100" y="${bas-29}" text-anchor="middle" font-family="Special Elite, monospace" font-size="${Math.min(11,(d-g-22)/(.62*mot.length)).toFixed(1)}" fill="#5a3219">${esc(mot)}</text>`:"";
+ return `<svg viewBox="0 0 200 270" role="img" aria-label="Aperçu de la verrine"><defs><clipPath id="vc${n}"><path d="M${g} ${haut} V ${bas-14} q0 14 14 14 H ${d-14} q14 0 14 -14 V ${haut} Z"/></clipPath></defs>
+  <ellipse cx="100" cy="${bas+12}" rx="70" ry="8" fill="rgba(60,30,20,.18)"/>
+  <g clip-path="url(#vc${n})"><rect x="0" y="0" width="200" height="270" fill="rgba(255,255,255,.35)"/>${couches}</g>
+  ${deco}
+  <rect x="98.5" y="${meche-14}" width="3" height="14" fill="#e9dcc8"/><path d="M100 ${meche-32} q8 10 0 18 q-8-8 0-18z" fill="#e8a33a"/><path d="M100 ${meche-25} q3 5 0 9 q-3-4 0-9z" fill="#fff3c8"/>
+  <path d="M${g} ${haut} V ${bas-14} q0 14 14 14 H ${d-14} q14 0 14 -14 V ${haut}" fill="none" stroke="rgba(110,90,80,.55)" stroke-width="2.5"/>
+  <path d="M${g+8} ${haut+8} V ${bas-22}" stroke="rgba(255,255,255,.7)" stroke-width="4" stroke-linecap="round"/>
+  ${etiquette}</svg>`;
+}
+function vVerrine(){
+ if(!V||!V.actif)return `<div class="wrap"><h2 class="sec">Créer ma verrine</h2><p class="lead">Les verrines sur mesure sont en pause pour le moment. Revenez bientôt !</p></div>`;
+ if(!COMPO||!verrineInfo(COMPO))COMPO=compoDefaut();
+ const c=COMPO,info=verrineInfo(c)||{prix:0},nb=c.etages.length;
+ const noms=nb===3?["Étage du bas","Étage du milieu","Étage du haut"]:["Étage du bas","Étage du haut"];
+ const puce=(on,attr,contenu,titre)=>`<button type="button" class="choix ${on?"on":""}" data-compo="${attr}" ${titre?`title="${esc(titre)}"`:""} aria-pressed="${on}">${contenu}</button>`;
+ return `<div class="wrap"><h2 class="sec">Créer ma verrine</h2>
+ <p class="lead">Composez la verrine de vos souvenirs : Mélanie la coule et la décore à la main, rien que pour vous. ${esc(V.delai||"")}</p>
+ <div class="compo">
+  <div class="apercu-zone"><div class="apercu frame wood"><div id="apercu">${info.svg||verrineSVG(c)}</div></div>
+   <div class="prix-compo"><span class="tag" id="prixCompo">${eur(info.prix)}</span><span class="meta" id="infoCompo">${info.poids?`${info.poids} g · ≈ ${info.duree} h de combustion`:""}</span></div></div>
+  <div class="etapes-compo">
+   <fieldset><legend><span>1</span>Le verre</legend><div class="choix-liste">${V.verres.map(x=>puce(c.verre===x.id,"verre:"+x.id,`<b>${esc(x.nom)}</b><small>${x.poids} g · ${eur(x.prix)}</small>`)).join("")}</div></fieldset>
+   <fieldset><legend><span>2</span>Les étages</legend>
+    <div class="choix-liste">${puce(nb===2,"nb:2","<b>2 étages</b>")}${puce(nb===3,"nb:3",`<b>3 étages</b><small>+ ${eur(V.prixTroisEtages)}</small>`)}</div>
+    ${c.etages.map((e,i)=>`<div class="etage"><span class="meta">${noms[i]} : <b>${esc((V.etages.find(x=>x.id===e)||{}).nom||"")}</b></span><div class="pastilles-couleur">${V.etages.map(x=>`<button type="button" class="couleur ${e===x.id?"on":""}" data-compo="etage:${i}:${x.id}" style="--c:${x.couleur}" title="${esc(x.nom)}" aria-label="${esc(x.nom)}"></button>`).join("")}</div></div>`).reverse().join("")}
+   </fieldset>
+   <fieldset><legend><span>3</span>Le parfum</legend><div class="choix-liste">${V.parfums.map(x=>puce(c.parfum===x.id,"parfum:"+x.id,`<b>${esc(x.nom)}</b>`)).join("")}</div></fieldset>
+   <fieldset><legend><span>4</span>Le décor <small class="meta">(jusqu’à ${V.maxDecors})</small></legend><div class="choix-liste">${V.decors.map(x=>puce(c.decors.includes(x.id),"decor:"+x.id,`<b>${esc(x.nom)}</b><small>${x.prix?"+ "+eur(x.prix):"offert"}</small>`)).join("")}</div></fieldset>
+   <fieldset><legend><span>5</span>Le petit mot <small class="meta">(facultatif · + ${eur(V.prixMot)})</small></legend>
+    <label class="f">Écrit à la main sur l’étiquette<input id="compoMot" maxlength="${V.maxMot}" value="${esc(c.mot)}" placeholder="Joyeux anniversaire Mamie"></label></fieldset>
+   <div class="row ajout-compo"><div class="qty"><button data-act="qteCompo:-1" aria-label="Moins">−</button><span>${qteCompo}</span><button data-act="qteCompo:1" aria-label="Plus">+</button></div>
+    <button class="btn brass" data-act="ajouterCompo">Ajouter au panier · <span id="prixBouton">${eur(info.prix*qteCompo)}</span></button><button class="btn ghost small" data-act="recommencerCompo">Recommencer</button></div>
+  </div></div></div>`;
+}
+function majApercu(){const i=verrineInfo(COMPO);if(!i)return;const a=document.getElementById("apercu");if(a)a.innerHTML=i.svg;const p=document.getElementById("prixCompo");if(p)p.textContent=eur(i.prix);const b=document.getElementById("prixBouton");if(b)b.textContent=eur(i.prix*qteCompo)}
 
 /* ---------- Notre histoire ---------- */
 const MEMOIRES=[
@@ -560,7 +692,7 @@ function vHistoire(){
    <h1 class="big">Le goût <em>d’avant</em>, retrouvé dans la cire.</h1>
    <p>Il y a des odeurs qui ouvrent des portes. Une brioche qui dore, un caramel qui frémit, la vanille sur les doigts : en une seconde, on a de nouveau huit ans, assis à la table de la cuisine, les jambes qui ne touchent pas le sol.</p>
    <p>La Madeleine est née de cette envie-là : retrouver les plaisirs simples qu’on a laissés filer, et les rallumer, le temps d’une bougie.</p></div>
-  <div class="hero-art frame wood" aria-hidden="true"><img src="${PHOTOS.p8}" alt=""><img src="${PHOTOS.p9}" alt=""><img src="${PHOTOS.p5}" alt=""></div>
+  <div class="hero-art frame wood" aria-hidden="true">${R.images.histoire.map(u=>`<img src="${esc(u)}" alt="">`).join("")}</div>
  </section>
 
  <figure class="plaque wood"><blockquote>« Quand d’un passé ancien rien ne subsiste, après la mort des êtres, après la destruction des choses, seules, plus frêles mais plus vivaces, plus immatérielles, plus persistantes, plus fidèles, l’odeur et la saveur restent encore longtemps, comme des âmes… »</blockquote>
@@ -569,7 +701,7 @@ function vHistoire(){
 
  <h2 class="sec">Les plaisirs qu’on croyait perdus</h2>
  <p class="lead">On ne les a pas vus partir. Un jour, le goûter de quatre heures est devenu une barre avalée debout, la pâtisserie du coin a fermé, et les dimanches ont pris le goût du pressé. Ces petits bonheurs n’ont pas disparu : ils attendent qu’on les rallume.</p>
- <div class="memoires">${MEMOIRES.map(([id,t,txt])=>`<article class="memoire"><div class="frame wood"><img src="${PHOTOS[id]}" alt=""></div><div class="txt"><h3>${t}</h3><p>${txt}</p>${P(id)?`<button class="btn small" data-open="prod:${id}">Retrouver ce parfum</button>`:""}</div></article>`).join("")}</div>
+ <div class="memoires">${MEMOIRES.map(([id,t,txt],i)=>`<article class="memoire"><div class="frame wood"><img src="${esc(R.images.souvenirs[i]||PHOTOS[id])}" alt=""></div><div class="txt"><h3>${t}</h3><p>${txt}</p>${P(id)?`<button class="btn small" data-open="prod:${id}">Retrouver ce parfum</button>`:""}</div></article>`).join("")}</div>
 
  <h2 class="sec">Le mot de Mélanie</h2>
  <div class="lettre">${lettre.map(s=>`<p>${esc(s).replace(/\n/g,"<br>")}</p>`).join("")}<p class="sig">Mélanie</p></div>
@@ -601,7 +733,7 @@ function versoHTML(c){
  const cases=Array.from({length:TAMPONS_PAR_BON},(_,i)=>i<c.tampons?`<span class="case ok" style="--r:${(i*37%24)-12}deg">M</span>`:`<span class="case">${i+1}</span>`).join("");
  return `<div class="face verso"><h4><small>Carte n° ${num4(c.numero)}</small>Mes tampons</h4>
    <div class="tampons">${cases}</div>
-   ${c.bons||c.cagnotte||c.reductions?`<div class="row" style="justify-content:center;gap:2cqw">${c.bons?`<span class="bon">${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} €</span>`:""}${c.cagnotte?`<span class="bon">Cagnotte ${eur(c.cagnotte)}</span>`:""}${c.reductions?`<span class="bon">−5 %</span>`:""}</div>`:""}
+   ${c.bons||c.cagnotte||c.reductions?`<div class="row" style="justify-content:center;gap:2cqw">${c.bons?`<span class="bon">${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} €</span>`:""}${c.cagnotte?`<span class="bon">Cagnotte ${eur(c.cagnotte)}</span>`:""}${c.reductions?`<span class="bon">−${R.tauxReduction} %</span>`:""}</div>`:""}
    <p class="regle">Un tampon par commande · au ${TAMPONS_PAR_BON}<sup>e</sup>, ${VALEUR_BON} € offerts sur l’achat de votre choix</p></div>`;
 }
 function carteHTML(c){
@@ -621,8 +753,8 @@ function parrainageHTML(c){
  const lien=lienAppli(c),n=MOI.filleuls||0;
  return `<div class="panel parrain"><div class="qr">${qrSVG(lien)}</div><div>
   <h3>Faites découvrir La Madeleine</h3>
-  <p>Un proche s’inscrit en cochant « Je me fais parrainer » et scanne <b>votre carte</b> (Ma carte en grand · QR code), ou ce QR code-ci, ou votre lien. Vous gagnez <b>5 % sur votre prochaine commande</b>, puis <b>1 € à chacune de ses commandes</b>.</p>
-  <p class="meta">${n} filleul${n>1?"s":""} · cagnotte : <b>${eur(c.cagnotte||0)}</b>${c.reductions?` · <b>${c.reductions} réduction${c.reductions>1?"s":""} de 5 %</b> en attente`:""}</p>
+  <p>Un proche s’inscrit en cochant « Je me fais parrainer » et scanne <b>votre carte</b> (Ma carte en grand · QR code), ou ce QR code-ci, ou votre lien. Vous gagnez <b>${R.tauxReduction} % sur votre prochaine commande</b>, puis <b>${eur(R.gainParrain)} à chacune de ses commandes</b>.</p>
+  <p class="meta">${n} filleul${n>1?"s":""} · cagnotte : <b>${eur(c.cagnotte||0)}</b>${c.reductions?` · <b>${c.reductions} réduction${c.reductions>1?"s":""} de ${R.tauxReduction} %</b> en attente`:""}</p>
   <div class="row"><button class="btn brass small" data-act="partager">Partager le lien</button></div></div></div>`;
 }
 
@@ -777,7 +909,7 @@ function suiviCommande(o){
  const etapes=[["nouvelle","Reçue"],["preparation","En préparation"],["prete",o.mode==="Retrait atelier"?"Prête à retirer":"Expédiée"],["livree",o.mode==="Retrait atelier"?"Retirée":"Livrée"]];
  const rang=etapes.findIndex(([k])=>k===o.statut);
  return `<article class="suivi panel"><header><div><b>${o.ref}</b> <span class="meta">du ${fdate(o.date)} · ${esc(o.mode)}</span></div><b class="tag">${eur(o.total)}</b></header>
-  <div class="meta">${o.items.map(i=>`${i.q} × ${esc(i.nom)}`).join(" · ")}${o.remise?` · bon fidélité −${eur(o.remise)}`:""}${o.reduction?` · parrainage 5 % −${eur(o.reduction)}`:""}${o.cagnotte?` · cagnotte −${eur(o.cagnotte)}`:""}</div>
+  <div class="meta">${o.items.map(i=>`${i.q} × ${esc(i.nom)}${i.detail?` (${esc(i.detail)})`:""}`).join(" · ")}${o.remise?` · bon fidélité −${eur(o.remise)}`:""}${o.promoMontant?` · code ${esc(o.promo)} −${eur(o.promoMontant)}`:""}${o.reduction?` · parrainage −${eur(o.reduction)}`:""}${o.cagnotte?` · cagnotte −${eur(o.cagnotte)}`:""}</div>
   ${o.statut==="annulee"?`<p class="annule">Commande annulée${o.remise?" · votre bon de 10 € vous a été rendu":""}</p>`:
   `<ol class="frise">${etapes.map(([k,l],i)=>`<li class="${i<rang?"fait":i===rang?"ici":""}"><span></span>${l}</li>`).join("")}</ol>`}
   <div class="row"><button class="btn ghost small" data-question="${o.id}">Une question sur cette commande ?</button></div></article>`;
@@ -786,28 +918,99 @@ function suiviCommande(o){
 /* ---------- Atelier ---------- */
 function vAtelier(){
  if(!atelier()) return `<div class="wrap"><p>Accès réservé.</p></div>`;
- if(!ATL){api("atelier").then(d=>{ATL=d;PRODUITS=d.produits;NONLUS=d.nonlus||0;render()}).catch(e=>toast(e.message));return `<div class="wrap"><h2 class="sec left">L'atelier de Mélanie</h2><p class="hint">Chargement…</p></div>`}
+ if(!ATL){api("atelier").then(d=>{ATL=d;PRODUITS=d.produits;NONLUS=d.nonlus||0;appliquerReglages(d.reglages,d.verrine);render()}).catch(e=>toast(e.message));return `<div class="wrap"><h2 class="sec left">L'atelier de Mélanie</h2><p class="hint">Chargement…</p></div>`}
  const ca=ATL.commandes.filter(o=>o.statut!=="annulee").reduce((a,o)=>a+o.total,0);
  const aFaire=ATL.commandes.filter(o=>o.statut==="nouvelle"||o.statut==="preparation").length;
  return `<div class="wrap"><div class="row" style="justify-content:space-between"><h2 class="sec left">L'atelier de Mélanie</h2><button class="btn ghost small" data-act="sortirAtelier">Fermer l’atelier sur cet appareil</button></div>
  <div class="kpis"><div class="kpi"><span>Chiffre d'affaires</span><b>${eur(ca)}</b></div><div class="kpi"><span>Commandes à traiter</span><b>${aFaire}</b></div><div class="kpi"><span>Cartes de fidélité</span><b>${ATL.clients.length}</b></div><div class="kpi"><span>Stock bas (≤ 3)</span><b>${PRODUITS.filter(p=>p.stock<=3).length}</b></div></div>
- <div class="bar" style="border:0;padding-top:0">${[["commandes","Commandes"],["messagerie","Messagerie"+(NONLUS?` (${NONLUS})`:"")],["produits","Mes créations"],["clients","Clients & tampons"],["lettre","Mon mot"]].map(([k,l])=>`<button class="chip ${adminTab===k?"on":""}" data-atab="${k}">${l}</button>`).join("")}
+ <div class="bar" style="border:0;padding-top:0">${[["commandes","Commandes"],["messagerie","Messagerie"+(NONLUS?` (${NONLUS})`:"")],["produits","Mes créations"],["clients","Clients & tampons"],["reductions","Réductions"],["verrineAt","Verrine sur mesure"],["boutique","Ma boutique"],["lettre","Mon mot"]].map(([k,l])=>`<button class="chip ${adminTab===k?"on":""}" data-atab="${k}">${l}</button>`).join("")}
   ${adminTab==="produits"?`<button class="btn small" style="margin-left:auto" data-act="newProd">+ Nouvelle création</button>`:""}</div>
- ${adminTab==="commandes"?aCommandes():adminTab==="messagerie"?aMessagerie():adminTab==="produits"?aProduits():adminTab==="lettre"?aLettre():aClients()}</div>`;
+ ${adminTab==="commandes"?aCommandes():adminTab==="messagerie"?aMessagerie():adminTab==="produits"?aProduits():adminTab==="lettre"?aLettre():adminTab==="reductions"?aReductions():adminTab==="verrineAt"?aVerrine():adminTab==="boutique"?aBoutique():aClients()}</div>`;
 }
 function aCommandes(){
  const nomDe=n=>{const c=ATL.clients.find(x=>x.numero===n);return c?`${esc(c.prenom)} ${esc(c.nom)}<div class="meta">N° ${num4(n)}</div>`:"?"};
  return `<div class="panel tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Contenu</th><th>Réception</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>
- ${ATL.commandes.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${nomDe(o.numero)}</td><td>${o.items.map(i=>`${i.q}× ${esc(i.nom)}`).join("<br>")}${o.remise?`<div class="meta">Bon fidélité −${eur(o.remise)}</div>`:""}${o.reduction?`<div class="meta">Parrainage 5 % −${eur(o.reduction)}</div>`:""}${o.cagnotte?`<div class="meta">Cagnotte −${eur(o.cagnotte)}</div>`:""}${o.parrainage?`<div class="meta">+${eur(o.parrainage)} au parrain</div>`:""}</td><td>${esc(o.mode)}${o.adresse?`<div class="meta">${esc(o.adresse)}</div>`:""}</td><td class="num">${eur(o.total)}</td>
+ ${ATL.commandes.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${nomDe(o.numero)}</td><td>${o.items.map(ligneTxt).join("<br>")}${o.remise?`<div class="meta">Bon fidélité −${eur(o.remise)}</div>`:""}${o.promoMontant?`<div class="meta">Code ${esc(o.promo)} −${eur(o.promoMontant)}</div>`:""}${o.reduction?`<div class="meta">Parrainage −${eur(o.reduction)}</div>`:""}${o.cagnotte?`<div class="meta">Cagnotte −${eur(o.cagnotte)}</div>`:""}${o.parrainage?`<div class="meta">+${eur(o.parrainage)} au parrain</div>`:""}</td><td>${esc(o.mode)}${o.adresse?`<div class="meta">${esc(o.adresse)}</div>`:""}</td><td class="num">${eur(o.total)}</td>
  <td><select data-statut="${o.id}" aria-label="Statut de ${o.ref}">${Object.entries(STAT).map(([k,l])=>`<option value="${k}" ${o.statut===k?"selected":""}>${l}</option>`).join("")}</select><div style="margin-top:6px"><button class="btn ghost small" data-ecrire="${o.numero}:${o.id}">Écrire au client</button></div></td></tr>`).join("")||`<tr><td colspan="7">Aucune commande pour l’instant.</td></tr>`}</tbody></table>
  <p class="hint">Chaque changement de statut envoie un message automatique au client. Annuler une commande remet les bougies en stock, retire le tampon et rend le bon de 10 € s’il avait servi.</p></div>`;
 }
 function aProduits(){
  return `<div class="panel tbl"><table><thead><tr><th></th><th>Création</th><th>Catégorie</th><th class="num">Prix</th><th class="num">Stock</th><th></th></tr></thead><tbody>
- ${PRODUITS.map(p=>`<tr><td><div class="mini">${pic(p)}</div></td><td><b>${esc(p.nom)}</b><div class="meta">${esc(p.parfum)}</div></td><td>${CATS[p.cat]||""}</td><td class="num">${eur(p.prix)}</td>
+ ${PRODUITS.map(p=>`<tr${p.masque?' class="masquee"':""}><td><div class="mini">${pic(p)}</div></td><td><b>${esc(p.nom)}</b>${p.masque?` <span class="pill">Masquée</span>`:""}<div class="meta">${esc(p.parfum)}</div></td><td>${esc(CATS[p.cat]||p.cat||"")}</td><td class="num">${p.prixAvant?`<s class="meta">${eur(p.prixAvant)}</s><br>`:""}${eur(p.prix)}</td>
  <td class="num"><div class="qty" style="justify-content:flex-end"><button data-stock="${p.id}:-1" aria-label="Retirer un">−</button><b style="min-width:2ch;text-align:center">${p.stock}</b><button data-stock="${p.id}:1" aria-label="Ajouter un">+</button></div></td>
  <td><div class="row" style="justify-content:flex-end"><button class="btn ghost small" data-edit="${p.id}">Modifier</button>${pending===p.id?`<span class="confirm">Supprimer ? <button class="btn small" data-del="${p.id}">Oui</button><button class="btn ghost small" data-act="cancelDel">Non</button></span>`:`<button class="btn ghost small" data-askdel="${p.id}">Supprimer</button>`}</div></td></tr>`).join("")}</tbody></table></div>`;
 }
+// Photo envoyée depuis l'atelier : réduite dans le navigateur, rangée sur le serveur, adresse api/image/…
+async function envoyerPhoto(file,max=1400){
+ const data=await new Promise((ok,ko)=>{const u=URL.createObjectURL(file),im=new Image();im.onerror=()=>ko(new Error("Image illisible"));im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL("image/jpeg",.82))};im.src=u});
+ return (await api("atelier/image",{data})).url;
+}
+// Brouillons des réglages en cours de modification (copiés depuis R et V)
+let RED=null,VED=null,promoEd=null;
+const copie=o=>JSON.parse(JSON.stringify(o));
+function fixer(obj,chemin,val){const k=chemin.split(".");let o=obj;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val}
+const champ=(attr,chemin,val,type="text",extra="")=>`<input ${attr}="${chemin}" type="${type}" value="${esc(val??"")}" ${type==="number"?'step="0.01" min="0"':""} ${extra}>`;
+
+function aBoutique(){
+ if(!RED)RED=copie(R);const r=RED;
+ const slot=(k,i,titre)=>`<div class="slot"><img src="${esc(r.images[k][i])}" alt=""><div class="meta">${titre}</div><label class="btn ghost small">Changer<input type="file" accept="image/*" data-img="${k}.${i}" hidden></label></div>`;
+ return `<div class="panel form"><b>Annonce et accueil</b>
+  <label class="f">Bandeau en haut du site (laisser vide pour le cacher)${champ("data-r","bandeau",r.bandeau,"text",'maxlength="200"')}</label>
+  <label class="f">Grand titre de l’accueil (mettez *entre étoiles* les mots en italique de couleur)${champ("data-r","accrocheTitre",r.accrocheTitre,"text",'maxlength="120"')}</label>
+  <label class="f">Texte sous le titre<textarea data-r="accrocheTexte" rows="3" maxlength="600">${esc(r.accrocheTexte)}</textarea></label></div>
+ <div class="panel"><b>Photos du site</b><p class="hint">Touchez « Changer » pour mettre vos propres photos. Elles sont enregistrées tout de suite, et visibles après « Enregistrer ».</p>
+  <div class="meta" style="margin-top:8px">Accueil</div><div class="slots">${[0,1,2].map(i=>slot("accueil",i,["Grande photo","Petite photo 1","Petite photo 2"][i])).join("")}</div>
+  <div class="meta" style="margin-top:12px">Notre histoire</div><div class="slots">${[0,1,2].map(i=>slot("histoire",i,["Grande photo","Petite photo 1","Petite photo 2"][i])).join("")}</div>
+  <div class="meta" style="margin-top:12px">Les plaisirs perdus (Notre histoire)</div><div class="slots">${MEMOIRES.map((m,i)=>slot("souvenirs",i,m[1])).join("")}</div></div>
+ <div class="two"><div class="panel form"><b>Livraison</b>
+   <label class="f">Frais de Colissimo (€)${champ("data-r","port",r.port,"number")}</label>
+   <label class="f">Livraison offerte à partir de (€)${champ("data-r","portOffert",r.portOffert,"number")}</label></div>
+  <div class="panel form"><b>Fidélité et parrainage</b>
+   <div class="row"><label class="f" style="flex:1">Tampons pour un bon${champ("data-r","tamponsParBon",r.tamponsParBon,"number",'step="1" min="2"')}</label><label class="f" style="flex:1">Valeur du bon (€)${champ("data-r","valeurBon",r.valeurBon,"number")}</label></div>
+   <div class="row"><label class="f" style="flex:1">Réduction du parrain (%)${champ("data-r","tauxReduction",r.tauxReduction,"number")}</label><label class="f" style="flex:1">Gain par commande d’un filleul (€)${champ("data-r","gainParrain",r.gainParrain,"number")}</label></div></div></div>
+ <div class="panel form"><b>Catégories de la vitrine</b>
+  ${r.categories.map(([k,l],i)=>`<div class="row" style="flex-wrap:nowrap"><input data-r="categories.${i}.1" value="${esc(l)}" maxlength="30" style="flex:1"><span class="meta">${PRODUITS.filter(p=>p.cat===k).length} création(s)</span>${PRODUITS.some(p=>p.cat===k)?"":`<button class="btn ghost small" data-act="catSuppr:${i}">Retirer</button>`}</div>`).join("")}
+  <div class="row" style="flex-wrap:nowrap"><input id="nouvCat" placeholder="Nouvelle catégorie (ex. Spécial Noël)" maxlength="30" style="flex:1"><button class="btn small" data-act="catAjout">Ajouter</button></div></div>
+ <div class="row barre-enreg"><button class="btn brass" data-act="saveBoutique">Enregistrer ma boutique</button><button class="btn ghost small" data-act="annulerBoutique">Annuler les changements</button><button class="btn ghost small" data-nav="boutique">Voir le site</button></div>`;
+}
+
+function aReductions(){
+ const p=promoEd||{type:"pourcent",actif:true};
+ return `<form class="panel form" id="fPromo"><b>${promoEd&&promoEd.code&&promoEd.existe?`Modifier le code ${esc(promoEd.code)}`:"Créer un code de réduction"}</b>
+  <p class="hint" style="margin:0">Le client tape ce code dans son panier. Exemples : NOEL10 (10 %), BIENVENUE5 (5 €), MARCHE (15 % un samedi).</p>
+  <div class="row"><label class="f" style="flex:1">Code<input id="pCode" required maxlength="30" value="${esc(p.code||"")}" ${p.existe?"readonly":""} style="font-family:var(--f-tag);text-transform:uppercase"></label>
+   <label class="f" style="flex:2">Description pour le client (facultatif)<input id="pLib" maxlength="80" value="${esc(p.libelle||"")}" placeholder="10 % pour Noël"></label></div>
+  <div class="row"><label class="f" style="flex:1">Type<select id="pType"><option value="pourcent" ${p.type==="pourcent"?"selected":""}>Pourcentage (%)</option><option value="euros" ${p.type==="euros"?"selected":""}>Montant (€)</option></select></label>
+   <label class="f" style="flex:1">Valeur<input id="pVal" type="number" step="0.01" min="0" required value="${p.valeur??""}"></label>
+   <label class="f" style="flex:1">Achat minimum (€)<input id="pMin" type="number" step="0.01" min="0" value="${p.minimum??0}"></label></div>
+  <div class="row"><label class="f" style="flex:1">Valable du<input id="pDebut" type="date" value="${p.debut||""}"></label><label class="f" style="flex:1">au<input id="pFin" type="date" value="${p.fin||""}"></label>
+   <label class="f" style="flex:1">Nombre d’utilisations max (vide = illimité)<input id="pMax" type="number" step="1" min="1" value="${p.max??""}"></label></div>
+  <label class="check"><input type="checkbox" id="pActif" ${p.actif!==false?"checked":""}><span>Code actif</span></label>
+  <div class="row"><button class="btn brass">Enregistrer le code</button>${promoEd?`<button type="button" class="btn ghost small" data-act="promoNouveau">Nouveau code</button>`:""}</div></form>
+ <div class="panel tbl"><table><thead><tr><th>Code</th><th>Réduction</th><th>Conditions</th><th class="num">Utilisé</th><th>État</th><th></th></tr></thead><tbody>
+ ${(ATL.promos||[]).map(x=>`<tr><td style="font-family:var(--f-tag)">${esc(x.code)}<div class="meta">${esc(x.libelle||"")}</div></td><td>${x.type==="pourcent"?`${x.valeur} %`:eur(x.valeur)}</td>
+  <td class="meta">${x.minimum?`dès ${eur(x.minimum)}`:"sans minimum"}${x.debut||x.fin?`<br>${x.debut?"du "+fdate(x.debut):""} ${x.fin?"au "+fdate(x.fin):""}`:""}</td><td class="num">${x.utilisations}${x.max?` / ${x.max}`:""}</td>
+  <td>${x.actif?`<span class="pill s-livree">Actif</span>`:`<span class="pill s-annulee">Arrêté</span>`}</td>
+  <td><div class="row" style="justify-content:flex-end"><button class="btn ghost small" data-act="promoEdit:${esc(x.code)}">Modifier</button>${pending==="promo:"+x.code?`<span class="confirm">Supprimer ? <button class="btn small" data-act="promoSuppr:${esc(x.code)}">Oui</button><button class="btn ghost small" data-act="cancelDel">Non</button></span>`:`<button class="btn ghost small" data-act="promoAsk:${esc(x.code)}">Supprimer</button>`}</div></td></tr>`).join("")||`<tr><td colspan="6">Aucun code pour l’instant.</td></tr>`}</tbody></table></div>`;
+}
+
+function aVerrine(){
+ if(!VED)VED=copie(V);const v=VED;
+ const lignes=(liste,cols)=>`${v[liste].map((x,i)=>`<div class="ligne-opt">${cols.map(([k,t,type])=>type==="color"?`<input data-v="${liste}.${i}.${k}" type="color" value="${esc(x[k])}" aria-label="${t}">`:`<label class="f">${t}${champ("data-v",`${liste}.${i}.${k}`,x[k],type||"text",type==="number"?"":'maxlength="40"')}</label>`).join("")}<button class="btn ghost small" data-act="optSuppr:${liste}:${i}" aria-label="Retirer">×</button></div>`).join("")}
+  <button class="btn ghost small" data-act="optAjout:${liste}">+ Ajouter</button>`;
+ return `<div class="panel form"><b>Verrine sur mesure</b>
+  <label class="check"><input type="checkbox" data-v="actif" ${v.actif?"checked":""}><span>Proposer « Créer ma verrine » aux clients</span></label>
+  <label class="f">Phrase de délai (affichée aux clients)${champ("data-v","delai",v.delai,"text",'maxlength="160"')}</label>
+  <div class="row"><label class="f" style="flex:1">Supplément 3 étages (€)${champ("data-v","prixTroisEtages",v.prixTroisEtages,"number")}</label><label class="f" style="flex:1">Décors maximum${champ("data-v","maxDecors",v.maxDecors,"number",'step="1"')}</label>
+   <label class="f" style="flex:1">Prix du petit mot (€)${champ("data-v","prixMot",v.prixMot,"number")}</label><label class="f" style="flex:1">Lettres max du mot${champ("data-v","maxMot",v.maxMot,"number",'step="1"')}</label></div></div>
+ <div class="two"><div class="panel form"><b>Les verres</b>${lignes("verres",[["nom","Nom"],["prix","Prix (€)","number"],["poids","Poids (g)","number"],["duree","Heures","number"]])}</div>
+  <div class="panel form"><b>Les étages (couleurs)</b>${lignes("etages",[["nom","Nom"],["couleur","Couleur","color"]])}</div></div>
+ <div class="two"><div class="panel form"><b>Les parfums</b>${lignes("parfums",[["nom","Nom"]])}</div>
+  <div class="panel form"><b>Les décors</b><p class="hint" style="margin:0">Chantilly, fraises, framboises, vermicelles, grains de café, chocolat, biscuit et paillettes sont dessinés dans l’aperçu ; un nouveau décor apparaît en petite perle dorée.</p>${lignes("decors",[["nom","Nom"],["prix","Prix (€)","number"]])}</div></div>
+ <div class="row barre-enreg"><button class="btn brass" data-act="saveVerrine">Enregistrer la verrine</button><button class="btn ghost small" data-act="annulerVerrine">Annuler les changements</button><button class="btn ghost small" data-nav="verrine">Voir la page client</button></div>`;
+}
+const slug=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,20)||"opt";
+
 const pastilles=n=>`<span class="fid" aria-label="${n} tampons sur ${TAMPONS_PAR_BON}">${Array.from({length:TAMPONS_PAR_BON},(_,i)=>`<i class="${i<n?"ok":""}"></i>`).join("")}</span>`;
 function aClients(){
  const f=ficheDetail&&ficheDetail.numero===fiche?ficheDetail:(fiche&&ATL.clients.find(c=>c.numero===fiche));
@@ -817,7 +1020,7 @@ function aClients(){
    <button type="button" class="btn brass" data-act="scanner">Scanner une carte</button>
    <div class="row"><label class="f" style="flex:1">ou N° de carte<input id="tNum" inputmode="numeric" required placeholder="0001" value="${f?num4(f.numero):""}" style="font-family:var(--f-tag)"></label><button class="btn small" style="align-self:flex-end">Ouvrir</button></div></form>
   <div class="panel form">${f?`${f.photo!==undefined?`<div class="carte fixe petite">${rectoHTML(f)}</div>`:`<b>${esc(f.prenom)} ${esc(f.nom)} · N° ${num4(f.numero)}</b>`}
-   <div>${pastilles(f.tampons)}<div class="meta">${f.tampons}/${TAMPONS_PAR_BON} tampons · ${f.bons} bon${f.bons>1?"s":""} de ${VALEUR_BON} € · cagnotte ${eur(f.cagnotte||0)}${f.reductions?` · ${f.reductions} × −5 % en attente`:""}${f.parrain?` · parrainé par ${parrainDe(f.parrain)}`:""}</div></div>
+   <div>${pastilles(f.tampons)}<div class="meta">${f.tampons}/${TAMPONS_PAR_BON} tampons · ${f.bons} bon${f.bons>1?"s":""} de ${VALEUR_BON} € · cagnotte ${eur(f.cagnotte||0)}${f.reductions?` · ${f.reductions} × −${R.tauxReduction} % en attente`:""}${f.parrain?` · parrainé par ${parrainDe(f.parrain)}`:""}</div></div>
    <div class="row"><button class="btn brass small" data-tampon="1">+1 tampon</button><button class="btn ghost small" data-tampon="-1">Retirer un tampon</button>${f.bons?`<button class="btn small" data-act="utiliserBon">Utiliser un bon de ${VALEUR_BON} €</button>`:""}</div>
    ${f.cagnotte>0?`<div class="row"><label class="f" style="flex:1">Déduire de la cagnotte (€)<input id="cagMontant" type="number" min="0.5" step="0.5" max="${f.cagnotte}" value="${f.cagnotte}"></label><button class="btn small" style="align-self:flex-end" data-act="deduireCagnotte">Déduire</button></div>`:""}
    <div class="row"><button class="btn ghost small" data-ecrire="${f.numero}:0">Écrire à ${esc(f.prenom)}</button><button class="btn ghost small" data-act="reactivation">Code de réactivation</button>${ficheCode?`<span class="code-grand" style="font-size:20px">${ficheCode.slice(0,4)}-${ficheCode.slice(4)}</span>`:""}</div>
@@ -986,26 +1189,44 @@ function vEntree(){
   <button class="btn brass" ${SERVEUR?"":"disabled"}>Entrer dans l’atelier</button></form></div>`;
 }
 
+/* ---------- Totaux du panier (même calcul que le serveur) : bon › code › parrainage › cagnotte ---------- */
+let PROMO=null;// code de réduction appliqué : {code,libelle,type,valeur,minimum}
+function totaux(){
+ const c=client(),st=arr(cartTotal()),mode=document.getElementById("mode")?.value||"Colissimo";
+ const bonOk=!!(c&&c.bons>0&&document.getElementById("bon")?.checked!==false);
+ const cagOk=!!(c&&c.cagnotte>0&&document.getElementById("cag")?.checked!==false);
+ const port=mode==="Colissimo"&&st<R.portOffert?R.port:0,remise=bonOk?Math.min(VALEUR_BON,st):0;
+ let promo=0,promoKo="";
+ if(PROMO){const b=st-remise;if(b<PROMO.minimum)promoKo=`Le code ${PROMO.code} demande ${eur(PROMO.minimum)} d'achat.`;else promo=arr(Math.min(b,PROMO.type==="pourcent"?b*PROMO.valeur/100:PROMO.valeur))}
+ const reduc=c&&c.reductions>0?arr(R.tauxReduction/100*(st-remise-promo)):0;
+ const deduit=cagOk?arr(Math.min(c.cagnotte,st-remise-promo-reduc)):0;
+ return{st,port,remise,promo,promoKo,reduc,deduit,bonOk,cagOk,total:arr(Math.max(0,st-remise-promo-reduc-deduit)+port)};
+}
+function recapHTML(t){
+ const l=[["Sous-total",t.st],["Bon fidélité",-t.remise],[PROMO?`Code ${PROMO.code}`:"",-t.promo],[`Parrainage ${R.tauxReduction} %`,-t.reduc],["Cagnotte",-t.deduit],["Livraison",t.port]].filter(([n,v],i)=>n&&(i===0||v));
+ return `<dl class="recap">${l.map(([n,v])=>`<dt>${esc(n)}</dt><dd>${v<0?"−"+eur(-v):eur(v)}</dd>`).join("")}</dl>${t.promoKo?`<div class="err">${esc(t.promoKo)}</div>`:""}`;
+}
+function majTotaux(){const t=totaux(),r=document.getElementById("recap"),o=document.getElementById("tot");if(r)r.innerHTML=recapHTML(t);if(o)o.textContent=eur(t.total)}
+
 /* ---------- Calques ---------- */
 function renderLayer(){
  const L=document.getElementById("layer");
  if(layer!=="scanner")arreterScan();
  if(!layer){L.innerHTML="";return}
  if(layer==="cart"){
-  const c=client(),st=cartTotal();
-  const bon=c&&c.bons>0&&document.getElementById("bon")?.checked!==false;
-  const cag=c&&c.cagnotte>0&&document.getElementById("cag")?.checked!==false;
-  const port=st>=60?0:6.9,remise=bon?Math.min(VALEUR_BON,st):0,reduc=c&&c.reductions>0?Math.round(5*(st-remise))/100:0,deduit=cag?Math.min(c.cagnotte,st-remise-reduc):0;
+  const c=client(),t=totaux();
   L.innerHTML=`<div class="veil" data-close></div><aside class="drawer" role="dialog" aria-label="Panier"><div class="row" style="justify-content:space-between"><h2>Mon panier</h2><button class="btn ghost small" data-close>Fermer</button></div>
-  <div class="lines">${panier.map(l=>{const p=P(l.id);if(!p)return"";return`<div class="line"><div class="mini">${pic(p)}</div><div><b>${esc(p.nom)}</b><div class="meta">${eur(p.prix)}</div></div><div class="qty"><button data-q="${p.id}:-1" aria-label="Moins">−</button><span>${l.q}</span><button data-q="${p.id}:1" aria-label="Plus">+</button></div></div>`}).join("")||`<p class="hint">Votre panier est vide.</p>`}</div>
+  <div class="lines">${panier.map(l=>{const p=ligneProduit(l);if(!p)return"";const k=cleLigne(l);return`<div class="line"><div class="mini">${l.id==="verrine"?p.svg:pic(p)}</div><div><b>${esc(p.nom)}</b>${p.detail?`<div class="meta">${esc(p.detail)}</div>`:""}<div class="meta">${eur(p.prix)}</div></div><div class="qty"><button data-q="${k}:-1" aria-label="Moins">−</button><span>${l.q}</span><button data-q="${k}:1" aria-label="Plus">+</button></div></div>`}).join("")||`<p class="hint">Votre panier est vide.</p>`}</div>
   ${!panier.length&&err?`<div class="err">${esc(err)}</div>`:""}
-  ${panier.length?`<div class="form"><label class="f">Mode de réception<select id="mode"><option value="Colissimo">Colissimo · ${st>=60?"offert":"6,90 €"}</option><option value="Retrait atelier">Retrait à l'atelier · gratuit</option></select></label>
-  <div class="hint">Livraison offerte dès 60 € d'achat.</div>
-  ${c&&c.bons>0?`<label class="check"><input type="checkbox" id="bon" ${bon?"checked":""}><span>Utiliser mon bon fidélité de ${VALEUR_BON} €${c.bons>1?` (vous en avez ${c.bons})`:""}</span></label>`:""}
-  ${c&&c.cagnotte>0?`<label class="check"><input type="checkbox" id="cag" ${cag?"checked":""}><span>Utiliser ma cagnotte parrainage (${eur(c.cagnotte)})</span></label>`:""}
+  ${panier.length?`<div class="form"><label class="f">Mode de réception<select id="mode"><option value="Colissimo">Colissimo · ${t.st>=R.portOffert?"offert":eur(R.port)}</option><option value="Retrait atelier">Retrait à l'atelier · gratuit</option></select></label>
+  <div class="hint">Livraison offerte dès ${eur(R.portOffert)} d'achat.</div>
+  ${c&&c.bons>0?`<label class="check"><input type="checkbox" id="bon" ${t.bonOk?"checked":""}><span>Utiliser mon bon fidélité de ${eur(VALEUR_BON)}${c.bons>1?` (vous en avez ${c.bons})`:""}</span></label>`:""}
+  ${c&&c.cagnotte>0?`<label class="check"><input type="checkbox" id="cag" ${t.cagOk?"checked":""}><span>Utiliser ma cagnotte parrainage (${eur(c.cagnotte)})</span></label>`:""}
+  ${c?(PROMO?`<div class="check"><span>Code <b>${esc(PROMO.code)}</b> : ${esc(PROMO.libelle)}</span><button class="btn ghost small" data-act="retirerPromo" style="margin-left:auto">Retirer</button></div>`
+   :`<div class="row" style="flex-wrap:nowrap"><label class="f" style="flex:1">Code de réduction<input id="promoCode" maxlength="30" autocapitalize="characters" style="font-family:var(--f-tag);text-transform:uppercase"></label><button class="btn small" data-act="appliquerPromo" style="align-self:flex-end">Appliquer</button></div>`):""}
   ${c?`<div class="hint">Cette commande ajoutera un tampon à votre carte (${Math.min(c.tampons+1,TAMPONS_PAR_BON)}/${TAMPONS_PAR_BON}).</div>`:`<div class="hint">Avec la carte de fidélité, cette commande vous rapporterait un tampon.</div>`}
-  ${reduc?`<div class="hint" id="reducLigne">Réduction parrainage 5 % : <b>−${eur(reduc)}</b> (appliquée toute seule)</div>`:""}
-  <div class="total"><span>Total</span><span id="tot">${eur(st-remise-reduc-deduit+port)}</span></div>
+  <div id="recap">${recapHTML(t)}</div>
+  <div class="total"><span>Total</span><span id="tot">${eur(t.total)}</span></div>
   <div class="err">${esc(err)}</div>
   ${SERVEUR?`<button class="btn brass" data-act="checkout">${c?"Valider la commande":"Créer ma carte ou me connecter pour commander"}</button>`:`<button class="btn brass" disabled>Commandes bientôt ouvertes</button>`}</div>`:""}</aside>`;
  } else if(layer.startsWith("prod:")){
@@ -1033,18 +1254,20 @@ function renderLayer(){
     <label class="f">Catégorie<select id="eCat">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${p.cat===k?"selected":""}>${l}</option>`).join("")}</select></label>
     <label class="f">Parfum<input id="eParfum" maxlength="120" value="${esc(p.parfum||"")}"></label>
     <label class="f">Cire<select id="eCire">${["Soja","Colza","Cire d'abeille","Coco"].map(c=>`<option ${p.cire===c?"selected":""}>${c}</option>`).join("")}</select></label>
-    <label class="f">Prix (€)<input id="ePrix" type="number" step="0.5" min="0" required value="${p.prix??""}"></label>
+    <label class="f">Prix (€)<input id="ePrix" type="number" step="0.01" min="0" required value="${p.prix??""}"></label>
+    <label class="f">Prix avant promo, barré (facultatif)<input id="ePrixAvant" type="number" step="0.01" min="0" value="${p.prixAvant??""}"></label>
     <label class="f">Stock<input id="eStock" type="number" min="0" value="${p.stock??1}"></label>
     <label class="f">Poids (g)<input id="ePoids" type="number" min="0" value="${p.poids??250}"></label>
     <label class="f">Combustion (heures)<input id="eDuree" type="number" min="0" value="${p.duree??40}"></label>
    </div>
    <label class="f" style="margin-top:12px">Description<textarea id="eDesc" rows="3" maxlength="1000">${esc(p.desc||"")}</textarea></label>
-   <label class="f" style="margin-top:12px">Photo (facultative · sinon illustration vintage)<input id="ePhoto" type="file" accept="image/*"></label>
+   <div class="row" style="margin-top:12px;align-items:flex-end">${p.photo||p.img?`<div class="mini" style="width:72px;height:72px">${pic(p)}</div>`:""}<label class="f" style="flex:1;min-width:200px">Photo (facultative · sinon illustration vintage)<input id="ePhoto" type="file" accept="image/*"></label></div>
+   <label class="check" style="margin-top:12px"><input type="checkbox" id="eMasque" ${p.masque?"checked":""}><span>Masquer de la vitrine (la création reste ici, invisible pour les clients)</span></label>
    <div class="row" style="margin-top:16px"><button class="btn brass">Enregistrer</button><button type="button" class="btn ghost" data-close>Annuler</button></div></form></div>`;
  }
 }
 
-function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="messages"?vMessages():view==="entree"?vEntree():view==="carteInfo"?vCarteInfo():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
+function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="messages"?vMessages():view==="entree"?vEntree():view==="verrine"?vVerrine():view==="carteInfo"?vCarteInfo():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
 
 /* ---------- Navigation : chaque écran et chaque fenêtre ouverte a son étape, le bouton « retour » y revient ---------- */
 function aller(v){view=v;history.pushState({v},"");render();scrollTo(0,0)}
@@ -1058,7 +1281,7 @@ async function agir(fn){if(occupe)return;occupe=true;try{await fn()}catch(e){toa
 function addToCart(id){const p=P(id);const l=panier.find(x=>x.id===id);const cur=l?l.q:0;if(cur>=p.stock){toast("Stock atteint pour cette bougie");return}l?l.q++:panier.push({id,q:1});savePanier();renderNav();toast(`« ${p.nom} » ajoutée au panier`)}
 
 document.addEventListener("click",async e=>{
- const t=e.target.closest("[data-question],[data-repondre],[data-conv],[data-ecrire],[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],[data-tampon],[data-fiche],#goHome");
+ const t=e.target.closest("[data-compo],[data-question],[data-repondre],[data-conv],[data-ecrire],[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],[data-tampon],[data-fiche],#goHome");
  if(!t)return; const d=t.dataset;if(t.tagName==="A")e.preventDefault();
  if(d.close!==undefined&&e.target!==t&&t.classList.contains("modal"))return;
  if(d.question){const o=(MOI.commandes||[]).find(x=>x.id===+d.question);brouillon={objet:o?`Question sur la commande ${o.ref}`:"",commande:+d.question};view="messages";MSG=null;render();scrollTo(0,0);return}
@@ -1075,6 +1298,30 @@ document.addEventListener("click",async e=>{
  else if(d.close!==undefined){fermer()}
  else if(d.act==="installer"){installer()}
  else if(d.act==="okBienvenue"){bienvenue=false;render()}
+ else if(d.act==="saveBoutique")agir(async()=>{const r=await api("atelier/reglages",{reglages:RED});appliquerReglages(r.reglages);RED=null;render();toast("Boutique enregistrée")});
+ else if(d.act==="annulerBoutique"){RED=null;render()}
+ else if(d.act==="catAjout"){const l=document.getElementById("nouvCat").value.trim();if(!l)return;let k=slug(l),n=2;while(RED.categories.some(c=>c[0]===k))k=slug(l)+"-"+n++;RED.categories.push([k,l]);render()}
+ else if(d.act&&d.act.startsWith("catSuppr:")){RED.categories.splice(+d.act.split(":")[1],1);render()}
+ else if(d.act==="saveVerrine")agir(async()=>{
+  // Identifiant de chaque nouvelle option tiré de son nom
+  for(const l of ["verres","etages","parfums","decors"]){const vus=new Set();VED[l].forEach(x=>{if(!x.id||vus.has(x.id)){let k=slug(x.nom),n=2;while(vus.has(k))k=slug(x.nom)+"-"+n++;x.id=k}vus.add(x.id)})}
+  const r=await api("atelier/verrine",{verrine:VED});V=r.verrine;VED=null;COMPO=null;render();toast("Verrine enregistrée")});
+ else if(d.act==="annulerVerrine"){VED=null;render()}
+ else if(d.act&&d.act.startsWith("optAjout:")){const l=d.act.split(":")[1];VED[l].push(l==="verres"?{id:"",nom:"Nouveau verre",prix:25,poids:200,duree:35}:l==="etages"?{id:"",nom:"Nouvel étage",couleur:"#e9c9a8"}:l==="decors"?{id:"",nom:"Nouveau décor",prix:1}:{id:"",nom:"Nouveau parfum"});render()}
+ else if(d.act&&d.act.startsWith("optSuppr:")){const[,l,i]=d.act.split(":");VED[l].splice(+i,1);render()}
+ else if(d.act==="promoNouveau"){promoEd=null;render()}
+ else if(d.act&&d.act.startsWith("promoEdit:")){const x=(ATL.promos||[]).find(p=>p.code===d.act.slice(10));promoEd=x?{...x,existe:true}:null;render();scrollTo(0,0)}
+ else if(d.act&&d.act.startsWith("promoAsk:")){pending="promo:"+d.act.slice(9);render()}
+ else if(d.act&&d.act.startsWith("promoSuppr:"))agir(async()=>{await api("atelier/promo-suppr",{code:d.act.slice(11)});pending=null;promoEd=null;await rechargerAtelier();render();toast("Code supprimé")});
+ else if(d.compo){const[k,a,b]=d.compo.split(":");const c=COMPO;
+  if(k==="verre")c.verre=a;else if(k==="parfum")c.parfum=a;
+  else if(k==="nb"){const n=+a;while(c.etages.length<n)c.etages.push((V.etages.find(x=>!c.etages.includes(x.id))||V.etages[0]).id);c.etages=c.etages.slice(0,n)}
+  else if(k==="etage")c.etages[+a]=b;
+  else if(k==="decor"){if(c.decors.includes(a))c.decors=c.decors.filter(x=>x!==a);else if(c.decors.length<V.maxDecors)c.decors.push(a);else toast(`Jusqu’à ${V.maxDecors} décors : retirez-en un d’abord`)}
+  render()}
+ else if(d.act&&d.act.startsWith("qteCompo:")){qteCompo=Math.max(1,Math.min(10,qteCompo+ +d.act.split(":")[1]));render()}
+ else if(d.act==="recommencerCompo"){COMPO=compoDefaut();qteCompo=1;render()}
+ else if(d.act==="ajouterCompo"){const i=verrineInfo(COMPO);if(!i)return;panier.push({id:"verrine",q:qteCompo,perso:JSON.parse(JSON.stringify(COMPO)),cle:"v"+Math.random().toString(36).slice(2,8)});savePanier();renderNav();toast("Votre verrine est dans le panier");qteCompo=1;ouvrir("cart")}
  else if(d.act==="carteGrand"){ouvrir("grand")}
  else if(d.act==="scanner"){scanMode="atelier";ouvrir("scanner")}
  else if(d.act==="scanParrain"){scanMode="parrain";ouvrir("scanner")}
@@ -1089,7 +1336,9 @@ document.addEventListener("click",async e=>{
  else if(d.filtre){filtre=d.filtre;render();document.getElementById("vitrine").scrollIntoView({block:"start"})}
  else if(d.scroll){document.getElementById(d.scroll).scrollIntoView({behavior:"smooth"})}
  else if(d.add){addToCart(d.add);if(layer==="cart")renderLayer()}
- else if(d.q){const[id,s]=d.q.split(":");const l=panier.find(x=>x.id===id);const p=P(id);if(!l||!p)return;l.q+=+s;if(l.q>p.stock)l.q=p.stock;if(l.q<=0)panier=panier.filter(x=>x!==l);savePanier();renderNav();renderLayer()}
+ else if(d.q){const[k,s]=d.q.split(":");const l=panier.find(x=>cleLigne(x)===k);const p=l&&ligneProduit(l);if(!l||!p)return;l.q+=+s;const max=l.id==="verrine"?10:p.stock;if(l.q>max)l.q=max;if(l.q<=0)panier=panier.filter(x=>x!==l);savePanier();renderNav();renderLayer()}
+ else if(d.act==="appliquerPromo"){const code=(document.getElementById("promoCode")?.value||"").trim().toUpperCase();if(!code)return;agir(async()=>{try{const t=totaux();PROMO=await api("promo",{code,base:t.st-t.remise});err=""}catch(x){err=x.message}renderLayer()})}
+ else if(d.act==="retirerPromo"){PROMO=null;renderLayer()}
  else if(d.atab){adminTab=d.atab;pending=null;if(d.atab==="messagerie")BOITE=null;render();agir(async()=>{await rechargerAtelier();render()})}
  else if(d.act==="flip"){flip=!flip;document.querySelector(".carte")?.classList.toggle("tournee",flip)}
  else if(d.act==="dlCarte"){const c=client();if(!c)return;const cv=await dessinerCarte(c);const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=`carte-la-madeleine-${num4(c.numero)}.png`;document.body.appendChild(a);a.click();a.remove()}
@@ -1105,7 +1354,7 @@ document.addEventListener("click",async e=>{
    if(fitCart()){renderNav();err="Le stock a changé pendant votre visite : votre panier a été ajusté. Vérifiez-le avant de valider.";renderLayer();return}
    const avant=client().bons,bon=!!document.getElementById("bon")?.checked;
    try{
-    const r=await api("commande",{items:panier,mode:document.getElementById("mode").value,bon,cagnotte:!!document.getElementById("cag")?.checked});
+    const r=await api("commande",{items:panier,mode:document.getElementById("mode").value,bon,cagnotte:!!document.getElementById("cag")?.checked,promo:PROMO?PROMO.code:null});PROMO=null;
     panier=[];savePanier();MOI.client=r.client;setTimeout(verifierFete,500);(MOI.commandes=MOI.commandes||[]).unshift(r.commande);LS.set("madeleine.moi",MOI);
     await rechargerCatalogue();layer=null;history.replaceState({v:view},"");err="";flip=true;aller("compte");
     toast(r.client.bons>avant-(bon?1:0)?`Commande ${r.commande.ref} enregistrée · 10e tampon : ${VALEUR_BON} € offerts sur votre prochain achat !`:`Commande ${r.commande.ref} enregistrée · +1 tampon sur votre carte`);
@@ -1130,12 +1379,16 @@ document.addEventListener("click",async e=>{
 });
 document.addEventListener("change",async e=>{
  const t=e.target;
- if(t.id==="mode"||t.id==="bon"||t.id==="cag"){const c=client(),st=cartTotal(),mode=document.getElementById("mode").value;const port=mode==="Colissimo"&&st<60?6.9:0;const remise=document.getElementById("bon")?.checked?Math.min(VALEUR_BON,st):0;const reduc=c&&c.reductions>0?Math.round(5*(st-remise))/100:0;const deduit=document.getElementById("cag")?.checked?Math.min(c.cagnotte,st-remise-reduc):0;const rl=document.getElementById("reducLigne");if(rl)rl.innerHTML=`Réduction parrainage 5 % : <b>−${eur(reduc)}</b> (appliquée toute seule)`;document.getElementById("tot").textContent=eur(st-remise-reduc-deduit+port)}
+ if(t.id==="mode"||t.id==="bon"||t.id==="cag")majTotaux();
+ if(t.dataset.v&&VED&&t.type==="checkbox")fixer(VED,t.dataset.v,t.checked);
+ if(t.dataset.img&&RED){const f=t.files[0];if(!f)return;const[k,i]=t.dataset.img.split(".");agir(async()=>{RED.images[k][+i]=await envoyerPhoto(f);render();toast("Photo prête : touchez « Enregistrer ma boutique »")})}
  if(t.id==="rParrainer"){const z=document.getElementById("zoneParrain");if(z)z.hidden=!t.checked}
  if(t.id==="rPhoto"||t.id==="iPhoto"){const f=t.files[0];if(!f)return;try{REC={im:await ouvrirImage(f),zoom:1,x:0,y:0};t.value="";ouvrir("recadrer")}catch(x){toast("Cette image n'a pas pu être lue.")}}
  if(t.dataset.statut){const id=+t.dataset.statut;agir(async()=>{try{await api("atelier/statut",{id,statut:t.value})}finally{await rechargerAtelier();render()}toast(`Commande ${ATL.commandes.find(o=>o.id===id)?.ref||""} : ${STAT[t.value]}`)})}
 });
-document.addEventListener("input",e=>{if(e.target.id==="zoom"&&REC){REC.zoom=+e.target.value;dessinerCadre();return}if(e.target.id==="search"){q=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("search");s.focus();s.setSelectionRange(pos,pos)}});
+document.addEventListener("input",e=>{const ds=e.target.dataset;
+ if(ds.r&&RED){fixer(RED,ds.r,e.target.type==="number"?+e.target.value:e.target.value);return}
+ if(ds.v&&VED){fixer(VED,ds.v,e.target.type==="checkbox"?e.target.checked:e.target.type==="number"?+e.target.value:e.target.value);return}if(e.target.id==="compoMot"&&COMPO){COMPO.mot=e.target.value;majApercu();return}if(e.target.id==="zoom"&&REC){REC.zoom=+e.target.value;dessinerCadre();return}if(e.target.id==="search"){q=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("search");s.focus();s.setSelectionRange(pos,pos)}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&layer)fermer()});
 document.addEventListener("submit",e=>{
  e.preventDefault();const f=e.target,v=id=>f.querySelector(id).value;
@@ -1150,10 +1403,15 @@ document.addEventListener("submit",e=>{
  if(f.id==="fMsg")agir(async()=>{await api("message",{objet:v("#mObjet"),texte:v("#mTexte"),commande:f.querySelector("#mCmd")?.value||null});brouillon={};const d=await api("messages",{lu:true});MSG=d.messages;render();toast("Message envoyé à Mélanie")});
  if(f.id==="fAMsg")agir(async()=>{const n=CONV.client.numero;await api("atelier/message",{numero:n,objet:v("#amObjet"),texte:v("#amTexte"),commande:f.querySelector("#amCmd")?.value||null});brouillon={};await ouvrirConv(n);toast(`Message envoyé à ${CONV.client.prenom}`)});
  if(f.id==="fTampon"){const n=parseInt(v("#tNum"),10);agir(async()=>{const r=await api("atelier/client",{numero:n});fiche=r.client.numero;ficheCode=null;ficheDetail=r.client;const c=ATL.clients.find(x=>x.numero===fiche);if(c)Object.assign(c,{tampons:r.client.tampons,bons:r.client.bons});render()})}
+ if(f.id==="fPromo")agir(async()=>{
+  const g=id=>f.querySelector(id).value;
+  await api("atelier/promo",{promo:{code:g("#pCode"),libelle:g("#pLib"),type:g("#pType"),valeur:+g("#pVal"),minimum:+g("#pMin")||0,debut:g("#pDebut"),fin:g("#pFin"),max:g("#pMax"),actif:f.querySelector("#pActif").checked}});
+  promoEd=null;await rechargerAtelier();render();toast("Code enregistré");
+ });
  if(f.id==="fProd")agir(async()=>{
   const g=id=>f.querySelector(id).value,file=f.querySelector("#ePhoto").files[0];
-  const p={...editing,nom:g("#eNom").trim(),cat:g("#eCat"),parfum:g("#eParfum").trim(),cire:g("#eCire"),prix:+g("#ePrix"),stock:+g("#eStock")||0,poids:+g("#ePoids")||0,duree:+g("#eDuree")||0,desc:g("#eDesc").trim()};
-  if(file)p.photo=await lireImage(file);else delete p.photo;
+  const p={...editing,nom:g("#eNom").trim(),cat:g("#eCat"),parfum:g("#eParfum").trim(),cire:g("#eCire"),prix:+g("#ePrix"),prixAvant:g("#ePrixAvant")?+g("#ePrixAvant"):null,stock:+g("#eStock")||0,poids:+g("#ePoids")||0,duree:+g("#eDuree")||0,desc:g("#eDesc").trim(),masque:f.querySelector("#eMasque").checked};
+  if(file)p.photo=await envoyerPhoto(file);else delete p.photo;
   await api("atelier/produit",{produit:p});layer=null;editing=null;history.replaceState({v:view},"");await rechargerAtelier();render();toast("Création enregistrée");
  });
 });
