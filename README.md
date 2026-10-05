@@ -14,6 +14,7 @@ Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidél
 ## Carte de fidélité
 - Inscription sans mot de passe : prénom, nom, e-mail, téléphone, adresse, photo. La carte reste ouverte sur l'appareil.
 - Numéro de client dans l'ordre des inscriptions : 0001, 0002…
+- Photo recadrée à l'inscription (glisser + zoom, ovale pour placer le visage), modifiable ensuite dans « Ma carte ».
 - Carte recto (photo, nom, numéro) / verso (10 cases), à retourner et à télécharger en image.
 - Un tampon par commande, retiré si la commande est annulée. Au 10e tampon : un bon de 10 € à utiliser dans le panier.
 - Autre appareil : « Ma carte › Ajouter un appareil » affiche un code (15 min) à saisir sur l'autre appareil.
@@ -30,6 +31,8 @@ Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidél
 Aucun lien visible pour les clients. Mélanie ouvre l'adresse du site suivie de `#atelier`
 (ex. `https://la-madeleine.….workers.dev/#atelier`), saisit le code `CODE_ATELIER` une fois :
 l'atelier reste ouvert sur cet appareil et apparaît dans le menu.
+Dans l'application installée (pas de barre d'adresse, surtout sur iPhone) : **5 appuis rapides sur le titre
+« La Madeleine »** ouvrent la même page du code.
 
 ## Application (PC, Android, iPhone)
 Le site est une application installable (PWA), sans passer par les magasins d'applications :
