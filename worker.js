@@ -22,11 +22,91 @@
 //   CODE_ATELIER (secret)   code qui ouvre l'atelier de Mélanie sur un appareil. Jamais dans le dépôt.
 
 const CODE_CAR = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-const TAMPONS_PAR_BON = 10, VALEUR_BON = 10, PORT = 6.9, PORT_OFFERT = 60;
-// Parrainage : le parrain gagne cette somme dans sa cagnotte à chaque commande de son filleul
-const GAIN_PARRAIN = 1;
-// …et, à chaque filleul inscrit, une réduction de 5 % appliquée toute seule sur sa prochaine commande
-const TAUX_REDUCTION = 0.05;
+// Règles de la boutique : valeurs de départ, modifiables par Mélanie (Atelier › Ma boutique), relues à chaque appel
+let TAMPONS_PAR_BON = 10, VALEUR_BON = 10, PORT = 6.9, PORT_OFFERT = 60;
+// Parrainage : le parrain gagne cette somme dans sa cagnotte à chaque commande de son filleul…
+let GAIN_PARRAIN = 1;
+// …et, à chaque filleul inscrit, une réduction (5 %) appliquée toute seule sur sa prochaine commande
+let TAUX_REDUCTION = 0.05;
+const REGLAGES_DEFAUT = {
+  bandeau: 'Photos d’inspiration à remplacer par les créations de Mélanie · paiement en ligne pas encore branché',
+  accrocheTitre: 'Des bougies qui sentent *le goûter* de grand-mère.',
+  accrocheTexte: 'Gâteaux de cire, verrines gourmandes, beignets et fondants parfumés : chaque pièce est coulée et décorée à la main par Mélanie, en cire végétale, dans l’esprit des salons d’antan.',
+  port: 6.9, portOffert: 60, tamponsParBon: 10, valeurBon: 10, gainParrain: 1, tauxReduction: 5,
+  categories: [['gateau', 'Gâteaux'], ['verrine', 'Verrines'], ['douceur', 'Petites douceurs'], ['pot', 'Pots'], ['bouteille', 'Bouteilles'], ['tasse', 'Tasses']],
+  images: { accueil: ['img/p6.jpg', 'img/p1.jpg', 'img/p3.jpg'], histoire: ['img/p8.jpg', 'img/p9.jpg', 'img/p5.jpg'], souvenirs: ['img/p7.jpg', 'img/p8.jpg', 'img/p2.jpg', 'img/p1.jpg'] },
+};
+// Verrine sur mesure : options et prix, modifiables dans l'atelier
+const VERRINE_DEFAUT = {
+  actif: true, delai: 'Coulée et décorée à la main pour vous, prête sous 7 jours',
+  verres: [{ id: 'petit', nom: 'Petite verrine', poids: 180, duree: 30, prix: 22 }, { id: 'moyen', nom: 'Verrine moyenne', poids: 250, duree: 40, prix: 28 }, { id: 'grand', nom: 'Grande verrine', poids: 320, duree: 50, prix: 34 }],
+  prixTroisEtages: 3,
+  etages: [{ id: 'choco', nom: 'Génoise chocolat', couleur: '#5b3424' }, { id: 'vanille', nom: 'Crème vanille', couleur: '#f3e3c3' }, { id: 'fraise', nom: 'Mousse fraise', couleur: '#e79aa8' },
+    { id: 'caramel', nom: 'Caramel', couleur: '#c98a4b' }, { id: 'pistache', nom: 'Pistache', couleur: '#b5c98a' }, { id: 'cafe', nom: 'Crème café', couleur: '#9a6a4a' },
+    { id: 'framboise', nom: 'Coulis framboise', couleur: '#c2405a' }, { id: 'chantilly', nom: 'Chantilly', couleur: '#fbf6ee' }],
+  parfums: [{ id: 'vanille', nom: 'Vanille bourbon' }, { id: 'fraise', nom: 'Fraise des bois' }, { id: 'caramel', nom: 'Caramel au beurre salé' }, { id: 'choco', nom: 'Chocolat noisette' },
+    { id: 'cafe', nom: 'Café crème' }, { id: 'peche', nom: 'Pêche de vigne' }, { id: 'oranger', nom: 'Fleur d’oranger' }, { id: 'barbe', nom: 'Barbe à papa' }],
+  decors: [{ id: 'chantilly', nom: 'Rosace de chantilly', prix: 0 }, { id: 'fraises', nom: 'Fraises', prix: 2 }, { id: 'framboises', nom: 'Framboises', prix: 2 },
+    { id: 'vermicelles', nom: 'Vermicelles', prix: 1 }, { id: 'grains', nom: 'Grains de café', prix: 1 }, { id: 'chocolat', nom: 'Carré de chocolat', prix: 1.5 },
+    { id: 'paillettes', nom: 'Paillettes dorées', prix: 1 }, { id: 'biscuit', nom: 'Petit biscuit', prix: 1.5 }],
+  maxDecors: 3, prixMot: 1.5, maxMot: 28,
+};
+let R = REGLAGES_DEFAUT, V = VERRINE_DEFAUT;
+async function chargerReglages(env) {
+  const { results } = await env.DB.prepare("SELECT k, v FROM reglages WHERE k IN ('boutique', 'verrine')").all();
+  const lu = Object.fromEntries(results.map(r => { try { return [r.k, JSON.parse(r.v)]; } catch { return [r.k, {}]; } }));
+  R = { ...REGLAGES_DEFAUT, ...(lu.boutique || {}) };
+  R.images = { ...REGLAGES_DEFAUT.images, ...((lu.boutique || {}).images || {}) };
+  V = { ...VERRINE_DEFAUT, ...(lu.verrine || {}) };
+  TAMPONS_PAR_BON = R.tamponsParBon; VALEUR_BON = R.valeurBon; PORT = R.port; PORT_OFFERT = R.portOffert;
+  GAIN_PARRAIN = R.gainParrain; TAUX_REDUCTION = R.tauxReduction / 100;
+}
+const nombre = (v, min, max, defaut) => { const n = Number(v); return Number.isFinite(n) ? Math.min(max, Math.max(min, arrondi(n))) : defaut; };
+const urlImage = v => typeof v === 'string' && /^(img\/p\d{1,2}\.jpg|api\/image\/[0-9a-f]{24})$/.test(v) ? v : null;
+const ident = v => /^[a-z0-9-]{1,24}$/.test(String(v || '')) ? String(v) : null;
+const couleur = v => /^#[0-9a-f]{6}$/i.test(String(v || '')) ? String(v) : '#e7dacd';
+function nettoyerReglages(r) {
+  const d = REGLAGES_DEFAUT, im = r.images || {};
+  const liste = (k, n) => Array.from({ length: n }, (_, i) => urlImage((im[k] || [])[i]) || d.images[k][i]);
+  const cats = (Array.isArray(r.categories) ? r.categories : []).map(c => [ident(c && c[0]), txt(c && c[1], 30)]).filter(c => c[0] && c[1]).slice(0, 20);
+  return {
+    bandeau: txt(r.bandeau, 200), accrocheTitre: txt(r.accrocheTitre, 120) || d.accrocheTitre, accrocheTexte: txt(r.accrocheTexte, 600) || d.accrocheTexte,
+    port: nombre(r.port, 0, 100, d.port), portOffert: nombre(r.portOffert, 0, 10000, d.portOffert),
+    tamponsParBon: Math.round(nombre(r.tamponsParBon, 2, 50, d.tamponsParBon)), valeurBon: nombre(r.valeurBon, 0, 500, d.valeurBon),
+    gainParrain: nombre(r.gainParrain, 0, 100, d.gainParrain), tauxReduction: nombre(r.tauxReduction, 0, 90, d.tauxReduction),
+    categories: cats.length ? cats : d.categories,
+    images: { accueil: liste('accueil', 3), histoire: liste('histoire', 3), souvenirs: liste('souvenirs', 4) },
+  };
+}
+function nettoyerVerrine(v) {
+  const d = VERRINE_DEFAUT;
+  const options = (l, f) => (Array.isArray(l) ? l : []).map(f).filter(x => x && x.id && x.nom).slice(0, 30);
+  const out = {
+    actif: !!v.actif, delai: txt(v.delai, 160),
+    verres: options(v.verres, x => x && { id: ident(x.id), nom: txt(x.nom, 40), poids: Math.round(nombre(x.poids, 0, 5000, 0)), duree: Math.round(nombre(x.duree, 0, 500, 0)), prix: nombre(x.prix, 0, 1000, 0) }),
+    prixTroisEtages: nombre(v.prixTroisEtages, 0, 100, d.prixTroisEtages),
+    etages: options(v.etages, x => x && { id: ident(x.id), nom: txt(x.nom, 40), couleur: couleur(x.couleur) }),
+    parfums: options(v.parfums, x => x && { id: ident(x.id), nom: txt(x.nom, 40) }),
+    decors: options(v.decors, x => x && { id: ident(x.id), nom: txt(x.nom, 40), prix: nombre(x.prix, 0, 100, 0) }),
+    maxDecors: Math.round(nombre(v.maxDecors, 0, 8, d.maxDecors)), prixMot: nombre(v.prixMot, 0, 50, d.prixMot), maxMot: Math.round(nombre(v.maxMot, 0, 40, d.maxMot)),
+  };
+  if (!out.verres.length || out.etages.length < 2 || !out.parfums.length) throw new Refus(400, 'Gardez au moins un verre, deux étages et un parfum.');
+  return out;
+}
+// Verrine composée par le client : vérifiée et chiffrée ici, avec les options en vigueur
+function verrineCommandee(p, q) {
+  if (!V.actif) throw new Refus(409, 'Les verrines sur mesure sont en pause pour le moment.');
+  const verre = V.verres.find(x => x.id === p?.verre);
+  const etages = (Array.isArray(p?.etages) ? p.etages : []).map(id => V.etages.find(x => x.id === id));
+  const parfum = V.parfums.find(x => x.id === p?.parfum);
+  const decors = [...new Set(Array.isArray(p?.decors) ? p.decors : [])].map(id => V.decors.find(x => x.id === id));
+  const mot = txt(p?.mot, V.maxMot);
+  if (!verre || !parfum || etages.length < 2 || etages.length > 3 || etages.includes(undefined) || decors.includes(undefined) || decors.length > V.maxDecors)
+    throw new Refus(409, 'Une option de votre verrine n\'est plus proposée : recomposez-la, s\'il vous plaît.');
+  const prix = arrondi(verre.prix + (etages.length === 3 ? V.prixTroisEtages : 0) + decors.reduce((a, x) => a + x.prix, 0) + (mot ? V.prixMot : 0));
+  const detail = [verre.nom, etages.map(x => x.nom).join(' / '), 'parfum ' + parfum.nom, decors.length ? 'décor : ' + decors.map(x => x.nom.toLowerCase()).join(', ') : '', mot ? `mot « ${mot} »` : ''].filter(Boolean).join(' · ');
+  return { id: 'verrine', nom: 'Verrine sur mesure', q, prix, detail, perso: { verre: verre.id, etages: etages.map(x => x.id), parfum: parfum.id, decors: decors.map(x => x.id), mot } };
+}
 const arrondi = n => Math.round(n * 100) / 100;
 const MODES = ['Colissimo', 'Retrait atelier'];
 const DOMAINE = 'la-madeleine', ADRESSE_ATELIER = 'melanie@' + DOMAINE;
@@ -47,6 +127,11 @@ const SCHEMA = [
      objet TEXT, texte TEXT NOT NULL, commande INTEGER, date TEXT NOT NULL, lu INTEGER NOT NULL DEFAULT 0)`,
   `CREATE INDEX IF NOT EXISTS messages_numero ON messages (numero, id)`,
   `CREATE TABLE IF NOT EXISTS limites (cle TEXT PRIMARY KEY, n INTEGER NOT NULL, fin INTEGER NOT NULL)`,
+  // Photos du site et des bougies envoyées depuis l'atelier (servies par /api/image/<id>)
+  `CREATE TABLE IF NOT EXISTS images (id TEXT PRIMARY KEY, type TEXT NOT NULL, data TEXT NOT NULL, cree TEXT)`,
+  // Codes de réduction : type 'pourcent' ou 'euros'
+  `CREATE TABLE IF NOT EXISTS promos (code TEXT PRIMARY KEY, libelle TEXT, type TEXT NOT NULL, valeur REAL NOT NULL, minimum REAL NOT NULL DEFAULT 0,
+     debut TEXT, fin TEXT, max INTEGER, utilisations INTEGER NOT NULL DEFAULT 0, actif INTEGER NOT NULL DEFAULT 1)`,
 ];
 
 // ---------- Outils ----------
@@ -90,7 +175,7 @@ function texteStatut(statut, o) {
   case 'preparation': return 'Mélanie a commencé à préparer votre commande.';
   case 'prete': return o.mode === 'Retrait atelier' ? 'Votre commande est prête : vous pouvez venir la retirer à l\'atelier.' : 'Votre commande est partie par Colissimo. Elle arrive bientôt !';
   case 'livree': return 'Votre commande est indiquée comme livrée. Belle flamme et bons souvenirs !';
-  case 'annulee': return 'Votre commande a été annulée. Le tampon correspondant a été retiré de votre carte' + (o.remise ? ' et votre bon de 10 € vous a été rendu' : '') + (o.cagnotte ? `, et ${eurosTexte(o.cagnotte)} sont revenus dans votre cagnotte parrainage` : '') + (o.reduction ? ', et votre réduction de 5 % vous attend pour la prochaine fois' : '') + '.';
+  case 'annulee': return 'Votre commande a été annulée. Le tampon correspondant a été retiré de votre carte' + (o.remise ? ` et votre bon de ${eurosTexte(o.remise)} vous a été rendu` : '') + (o.cagnotte ? `, et ${eurosTexte(o.cagnotte)} sont revenus dans votre cagnotte parrainage` : '') + (o.reduction ? ', et votre réduction parrainage vous attend pour la prochaine fois' : '') + '.';
   }
   return null;
 }
@@ -121,7 +206,8 @@ async function preparer(env) {
     // Parrainage : parrain et cagnotte du client ; sur la commande, l'euro donné au parrain et la cagnotte dépensée
     for (const sql of ['ALTER TABLE clients ADD COLUMN parrain INTEGER', 'ALTER TABLE clients ADD COLUMN cagnotte REAL NOT NULL DEFAULT 0',
       'ALTER TABLE commandes ADD COLUMN parrainage REAL NOT NULL DEFAULT 0', 'ALTER TABLE commandes ADD COLUMN cagnotte REAL NOT NULL DEFAULT 0',
-      'ALTER TABLE clients ADD COLUMN reductions INTEGER NOT NULL DEFAULT 0', 'ALTER TABLE commandes ADD COLUMN reduction REAL NOT NULL DEFAULT 0'])
+      'ALTER TABLE clients ADD COLUMN reductions INTEGER NOT NULL DEFAULT 0', 'ALTER TABLE commandes ADD COLUMN reduction REAL NOT NULL DEFAULT 0',
+      'ALTER TABLE commandes ADD COLUMN promo TEXT', 'ALTER TABLE commandes ADD COLUMN promo_montant REAL NOT NULL DEFAULT 0'])
       try { await env.DB.prepare(sql).run(); } catch { /* déjà là */ }
     const { n } = await env.DB.prepare('SELECT COUNT(*) AS n FROM produits').first();
     if (n === 0) {
@@ -144,8 +230,19 @@ const clientPublic = c => c && ({ numero: c.numero, cle: c.cle, prenom: c.prenom
   adresse: c.adresse, photo: c.photo, tampons: c.tampons, bons: c.bons, cree: c.cree, parrain: c.parrain, cagnotte: c.cagnotte || 0, reductions: c.reductions || 0 });
 const commandePublique = c => ({ id: c.id, ref: refCmd(c.id), numero: c.numero, date: c.date,
   items: JSON.parse(c.items), mode: c.mode, adresse: c.adresse, port: c.port, remise: c.remise, cagnotte: c.cagnotte || 0, parrainage: c.parrainage || 0,
-  reduction: c.reduction || 0, statut: c.statut, tampon: c.tampon,
-  total: arrondi(Math.max(0, JSON.parse(c.items).reduce((a, i) => a + i.q * i.prix, 0) - c.remise - (c.reduction || 0) - (c.cagnotte || 0)) + c.port) });
+  reduction: c.reduction || 0, promo: c.promo || null, promoMontant: c.promo_montant || 0, statut: c.statut, tampon: c.tampon,
+  total: arrondi(Math.max(0, JSON.parse(c.items).reduce((a, i) => a + i.q * i.prix, 0) - c.remise - (c.promo_montant || 0) - (c.reduction || 0) - (c.cagnotte || 0)) + c.port) });
+// Code de réduction valable aujourd'hui pour ce montant ?
+async function calculerPromo(env, code, base) {
+  const p = await env.DB.prepare('SELECT * FROM promos WHERE code = ?').bind(String(code || '').trim().toUpperCase().slice(0, 30)).first();
+  const jour = new Date().toISOString().slice(0, 10);
+  if (!p || !p.actif || (p.debut && jour < p.debut) || (p.fin && jour > p.fin)) throw new Refus(400, 'Ce code de réduction n\'est pas valable.');
+  if (p.max != null && p.utilisations >= p.max) throw new Refus(400, 'Ce code de réduction a déjà été utilisé le nombre de fois prévu.');
+  if (base < p.minimum) throw new Refus(400, `Ce code est valable à partir de ${eurosTexte(p.minimum)} d'achat.`);
+  const montant = arrondi(Math.min(base, p.type === 'pourcent' ? base * p.valeur / 100 : p.valeur));
+  return { code: p.code, libelle: p.libelle || (p.type === 'pourcent' ? `${p.valeur} % de réduction` : `${eurosTexte(p.valeur)} de réduction`), montant, type: p.type, valeur: p.valeur, minimum: p.minimum };
+}
+const promoPublique = p => ({ code: p.code, libelle: p.libelle, type: p.type, valeur: p.valeur, minimum: p.minimum, debut: p.debut, fin: p.fin, max: p.max, utilisations: p.utilisations, actif: !!p.actif });
 
 async function qui(request, env) {
   const h = request.headers.get('authorization') || '';
@@ -186,7 +283,9 @@ const messageBon = (env, c) => messageAuto(env, c.numero, `Bravo ! ${VALEUR_BON}
   `Votre carte a reçu son ${TAMPONS_PAR_BON}e tampon : vous gagnez un bon de ${VALEUR_BON} € à utiliser sur votre prochaine commande (case à cocher dans le panier), ou à l'atelier.\n\nMerci pour votre fidélité !\nMélanie`);
 
 // Retire du stock ; si une bougie manque, remet ce qui a été pris et refuse.
-async function prendreStock(env, items) {
+async function prendreStock(env, tous) {
+  const items = tous.filter(i => !i.perso);
+  if (!items.length) return;
   const r = await env.DB.batch(items.map(i => env.DB.prepare('UPDATE produits SET stock = stock - ?1 WHERE id = ?2 AND stock >= ?1').bind(i.q, i.id)));
   const manque = r.findIndex(x => !x.meta.changes);
   if (manque >= 0) {
@@ -195,11 +294,12 @@ async function prendreStock(env, items) {
     throw new Refus(409, `Le stock a changé : « ${items[manque].nom || items[manque].id} » n'est plus disponible en quantité suffisante.`);
   }
 }
-const rendreStock = (env, items) => env.DB.batch(items.map(i => env.DB.prepare('UPDATE produits SET stock = stock + ? WHERE id = ?').bind(i.q, i.id)));
+const rendreStock = (env, tous) => { const items = tous.filter(i => !i.perso); return items.length ? env.DB.batch(items.map(i => env.DB.prepare('UPDATE produits SET stock = stock + ? WHERE id = ?').bind(i.q, i.id))) : null; };
 
 // ---------- Routes ----------
 async function api(request, env, chemin) {
   await preparer(env);
+  await chargerReglages(env);
   const ip = request.headers.get('cf-connecting-ip') || 'local';
   let corps = {};
   if (request.method === 'POST') {
@@ -214,7 +314,7 @@ async function api(request, env, chemin) {
   switch (chemin) {
   case 'catalogue': {
     const l = await env.DB.prepare("SELECT v FROM reglages WHERE k = 'lettre'").first();
-    return json({ produits: await produits(env), lettre: l ? l.v : null });
+    return json({ produits: (await produits(env)).filter(p => !p.masque), lettre: l ? l.v : null, reglages: R, verrine: V });
   }
 
   case 'parrain': {
@@ -243,7 +343,7 @@ async function api(request, env, chemin) {
       .bind(prenom, nom, await adresseLibre(env, prenom, nom), hasard(8), email, txt(corps.tel, 30), txt(corps.adresse, 300), photo, new Date().toISOString().slice(0, 10), parrain ? parrain.numero : null).first();
     if (parrain) await env.DB.batch([
       env.DB.prepare('UPDATE clients SET reductions = reductions + 1 WHERE numero = ?').bind(parrain.numero),
-      messageAuto(env, parrain.numero, 'Un nouveau filleul : 5 % offerts !',
+      messageAuto(env, parrain.numero, `Un nouveau filleul : ${Math.round(TAUX_REDUCTION * 100)} % offerts !`,
         `Bonne nouvelle ${parrain.prenom} : ${prenom} vient de créer sa carte La Madeleine grâce à vous.\n\nVous gagnez ${Math.round(TAUX_REDUCTION * 100)} % de réduction sur votre prochaine commande (appliqués tout seuls dans le panier), puis ${eurosTexte(GAIN_PARRAIN)} dans votre cagnotte à chacune de ses commandes. Merci de faire découvrir l'atelier !`),
     ]);
     await messageAuto(env, c.numero, 'Bienvenue chez La Madeleine',
@@ -315,27 +415,32 @@ async function api(request, env, chemin) {
   // --- Commande ---
   case 'commande': {
     const c = exigerClient();
-    const fusion = new Map();
-    for (const i of Array.isArray(corps.items) ? corps.items : []) {
+    const fusion = new Map(), persos = [];
+    const lignes = Array.isArray(corps.items) ? corps.items : [];
+    if (lignes.length > 40) throw new Refus(400, 'Panier trop long.');
+    for (const i of lignes) {
       const q = Math.floor(Number(i?.q));
       if (typeof i?.id !== 'string' || !(q > 0 && q <= 50)) throw new Refus(400, 'Panier illisible.');
-      fusion.set(i.id, (fusion.get(i.id) || 0) + q);
+      if (i.id === 'verrine') persos.push(verrineCommandee(i.perso, Math.min(q, 10)));
+      else fusion.set(i.id, (fusion.get(i.id) || 0) + q);
     }
-    if (!fusion.size) throw new Refus(400, 'Votre panier est vide.');
+    if (!fusion.size && !persos.length) throw new Refus(400, 'Votre panier est vide.');
     const catalogue = new Map((await produits(env)).map(p => [p.id, p]));
     const items = [...fusion].map(([id, q]) => {
       const p = catalogue.get(id);
-      if (!p) throw new Refus(409, 'Une bougie de votre panier n\'est plus en vitrine.');
+      if (!p || p.masque) throw new Refus(409, 'Une bougie de votre panier n\'est plus en vitrine.');
       return { id, nom: p.nom, q, prix: p.prix };
-    });
+    }).concat(persos);
     const mode = MODES.includes(corps.mode) ? corps.mode : null;
     if (!mode) throw new Refus(400, 'Choisissez un mode de réception.');
     if (mode === 'Colissimo' && !c.adresse) throw new Refus(400, 'Ajoutez une adresse de livraison dans votre compte, ou choisissez le retrait à l\'atelier.');
     const sousTotal = items.reduce((a, i) => a + i.q * i.prix, 0);
     const port = mode === 'Colissimo' && sousTotal < PORT_OFFERT ? PORT : 0;
     const remise = corps.bon && c.bons > 0 ? Math.min(VALEUR_BON, sousTotal) : 0;
-    const reduction = (c.reductions || 0) > 0 ? arrondi(TAUX_REDUCTION * (sousTotal - remise)) : 0;
-    const cagnotte = corps.cagnotte ? arrondi(Math.min(c.cagnotte || 0, sousTotal - remise - reduction)) : 0;
+    const promo = corps.promo ? await calculerPromo(env, corps.promo, sousTotal - remise) : null;
+    const promoMontant = promo ? promo.montant : 0;
+    const reduction = (c.reductions || 0) > 0 ? arrondi(TAUX_REDUCTION * (sousTotal - remise - promoMontant)) : 0;
+    const cagnotte = corps.cagnotte ? arrondi(Math.min(c.cagnotte || 0, sousTotal - remise - promoMontant - reduction)) : 0;
     await prendreStock(env, items);
     if (remise) c.bons--;
     if (cagnotte) c.cagnotte = arrondi(c.cagnotte - cagnotte);
@@ -344,22 +449,75 @@ async function api(request, env, chemin) {
     ajouterTampon(c);
     const parrainage = c.parrain && await env.DB.prepare('SELECT 1 FROM clients WHERE numero = ?').bind(c.parrain).first() ? GAIN_PARRAIN : 0;
     const [cmd] = await env.DB.batch([
-      env.DB.prepare(`INSERT INTO commandes (numero, date, items, mode, adresse, port, remise, reduction, cagnotte, parrainage, statut, tampon)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'nouvelle', 1) RETURNING *`)
-        .bind(c.numero, new Date().toISOString().slice(0, 10), JSON.stringify(items), mode, mode === 'Colissimo' ? c.adresse : '', port, remise, reduction, cagnotte, parrainage),
+      env.DB.prepare(`INSERT INTO commandes (numero, date, items, mode, adresse, port, remise, promo, promo_montant, reduction, cagnotte, parrainage, statut, tampon)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'nouvelle', 1) RETURNING *`)
+        .bind(c.numero, new Date().toISOString().slice(0, 10), JSON.stringify(items), mode, mode === 'Colissimo' ? c.adresse : '', port, remise, promo ? promo.code : null, promoMontant, reduction, cagnotte, parrainage),
+      ...(promo ? [env.DB.prepare('UPDATE promos SET utilisations = utilisations + 1 WHERE code = ?').bind(promo.code)] : []),
       enregistrerCarte(env, c),
       ...(parrainage ? [crediterParrain(env, c.parrain, parrainage)] : []),
       ...(c.bons > bonsAvant ? [messageBon(env, c)] : []),
     ]);
     const nouvelle = commandePublique(cmd.results[0]);
     await messageAuto(env, c.numero, `Commande ${nouvelle.ref} bien reçue`,
-      `Merci pour votre commande ! Mélanie va la préparer à la main.\n\n${items.map(i => `${i.q} × ${i.nom}`).join('\n')}\nTotal : ${eurosTexte(nouvelle.total)}${remise ? ' (bon fidélité déduit)' : ''}${reduction ? ` (réduction parrainage 5 % : −${eurosTexte(reduction)})` : ''}${cagnotte ? ` (cagnotte parrainage : −${eurosTexte(cagnotte)})` : ''}\n\nVous recevrez ici chaque étape. Une question ? Répondez simplement à ce message.`, nouvelle.id).run();
+      `Merci pour votre commande ! Mélanie va la préparer à la main.\n\n${items.map(i => `${i.q} × ${i.nom}${i.detail ? ` (${i.detail})` : ''}`).join('\n')}\nTotal : ${eurosTexte(nouvelle.total)}${remise ? ' (bon fidélité déduit)' : ''}${promo ? ` (code ${promo.code} : −${eurosTexte(promoMontant)})` : ''}${reduction ? ` (réduction parrainage : −${eurosTexte(reduction)})` : ''}${cagnotte ? ` (cagnotte parrainage : −${eurosTexte(cagnotte)})` : ''}\n\nVous recevrez ici chaque étape. Une question ? Répondez simplement à ce message.`, nouvelle.id).run();
     if (parrainage) await messageAuto(env, c.parrain, `Parrainage : +${eurosTexte(parrainage)}`,
       `${c.prenom}, votre filleul(e), vient de passer commande : ${eurosTexte(parrainage)} de plus dans votre cagnotte parrainage. Vous pouvez l'utiliser dans le panier sur votre prochaine commande.`).run();
     return json({ commande: nouvelle, client: clientPublic(c) });
   }
 
+  case 'promo': {
+    // Vérification d'un code de réduction depuis le panier
+    exigerClient();
+    if (!await limite(env, 'promo:' + ip, 40, 3600)) throw new Refus(429, 'Trop d\'essais. Réessayez dans une heure.');
+    return json(await calculerPromo(env, corps.code, Math.max(0, Number(corps.base) || 0)));
+  }
+
   // --- Atelier ---
+  case 'atelier/reglages': {
+    exigerAtelier();
+    const r = nettoyerReglages(corps.reglages || {});
+    await env.DB.prepare("INSERT INTO reglages (k, v) VALUES ('boutique', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(JSON.stringify(r)).run();
+    await chargerReglages(env);
+    return json({ reglages: R });
+  }
+  case 'atelier/verrine': {
+    exigerAtelier();
+    const v = nettoyerVerrine(corps.verrine || {});
+    await env.DB.prepare("INSERT INTO reglages (k, v) VALUES ('verrine', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(JSON.stringify(v)).run();
+    await chargerReglages(env);
+    return json({ verrine: V });
+  }
+  case 'atelier/image': {
+    // Photo envoyée par l'atelier (réduite dans le navigateur) : rangée en base, servie par /api/image/<id>
+    exigerAtelier();
+    const m = String(corps.data || '').match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+    if (!m) throw new Refus(400, 'Photo illisible.');
+    if (m[2].length > 1800000) throw new Refus(413, 'Photo trop lourde.');
+    const id = hasard(12);
+    await env.DB.prepare('INSERT INTO images (id, type, data, cree) VALUES (?, ?, ?, ?)').bind(id, m[1], m[2], new Date().toISOString()).run();
+    return json({ url: 'api/image/' + id });
+  }
+  case 'atelier/promo': {
+    exigerAtelier();
+    const p = corps.promo || {};
+    const code = String(p.code || '').trim().toUpperCase();
+    if (!/^[A-Z0-9-]{3,30}$/.test(code)) throw new Refus(400, 'Code : 3 à 30 lettres ou chiffres, sans espace (ex. NOEL10).');
+    const type = p.type === 'euros' ? 'euros' : 'pourcent';
+    const valeur = nombre(p.valeur, 0, type === 'pourcent' ? 90 : 1000, 0);
+    if (!(valeur > 0)) throw new Refus(400, 'Indiquez la valeur de la réduction.');
+    const date = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '') ? d : null;
+    const max = p.max === '' || p.max == null ? null : Math.max(1, Math.round(Number(p.max)) || 1);
+    await env.DB.prepare(`INSERT INTO promos (code, libelle, type, valeur, minimum, debut, fin, max, actif) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(code) DO UPDATE SET libelle = excluded.libelle, type = excluded.type, valeur = excluded.valeur, minimum = excluded.minimum,
+      debut = excluded.debut, fin = excluded.fin, max = excluded.max, actif = excluded.actif`)
+      .bind(code, txt(p.libelle, 80), type, valeur, nombre(p.minimum, 0, 10000, 0), date(p.debut), date(p.fin), max, p.actif === false ? 0 : 1).run();
+    return json({ ok: true });
+  }
+  case 'atelier/promo-suppr': {
+    exigerAtelier();
+    await env.DB.prepare('DELETE FROM promos WHERE code = ?').bind(String(corps.code || '').toUpperCase()).run();
+    return json({ ok: true });
+  }
   case 'atelier/entrer': {
     if (!env.CODE_ATELIER) throw new Refus(503, 'Le code de l\'atelier n\'est pas encore réglé dans Cloudflare (secret CODE_ATELIER).');
     if (!await limite(env, 'atelier:' + ip, 10, 3600)) throw new Refus(429, 'Trop d\'essais. Réessayez dans une heure.');
@@ -373,7 +531,9 @@ async function api(request, env, chemin) {
       env.DB.prepare(`SELECT numero, prenom, nom, courriel, email, tel, adresse, tampons, bons, cree, parrain, cagnotte, reductions,
         (SELECT COUNT(*) FROM clients f WHERE f.parrain = clients.numero) AS filleuls FROM clients ORDER BY numero`),
     ]);
-    return json({ commandes: cmds.results.map(commandePublique), clients: clients.results, produits: await produits(env), nonlus: await nonLus(env, moi) });
+    const { results: promos } = await env.DB.prepare('SELECT * FROM promos ORDER BY code').all();
+    return json({ commandes: cmds.results.map(commandePublique), clients: clients.results, produits: await produits(env), nonlus: await nonLus(env, moi),
+      promos: promos.map(promoPublique), reglages: R, verrine: V });
   }
   case 'atelier/boite': {
     // Une conversation par client : dernier message, messages non lus
@@ -435,14 +595,16 @@ async function api(request, env, chemin) {
       await rendreStock(env, items);
       if (c) { if (o.tampon) retirerTampon(c); if (o.remise) c.bons++; if (o.cagnotte) c.cagnotte = arrondi((c.cagnotte || 0) + o.cagnotte); if (o.reduction) c.reductions = (c.reductions || 0) + 1; suite.push(enregistrerCarte(env, c)); }
       if (o.parrainage && c && c.parrain) suite.push(crediterParrain(env, c.parrain, -o.parrainage));
+      if (o.promo) suite.push(env.DB.prepare('UPDATE promos SET utilisations = MAX(0, utilisations - 1) WHERE code = ?').bind(o.promo));
       tampon = 0;
     } else if (o.statut === 'annulee' && statut !== 'annulee') {
       if (o.remise && !(c && c.bons > 0)) throw new Refus(409, 'Le bon de 10 € de cette commande a déjà été utilisé ailleurs : impossible de la réactiver.');
       if (o.cagnotte && !(c && (c.cagnotte || 0) >= o.cagnotte)) throw new Refus(409, 'La cagnotte utilisée pour cette commande a déjà été dépensée ailleurs : impossible de la réactiver.');
-      if (o.reduction && !(c && (c.reductions || 0) > 0)) throw new Refus(409, 'La réduction de 5 % de cette commande a déjà servi ailleurs : impossible de la réactiver.');
+      if (o.reduction && !(c && (c.reductions || 0) > 0)) throw new Refus(409, 'La réduction parrainage de cette commande a déjà servi ailleurs : impossible de la réactiver.');
       await prendreStock(env, items);
       if (c) { if (o.remise) c.bons--; if (o.cagnotte) c.cagnotte = arrondi(c.cagnotte - o.cagnotte); if (o.reduction) c.reductions--; ajouterTampon(c); suite.push(enregistrerCarte(env, c)); tampon = 1; }
       if (o.parrainage && c && c.parrain) suite.push(crediterParrain(env, c.parrain, o.parrainage));
+      if (o.promo) suite.push(env.DB.prepare('UPDATE promos SET utilisations = utilisations + 1 WHERE code = ?').bind(o.promo));
     }
     const texte = statut !== o.statut ? texteStatut(statut, o) : null;
     if (texte) suite.push(messageAuto(env, o.numero, `Commande ${refCmd(o.id)} : ${{ preparation: 'en préparation', prete: o.mode === 'Retrait atelier' ? 'prête à retirer' : 'expédiée', livree: 'livrée', annulee: 'annulée' }[statut]}`, texte, o.id));
@@ -499,8 +661,11 @@ async function api(request, env, chemin) {
     const data = { id, cat: txt(p.cat, 20) || 'gateau', nom: txt(p.nom, 80), parfum: txt(p.parfum, 120), cire: txt(p.cire, 40),
       poids: Math.max(0, Math.floor(Number(p.poids)) || 0), duree: Math.max(0, Math.floor(Number(p.duree)) || 0), prix,
       desc: txt(p.desc, 1000), c1: txt(p.c1 || ancien.c1, 20), c2: txt(p.c2 || ancien.c2, 20) };
+    const prixAvant = Number(p.prixAvant);
+    if (prixAvant > prix && prixAvant < 10000) data.prixAvant = arrondi(prixAvant);
+    if (p.masque) data.masque = true;
     if (ancien.img) data.img = ancien.img;
-    const photo = p.photo === undefined ? ancien.photo : photoValide(p.photo, 400000);
+    const photo = p.photo === undefined ? ancien.photo : (urlImage(p.photo) || photoValide(p.photo, 400000));
     if (photo) data.photo = photo;
     const stock = Math.max(0, Math.floor(Number(p.stock)) || 0);
     if (avant) await env.DB.prepare('UPDATE produits SET data = ?, stock = ? WHERE id = ?').bind(JSON.stringify(data), stock, id).run();
@@ -537,6 +702,17 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
+    const img = url.pathname.match(/^\/api\/image\/([0-9a-f]{24})$/);
+    if (img) {
+      // Photo envoyée depuis l'atelier : identifiant unique, jamais modifié → gardée en cache longtemps
+      try {
+        await preparer(env);
+        const r = await env.DB.prepare('SELECT type, data FROM images WHERE id = ?').bind(img[1]).first();
+        if (!r) return new Response('Photo introuvable', { status: 404 });
+        const octets = Uint8Array.from(atob(r.data), ch => ch.charCodeAt(0));
+        return new Response(octets, { headers: { 'content-type': r.type, 'cache-control': 'public, max-age=31536000, immutable' } });
+      } catch (e) { console.error(e); return new Response('Erreur', { status: 500 }); }
+    }
     try {
       return await api(request, env, url.pathname.slice(5).replace(/\/$/, ''));
     } catch (e) {

@@ -23,6 +23,20 @@ Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidél
 - Téléphone perdu : dans l'atelier, « Clients & tampons › Gérer › Code de réactivation » (48 h).
 - Vente en direct (marché) : l'atelier tamponne une carte par son numéro et peut utiliser un bon.
 
+## Verrine sur mesure
+« Créer ma verrine » (carte en tête de vitrine) : le client choisit le verre, 2 ou 3 étages de couleur, le parfum,
+jusqu'à 3 décors et un petit mot écrit sur l'étiquette ; l'aperçu se dessine en direct et le prix se calcule tout seul.
+Le serveur revérifie et rechiffre la composition à la commande. Options et prix réglables dans l'atelier.
+
+## Partie de Mélanie : tout gérer depuis l'atelier
+- **Commandes**, **Messagerie**, **Clients & tampons** (scan, tampons, bons, cagnotte, codes de réactivation).
+- **Mes créations** : ajouter, modifier, supprimer, photo, prix, prix barré, stock (+/−), catégorie, masquer de la vitrine.
+- **Réductions** : codes promo (% ou €, achat minimum, dates, nombre d'utilisations, actif/arrêté), suivis à l'usage.
+- **Verrine sur mesure** : proposer ou non, verres et prix, couleurs des étages, parfums, décors et prix, petit mot.
+- **Ma boutique** : bandeau d'annonce, titre et texte de l'accueil, photos du site (accueil, histoire, plaisirs perdus),
+  frais de port et livraison offerte, règles de fidélité (tampons, valeur du bon) et de parrainage, catégories.
+- **Mon mot** : le texte de la page « Notre histoire ».
+
 ## QR codes et parrainage
 - « Ma carte en grand · QR code » : recto (photo, infos), QR code personnel, verso (tampons).
   L'atelier le scanne (« Clients & tampons › Scanner une carte ») : la fiche s'ouvre avec la photo, pour tamponner.
@@ -68,4 +82,4 @@ Créer un fichier `.dev.vars` (ignoré par git) contenant `CODE_ATELIER="essai"`
 Le paiement en ligne n'est pas branché (Stripe ou SumUp à ajouter) : les commandes sont réglées à part.
 
 ## Mise à jour
-À chaque modification, incrémenter `CACHE` dans `public/sw.js` (madeleine-v4 → madeleine-v5…).
+À chaque modification, incrémenter `CACHE` dans `public/sw.js` (madeleine-v9 → madeleine-v10…).
