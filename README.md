@@ -23,6 +23,16 @@ Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidél
 - Téléphone perdu : dans l'atelier, « Clients & tampons › Gérer › Code de réactivation » (48 h).
 - Vente en direct (marché) : l'atelier tamponne une carte par son numéro et peut utiliser un bon.
 
+## QR codes et parrainage
+- « Ma carte en grand · QR code » : recto (photo, infos), QR code personnel, verso (tampons).
+  L'atelier le scanne (« Clients & tampons › Scanner une carte ») : la fiche s'ouvre avec la photo, pour tamponner.
+  Le QR contient une clé secrète par client ; scanné par quelqu'un d'autre, il ne montre aucune donnée personnelle.
+- Parrainage : à l'inscription, « Je me fais parrainer » puis scan de la carte du parrain (ou lien / QR de l'appli
+  partagé depuis « Ma carte »). Le parrain gagne 5 % sur sa prochaine commande (automatique) par filleul inscrit,
+  puis 1 € de cagnotte à chaque commande du filleul. Tout est repris ou rendu en cas d'annulation.
+- Au 10e tampon (commande ou marché) : grand tampon animé « Bravo ! 10 € offerts » à l'ouverture de l'appli.
+- `public/vendor/` : bibliothèques libres de QR code (voir LICENCES.txt).
+
 ## Messagerie
 - Chaque client reçoit une adresse `prenom.nom@la-madeleine` (prenom.nom2… en cas d'homonyme), utilisable seulement sur le site.
 - Le client écrit à `melanie@la-madeleine`, éventuellement à propos d'une de ses commandes ; Mélanie répond depuis l'atelier (onglet Messagerie).

@@ -1,0 +1,3 @@
+Bibliothèques libres utilisées par La Madeleine :
+- qrcode.js : QR Code Generator for JavaScript, (c) 2009 Kazuhiko Arase, licence MIT (dessin des QR codes)
+- jsQR.js : jsQR 1.4.0, (c) Cosmo Wolfe, licence Apache-2.0 (lecture des QR codes par l'appareil photo de l'atelier)

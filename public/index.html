@@ -279,6 +279,34 @@ footer .wrap b{font-family:var(--f-script);font-weight:400;font-size:26px;color:
 .touche .ico{width:16px;height:16px}
 footer .installer{background:none;border:1px solid var(--brass-2);color:var(--brass-1);padding:5px 12px;border-radius:2px;cursor:pointer;font-size:13px;margin-top:8px}
 
+/* Carte en grand, QR codes, parrainage, scanner */
+.box.grand{display:grid;gap:16px;padding:18px;max-width:480px;grid-template-columns:1fr}
+.carte.fixe{cursor:default;transform:none}
+.carte.fixe .face{position:absolute;inset:0;transform:none}
+.carte.fixe.petite{max-width:320px}
+.qr-perso{display:flex;gap:14px;align-items:center;background:#fff;color:#36211a;border:1px solid var(--line);padding:12px;border-radius:6px}
+.qr-perso .qr{width:150px;flex:none}.qr-perso p{margin:0;font-size:14px}
+.qr svg{display:block;width:100%;height:auto}
+.parrain{display:flex;gap:18px;align-items:center;max-width:760px;margin:0 auto}
+.parrain .qr{width:140px;flex:none;background:#fff;padding:6px;border:1px solid var(--line)}
+.parrain h3{margin:0 0 6px;font-family:var(--f-display);font-weight:400;font-size:21px}
+.parrain p{margin:0 0 8px;font-size:14.5px}
+.code-parrain{font-family:var(--f-tag);background:var(--brass);color:#2b1a0c;padding:0 6px;border-radius:3px}
+.viseur{position:relative;margin:14px 0;aspect-ratio:1;background:#000;overflow:hidden;border:4px solid var(--brass-2)}
+.viseur video{width:100%;height:100%;object-fit:cover;display:block}
+.viseur span{position:absolute;inset:18%;border:3px solid rgba(240,216,154,.9);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+/* Fête du 10e tampon */
+.fete{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(30,15,8,.62)}
+.fete .boite-fete{text-align:center;max-width:380px;padding:28px 22px 22px;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.fete .sceau{width:170px;height:170px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-script);font-size:110px;line-height:1;color:#f6e8d6;
+  background:radial-gradient(circle at 35% 30%,#a477aa,#6e4a74 58%,#47294c);box-shadow:0 10px 26px rgba(0,0,0,.45),inset 0 0 0 10px rgba(255,255,255,.12);animation:tampon .7s cubic-bezier(.2,.9,.3,1.3) both}
+.fete h3{margin:0;font-family:var(--f-script);font-weight:400;font-size:52px;color:var(--brass-1);line-height:1.1}
+.fete p{margin:8px 0 18px;font-size:17px}
+@keyframes tampon{0%{transform:scale(2.6) rotate(-25deg);opacity:0}60%{transform:scale(.92) rotate(-8deg);opacity:1}100%{transform:scale(1) rotate(-8deg)}}
+@media (max-width:520px){.qr-perso,.parrain{flex-direction:column;text-align:center}.parrain .row{justify-content:center}}
+
+.parrain-choisi{display:flex;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--mustard);padding:8px 10px;flex-wrap:wrap}
+
 /* Bienvenue et suivi des commandes */
 .bienvenue{position:relative;border:2px solid var(--mustard);max-width:620px;margin:0 auto 24px}
 .bienvenue h3{margin:0 0 6px;font-family:var(--f-display);font-weight:400;font-size:24px}
@@ -361,6 +389,7 @@ input[type=range]{accent-color:var(--brass-2);width:100%}
 <div id="invite"></div>
 <div id="layer"></div>
 
+<script src="vendor/qrcode.js"></script>
 <script>
 const PHOTOS={"p1": "img/p1.jpg", "p2": "img/p2.jpg", "p3": "img/p3.jpg", "p4": "img/p4.jpg", "p5": "img/p5.jpg", "p6": "img/p6.jpg", "p7": "img/p7.jpg", "p8": "img/p8.jpg", "p9": "img/p9.jpg", "p10": "img/p10.jpg"};
 /* ---------- Illustrations vintage (SVG maison) ---------- */
@@ -412,7 +441,9 @@ let view="boutique",filtre="tous",q="",layer=null,err="",adminTab="commandes",ed
 let flip=false,codeLiaison=null,photoNeuve=null,fiche=null,ficheCode=null,occupe=false;
 // Messagerie : non lus, messages du client, conversations de l'atelier, brouillon en cours
 let NONLUS=0,MSG=null,BOITE=null,CONV=null,brouillon={};
-let appuisLogo=[],bienvenue=false;
+let appuisLogo=[],bienvenue=false,ficheDetail=null,flux=null,scanMode="atelier";
+// Parrain choisi à l'inscription (QR code de sa carte scanné, ou lien partagé) : {code:"numéro.clé", prenom, initiale}
+let PARRAIN=LS.get("madeleine.parrain");
 const client=()=>MOI&&MOI.role==="client"?MOI.client:null;
 const atelier=()=>MOI&&MOI.role==="atelier";
 const P=id=>PRODUITS.find(p=>p.id===id);
@@ -435,21 +466,27 @@ async function init(){
  catch(e){SERVEUR=false;try{PRODUITS=await(await fetch("produits.json")).json()}catch(e2){PRODUITS=[]}}
  document.getElementById("hors").hidden=SERVEUR;
  if(SERVEUR&&jeton){
-  try{MOI=await api("moi");NONLUS=MOI.nonlus||0;LS.set("madeleine.moi",MOI)}
+  try{MOI=await api("moi");NONLUS=MOI.nonlus||0;LS.set("madeleine.moi",MOI);setTimeout(verifierFete,600)}
   catch(e){if(e.statut===401){setJeton(null);MOI=null}}
  }
  if(!jeton)MOI=null;
  if(location.hash==="#atelier")view=atelier()?"atelier":"entree";
+ // Lien de parrainage : code gardé jusqu'à l'inscription (même après installation de l'appli)
+ const par=new URLSearchParams(location.search).get("parrain");if(par&&/^\d{1,7}\.[0-9a-f]{8,40}$/.test(par)&&!client())await choisirParrain(par).catch(()=>{});
  // Raccourcis de l'icône (appui long) : ?vue=compte, ?vue=messages…
  const vue=new URLSearchParams(location.search).get("vue");
  if(vue&&["boutique","histoire","compte","messages"].includes(vue))view=vue==="compte"&&atelier()?"atelier":vue;
- history.replaceState({v:view},"",location.pathname+location.hash);
+ const carte=location.hash.match(/^#carte=(\d+)\.([0-9a-f]+)$/);
+ if(carte&&!atelier())view=client()&&client().numero===+carte[1]?"compte":"carteInfo";
+ history.replaceState({v:view},"",location.pathname+(carte?"":location.hash));
+ if(carte&&atelier())ouvrirCarteScannee(+carte[1],carte[2]).catch(e=>toast(e.message));
  renderInvite();
  render();
 }
-addEventListener("hashchange",()=>{if(location.hash==="#atelier"){view=atelier()?"atelier":"entree";render();scrollTo(0,0)}});
+addEventListener("hashchange",()=>{if(location.hash==="#atelier"){view=atelier()?"atelier":"entree";render();scrollTo(0,0)}
+ const carte=location.hash.match(/^#carte=(\d+)\.([0-9a-f]+)$/);if(carte){history.replaceState({v:view},"",location.pathname);if(atelier())ouvrirCarteScannee(+carte[1],carte[2]).catch(e=>toast(e.message));else{view="carteInfo";render()}}});
 async function rechargerCatalogue(){try{const c=await api("catalogue");PRODUITS=c.produits;LETTRE=c.lettre}catch(e){}}
-async function rechargerMoi(){MOI=await api("moi");LS.set("madeleine.moi",MOI)}
+async function rechargerMoi(){MOI=await api("moi");LS.set("madeleine.moi",MOI);verifierFete()}
 async function rechargerAtelier(){ATL=await api("atelier");PRODUITS=ATL.produits;NONLUS=ATL.nonlus||0}
 
 const ICO={
@@ -549,20 +586,44 @@ function vHistoire(){
 }
 
 /* ---------- Carte client ---------- */
-function carteHTML(c){
+// QR code en SVG (bibliothèque qrcode.js, libre, rangée dans vendor/)
+function qrSVG(texte){try{const q=qrcode(0,"M");q.addData(texte);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true})}catch(e){return ""}}
+const lienCarte=c=>`${location.origin}${location.pathname}#carte=${c.numero}.${c.cle}`;
+const lienAppli=c=>`${location.origin}${location.pathname}${c?`?parrain=${c.numero}.${c.cle}`:""}`;
+function rectoHTML(c){
  const init=(c.prenom[0]||"")+(c.nom[0]||"");
- const cases=Array.from({length:TAMPONS_PAR_BON},(_,i)=>i<c.tampons?`<span class="case ok" style="--r:${(i*37%24)-12}deg">M</span>`:`<span class="case">${i+1}</span>`).join("");
- return `<div class="carte-zone"><button class="carte ${flip?"tournee":""}" data-act="flip" aria-label="Retourner la carte">
-  <div class="face recto wood"><div class="ph">${c.photo?`<img src="${c.photo}" alt="">`:esc(init.toUpperCase())}</div>
+ return `<div class="face recto wood"><div class="ph">${c.photo?`<img src="${c.photo}" alt="">`:esc(init.toUpperCase())}</div>
    <div><div class="marque">La Madeleine</div><div class="sous">Carte de fidélité</div>
     <div class="nom">${esc(c.prenom)}<br>${esc(c.nom.toUpperCase())}</div>
-    <div class="num">N° ${num4(c.numero)}</div>${c.courriel?`<div class="mel">${esc(c.courriel)}</div>`:""}<div class="depuis">Membre depuis ${fmois(c.cree)}</div></div></div>
-  <div class="face verso"><h4><small>Carte n° ${num4(c.numero)}</small>Mes tampons</h4>
+    <div class="num">N° ${num4(c.numero)}</div>${c.courriel?`<div class="mel">${esc(c.courriel)}</div>`:""}<div class="depuis">Membre depuis ${fmois(c.cree)}</div></div></div>`;
+}
+function versoHTML(c){
+ const cases=Array.from({length:TAMPONS_PAR_BON},(_,i)=>i<c.tampons?`<span class="case ok" style="--r:${(i*37%24)-12}deg">M</span>`:`<span class="case">${i+1}</span>`).join("");
+ return `<div class="face verso"><h4><small>Carte n° ${num4(c.numero)}</small>Mes tampons</h4>
    <div class="tampons">${cases}</div>
-   ${c.bons?`<span class="bon">${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} € à utiliser</span>`:""}
-   <p class="regle">Un tampon par commande · au ${TAMPONS_PAR_BON}<sup>e</sup>, ${VALEUR_BON} € offerts sur l’achat de votre choix</p></div>
- </button></div>
- <div class="row" style="justify-content:center;margin-top:14px"><button class="btn ghost small" data-act="flip">Retourner la carte</button><button class="btn brass small" data-act="dlCarte">Télécharger ma carte</button></div>`;
+   ${c.bons||c.cagnotte||c.reductions?`<div class="row" style="justify-content:center;gap:2cqw">${c.bons?`<span class="bon">${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} €</span>`:""}${c.cagnotte?`<span class="bon">Cagnotte ${eur(c.cagnotte)}</span>`:""}${c.reductions?`<span class="bon">−5 %</span>`:""}</div>`:""}
+   <p class="regle">Un tampon par commande · au ${TAMPONS_PAR_BON}<sup>e</sup>, ${VALEUR_BON} € offerts sur l’achat de votre choix</p></div>`;
+}
+function carteHTML(c){
+ return `<div class="carte-zone"><button class="carte ${flip?"tournee":""}" data-act="flip" aria-label="Retourner la carte">${rectoHTML(c)}${versoHTML(c)}</button></div>
+ <div class="row" style="justify-content:center;margin-top:14px"><button class="btn ghost small" data-act="flip">Retourner</button><button class="btn brass small" data-act="carteGrand">Ma carte en grand · QR code</button><button class="btn ghost small" data-act="dlCarte">Télécharger</button></div>`;
+}
+// Carte en grand : recto, verso et QR code à montrer à Mélanie (elle le scanne pour tamponner)
+function vCarteGrand(){
+ const c=client();if(!c)return "";
+ return `<div class="veil" data-close></div><div class="modal" data-close><div class="box grand" role="dialog" aria-label="Ma carte en grand">
+  <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">Ma carte La Madeleine</h3><button class="btn ghost small" data-close aria-label="Fermer" style="font-size:20px;line-height:1;padding:4px 10px">×</button></div>
+  <div class="carte fixe">${rectoHTML(c)}</div>
+  <div class="qr-perso"><div class="qr">${qrSVG(lienCarte(c))}</div><p><b>Montrez ce QR code à Mélanie</b><br>Elle le scanne pour tamponner votre carte ou utiliser vos bons, au marché comme à l’atelier.</p></div>
+  <div class="carte fixe">${versoHTML(c)}</div></div></div>`;
+}
+function parrainageHTML(c){
+ const lien=lienAppli(c),n=MOI.filleuls||0;
+ return `<div class="panel parrain"><div class="qr">${qrSVG(lien)}</div><div>
+  <h3>Faites découvrir La Madeleine</h3>
+  <p>Un proche s’inscrit en cochant « Je me fais parrainer » et scanne <b>votre carte</b> (Ma carte en grand · QR code), ou ce QR code-ci, ou votre lien. Vous gagnez <b>5 % sur votre prochaine commande</b>, puis <b>1 € à chacune de ses commandes</b>.</p>
+  <p class="meta">${n} filleul${n>1?"s":""} · cagnotte : <b>${eur(c.cagnotte||0)}</b>${c.reductions?` · <b>${c.reductions} réduction${c.reductions>1?"s":""} de 5 %</b> en attente`:""}</p>
+  <div class="row"><button class="btn brass small" data-act="partager">Partager le lien</button></div></div></div>`;
 }
 
 // Image téléchargeable : recto au-dessus du verso
@@ -611,7 +672,12 @@ async function dessinerCarte(c){
   else{x.beginPath();x.arc(cx,cy,R-3,0,7);x.setLineDash([9,7]);x.strokeStyle="#b9a593";x.lineWidth=4;x.stroke();x.setLineDash([]);
    x.fillStyle="#b9a593";x.font='30px "Special Elite", monospace';x.textBaseline="middle";x.fillText(String(i+1),cx,cy+2)}
   x.textBaseline="alphabetic"}
- if(c.bons){x.font='28px "Special Elite", monospace';const t=`${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} € à utiliser`,w=x.measureText(t).width+40;
+ // QR code de la carte, en haut à droite du verso (Mélanie peut le scanner sur l'image)
+ try{const q=qrcode(0,"M");q.addData(lienCarte(c));q.make();const n=q.getModuleCount(),T=120,k=T/(n+4),X0=W-24-30-T,Y0=oy+40;
+  x.fillStyle="#fff";x.fillRect(X0,Y0,T,T);x.fillStyle="#2b1a0c";for(let r=0;r<n;r++)for(let col=0;col<n;col++)if(q.isDark(r,col))x.fillRect(X0+(col+2)*k,Y0+(r+2)*k,Math.ceil(k),Math.ceil(k))}catch(e){}
+ x.textAlign="center";
+ const extras=[c.bons?`${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} €`:"",c.cagnotte?`cagnotte ${eur(c.cagnotte)}`:""].filter(Boolean).join(" · ");
+ if(extras){x.font='28px "Special Elite", monospace';const t=extras,w=x.measureText(t).width+40;
   x.fillStyle=laiton(oy+490,oy+535);rr(W/2-w/2,oy+492,w,46,6);x.fill();x.fillStyle="#2b1a0c";x.fillText(t,W/2,oy+525)}
  x.fillStyle="#36211a";x.font='24px "Libre Baskerville", Georgia, serif';x.fillText(`Un tampon par commande · au ${TAMPONS_PAR_BON}e, ${VALEUR_BON} € offerts sur l’achat de votre choix`,W/2,oy+H-62);
  x.textAlign="left";
@@ -660,6 +726,8 @@ function vCompte(){
    <label class="f">E-mail<input id="rEmail" type="email" required maxlength="120" autocomplete="email"></label>
    <label class="f">Téléphone (facultatif)<input id="rTel" type="tel" maxlength="30" autocomplete="tel"></label>
    <label class="f">Adresse de livraison<textarea id="rAdr" rows="2" maxlength="300" autocomplete="street-address"></textarea></label>
+   <label class="check"><input type="checkbox" id="rParrainer" ${PARRAIN?"checked":""}><span><b>Je me fais parrainer</b> : je scanne la carte d’un client La Madeleine qui m’a fait découvrir l’atelier. Il sera remercié par une réduction.</span></label>
+   <div id="zoneParrain" ${PARRAIN?"":"hidden"}>${zoneParrain()}</div>
    <div class="err">${view==="compte"&&err&&!err.startsWith("!")?esc(err):""}</div>
    <button class="btn brass" ${SERVEUR?"":"disabled"}>Recevoir ma carte</button></form>
   <div>
@@ -682,6 +750,8 @@ function vCompte(){
   ${installe()?"":`<button class="btn brass small" data-act="installer">Installer l’application sur ce téléphone</button>`}</div>`:""}
  ${carteHTML(c)}
  <p class="lead" style="margin-top:18px">${c.tampons}/${TAMPONS_PAR_BON} tampons${c.bons?` · <b>${c.bons} bon${c.bons>1?"s":""} de ${VALEUR_BON} €</b> à utiliser dans le panier`:` · encore ${TAMPONS_PAR_BON-c.tampons} commande${TAMPONS_PAR_BON-c.tampons>1?"s":""} avant vos ${VALEUR_BON} € offerts`}</p>
+ <h2 class="sec">Parrainage</h2>
+ ${parrainageHTML(c)}
  <h2 class="sec">Suivi de mes commandes</h2>
  ${cmds.length?`<div class="suivis">${cmds.map(suiviCommande).join("")}</div>`:`<p class="hint" style="text-align:center">Pas encore de commande. <a href="#" data-nav="boutique">La vitrine vous attend.</a></p>`}
  <h2 class="sec">Mon compte</h2>
@@ -707,7 +777,7 @@ function suiviCommande(o){
  const etapes=[["nouvelle","Reçue"],["preparation","En préparation"],["prete",o.mode==="Retrait atelier"?"Prête à retirer":"Expédiée"],["livree",o.mode==="Retrait atelier"?"Retirée":"Livrée"]];
  const rang=etapes.findIndex(([k])=>k===o.statut);
  return `<article class="suivi panel"><header><div><b>${o.ref}</b> <span class="meta">du ${fdate(o.date)} · ${esc(o.mode)}</span></div><b class="tag">${eur(o.total)}</b></header>
-  <div class="meta">${o.items.map(i=>`${i.q} × ${esc(i.nom)}`).join(" · ")}${o.remise?` · bon fidélité −${eur(o.remise)}`:""}</div>
+  <div class="meta">${o.items.map(i=>`${i.q} × ${esc(i.nom)}`).join(" · ")}${o.remise?` · bon fidélité −${eur(o.remise)}`:""}${o.reduction?` · parrainage 5 % −${eur(o.reduction)}`:""}${o.cagnotte?` · cagnotte −${eur(o.cagnotte)}`:""}</div>
   ${o.statut==="annulee"?`<p class="annule">Commande annulée${o.remise?" · votre bon de 10 € vous a été rendu":""}</p>`:
   `<ol class="frise">${etapes.map(([k,l],i)=>`<li class="${i<rang?"fait":i===rang?"ici":""}"><span></span>${l}</li>`).join("")}</ol>`}
   <div class="row"><button class="btn ghost small" data-question="${o.id}">Une question sur cette commande ?</button></div></article>`;
@@ -728,7 +798,7 @@ function vAtelier(){
 function aCommandes(){
  const nomDe=n=>{const c=ATL.clients.find(x=>x.numero===n);return c?`${esc(c.prenom)} ${esc(c.nom)}<div class="meta">N° ${num4(n)}</div>`:"?"};
  return `<div class="panel tbl"><table><thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Contenu</th><th>Réception</th><th class="num">Total</th><th>Statut</th></tr></thead><tbody>
- ${ATL.commandes.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${nomDe(o.numero)}</td><td>${o.items.map(i=>`${i.q}× ${esc(i.nom)}`).join("<br>")}${o.remise?`<div class="meta">Bon fidélité −${eur(o.remise)}</div>`:""}</td><td>${esc(o.mode)}${o.adresse?`<div class="meta">${esc(o.adresse)}</div>`:""}</td><td class="num">${eur(o.total)}</td>
+ ${ATL.commandes.map(o=>`<tr><td>${o.ref}</td><td>${fdate(o.date)}</td><td>${nomDe(o.numero)}</td><td>${o.items.map(i=>`${i.q}× ${esc(i.nom)}`).join("<br>")}${o.remise?`<div class="meta">Bon fidélité −${eur(o.remise)}</div>`:""}${o.reduction?`<div class="meta">Parrainage 5 % −${eur(o.reduction)}</div>`:""}${o.cagnotte?`<div class="meta">Cagnotte −${eur(o.cagnotte)}</div>`:""}${o.parrainage?`<div class="meta">+${eur(o.parrainage)} au parrain</div>`:""}</td><td>${esc(o.mode)}${o.adresse?`<div class="meta">${esc(o.adresse)}</div>`:""}</td><td class="num">${eur(o.total)}</td>
  <td><select data-statut="${o.id}" aria-label="Statut de ${o.ref}">${Object.entries(STAT).map(([k,l])=>`<option value="${k}" ${o.statut===k?"selected":""}>${l}</option>`).join("")}</select><div style="margin-top:6px"><button class="btn ghost small" data-ecrire="${o.numero}:${o.id}">Écrire au client</button></div></td></tr>`).join("")||`<tr><td colspan="7">Aucune commande pour l’instant.</td></tr>`}</tbody></table>
  <p class="hint">Chaque changement de statut envoie un message automatique au client. Annuler une commande remet les bougies en stock, retire le tampon et rend le bon de 10 € s’il avait servi.</p></div>`;
 }
@@ -740,17 +810,20 @@ function aProduits(){
 }
 const pastilles=n=>`<span class="fid" aria-label="${n} tampons sur ${TAMPONS_PAR_BON}">${Array.from({length:TAMPONS_PAR_BON},(_,i)=>`<i class="${i<n?"ok":""}"></i>`).join("")}</span>`;
 function aClients(){
- const f=fiche&&ATL.clients.find(c=>c.numero===fiche);
+ const f=ficheDetail&&ficheDetail.numero===fiche?ficheDetail:(fiche&&ATL.clients.find(c=>c.numero===fiche));
+ const parrainDe=n=>{const p=ATL.clients.find(x=>x.numero===n);return p?`${esc(p.prenom)} ${esc(p.nom)} (n° ${num4(n)})`:`n° ${num4(n)}`};
  return `<div class="two"><form class="panel form" id="fTampon"><b>Tamponner une carte</b>
-   <p class="hint" style="margin:0">Pour une vente en direct (marché, atelier) : saisissez le numéro inscrit sur la carte.</p>
-   <div class="row"><label class="f" style="flex:1">N° de carte<input id="tNum" inputmode="numeric" required placeholder="0001" value="${f?num4(f.numero):""}" style="font-family:var(--f-tag)"></label><button class="btn small" style="align-self:flex-end">Ouvrir</button></div></form>
-  <div class="panel form">${f?`<b>${esc(f.prenom)} ${esc(f.nom)} · N° ${num4(f.numero)}</b>
-   <div>${pastilles(f.tampons)}<div class="meta">${f.tampons}/${TAMPONS_PAR_BON} tampons · ${f.bons} bon${f.bons>1?"s":""} de ${VALEUR_BON} €</div></div>
+   <p class="hint" style="margin:0">Au marché ou à l’atelier : scannez le QR code de la carte du client, ou saisissez son numéro.</p>
+   <button type="button" class="btn brass" data-act="scanner">Scanner une carte</button>
+   <div class="row"><label class="f" style="flex:1">ou N° de carte<input id="tNum" inputmode="numeric" required placeholder="0001" value="${f?num4(f.numero):""}" style="font-family:var(--f-tag)"></label><button class="btn small" style="align-self:flex-end">Ouvrir</button></div></form>
+  <div class="panel form">${f?`${f.photo!==undefined?`<div class="carte fixe petite">${rectoHTML(f)}</div>`:`<b>${esc(f.prenom)} ${esc(f.nom)} · N° ${num4(f.numero)}</b>`}
+   <div>${pastilles(f.tampons)}<div class="meta">${f.tampons}/${TAMPONS_PAR_BON} tampons · ${f.bons} bon${f.bons>1?"s":""} de ${VALEUR_BON} € · cagnotte ${eur(f.cagnotte||0)}${f.reductions?` · ${f.reductions} × −5 % en attente`:""}${f.parrain?` · parrainé par ${parrainDe(f.parrain)}`:""}</div></div>
    <div class="row"><button class="btn brass small" data-tampon="1">+1 tampon</button><button class="btn ghost small" data-tampon="-1">Retirer un tampon</button>${f.bons?`<button class="btn small" data-act="utiliserBon">Utiliser un bon de ${VALEUR_BON} €</button>`:""}</div>
+   ${f.cagnotte>0?`<div class="row"><label class="f" style="flex:1">Déduire de la cagnotte (€)<input id="cagMontant" type="number" min="0.5" step="0.5" max="${f.cagnotte}" value="${f.cagnotte}"></label><button class="btn small" style="align-self:flex-end" data-act="deduireCagnotte">Déduire</button></div>`:""}
    <div class="row"><button class="btn ghost small" data-ecrire="${f.numero}:0">Écrire à ${esc(f.prenom)}</button><button class="btn ghost small" data-act="reactivation">Code de réactivation</button>${ficheCode?`<span class="code-grand" style="font-size:20px">${ficheCode.slice(0,4)}-${ficheCode.slice(4)}</span>`:""}</div>
-   ${ficheCode?`<p class="hint" style="margin:0">À donner au client (téléphone perdu ou changé) : valable 48 heures, une seule fois.</p>`:""}`:`<p class="hint">Choisissez une carte : par son numéro, ou avec « Gérer » dans la liste.</p>`}</div></div>
- <div class="panel tbl"><table><thead><tr><th>N°</th><th>Nom</th><th>Contact</th><th>Tampons</th><th class="num">Bons</th><th class="num">Commandes</th><th></th></tr></thead><tbody>
- ${ATL.clients.map(c=>`<tr><td style="font-family:var(--f-tag)">${num4(c.numero)}</td><td>${esc(c.prenom)} ${esc(c.nom)}<div class="meta">depuis le ${fdate(c.cree)}</div></td><td>${esc(c.email)}${c.tel?`<div class="meta">${esc(c.tel)}</div>`:""}</td><td>${pastilles(c.tampons)}</td><td class="num">${c.bons}</td><td class="num">${ATL.commandes.filter(o=>o.numero===c.numero).length}</td><td><button class="btn ghost small" data-fiche="${c.numero}">Gérer</button></td></tr>`).join("")||`<tr><td colspan="7">Aucune carte pour l’instant. La première aura le n° 0001.</td></tr>`}</tbody></table></div>`;
+   ${ficheCode?`<p class="hint" style="margin:0">À donner au client (téléphone perdu ou changé) : valable 48 heures, une seule fois.</p>`:""}`:`<p class="hint">Scannez une carte, saisissez un numéro, ou choisissez « Gérer » dans la liste.</p>`}</div></div>
+ <div class="panel tbl"><table><thead><tr><th>N°</th><th>Nom</th><th>Contact</th><th>Tampons</th><th class="num">Bons</th><th class="num">Cagnotte</th><th>Parrainage</th><th class="num">Commandes</th><th></th></tr></thead><tbody>
+ ${ATL.clients.map(c=>`<tr><td style="font-family:var(--f-tag)">${num4(c.numero)}</td><td>${esc(c.prenom)} ${esc(c.nom)}<div class="meta">depuis le ${fdate(c.cree)}</div></td><td>${esc(c.courriel||"")}<div class="meta">${esc(c.email)}${c.tel?` · ${esc(c.tel)}`:""}</div></td><td>${pastilles(c.tampons)}</td><td class="num">${c.bons}</td><td class="num">${eur(c.cagnotte||0)}</td><td>${c.parrain?`<div class="meta">parrain : ${parrainDe(c.parrain)}</div>`:""}${c.filleuls?`<div class="meta">${c.filleuls} filleul${c.filleuls>1?"s":""}</div>`:""}</td><td class="num">${ATL.commandes.filter(o=>o.numero===c.numero).length}</td><td><button class="btn ghost small" data-fiche="${c.numero}">Gérer</button></td></tr>`).join("")||`<tr><td colspan="9">Aucune carte pour l’instant. La première aura le n° 0001.</td></tr>`}</tbody></table></div>`;
 }
 function aLettre(){
  return `<div class="panel form"><b>Le mot affiché sur la page « Notre histoire »</b>
@@ -832,6 +905,79 @@ function vInstaller(){
   <p class="hint" style="margin:14px 0 0">L’application se met à jour toute seule : rien à télécharger depuis un magasin d’applications.</p></div></div>`;
 }
 
+/* ---------- Fête du 10e tampon : un grand tampon se pose au milieu de l'écran ---------- */
+function celebrer(c){
+ const d=document.createElement("div");d.className="fete";d.setAttribute("role","dialog");d.setAttribute("aria-label","Bon de 10 euros gagné");
+ d.innerHTML=`<div class="boite-fete wood"><div class="sceau">M</div><h3>Bravo ${esc(c.prenom)} !</h3><p>Votre ${TAMPONS_PAR_BON}<sup>e</sup> tampon vous offre <b>${VALEUR_BON} €</b> sur votre prochaine commande.</p><button class="btn brass">Merci !</button></div>`;
+ d.addEventListener("click",e=>{if(e.target===d||e.target.closest("button"))d.remove()});
+ document.body.appendChild(d);try{navigator.vibrate&&navigator.vibrate([60,40,120])}catch(e){}
+}
+// Compare les bons avec ceux déjà vus sur cet appareil : un bon de plus = fête
+function verifierFete(){
+ const c=client();if(!c)return;const k="madeleine.bonsVus."+c.numero,vus=LS.get(k);
+ if(vus!=null&&c.bons>vus)celebrer(c);
+ LS.set(k,c.bons);
+}
+
+/* ---------- Parrainage à l'inscription ---------- */
+function zoneParrain(){
+ return PARRAIN?`<div class="parrain-choisi">${ico("compte")}<span>Parrain : <b>${esc(PARRAIN.prenom)} ${esc(PARRAIN.initiale)}.</b> · carte n° ${num4(PARRAIN.numero)}</span><button type="button" class="btn ghost small" data-act="scanParrain">Changer</button></div>`
+  :`<button type="button" class="btn small" data-act="scanParrain">Scanner la carte de mon parrain</button><p class="hint" style="margin:6px 0 0">Demandez-lui d’afficher « Ma carte en grand · QR code » dans son application, ou d’envoyer son lien.</p>`;
+}
+async function choisirParrain(code){
+ const r=await api("parrain",{code});PARRAIN={code,prenom:r.prenom,initiale:r.initiale,numero:r.numero};LS.set("madeleine.parrain",PARRAIN);
+ const z=document.getElementById("zoneParrain");if(z){z.innerHTML=zoneParrain();z.hidden=false}const k=document.getElementById("rParrainer");if(k)k.checked=true;
+ return PARRAIN;
+}
+
+/* ---------- Scanner de cartes (atelier) : BarcodeDetector si le navigateur l'a, sinon jsQR (vendor/, chargé à la demande) ---------- */
+function vScanner(){
+ return `<div class="veil"></div><div class="modal"><div class="box" role="dialog" aria-label="Scanner une carte" style="display:block;padding:20px;max-width:440px">
+  <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">${scanMode==="parrain"?"Carte de mon parrain":"Scanner une carte"}</h3><button class="btn ghost small" data-close aria-label="Fermer" style="font-size:20px;line-height:1;padding:4px 10px">×</button></div>
+  <div class="viseur"><video id="video" playsinline muted></video><span></span></div>
+  <p class="hint" id="scanEtat" style="text-align:center;margin:0">Visez le QR code de la carte du client.</p></div></div>`;
+}
+function arreterScan(){if(flux){flux.getTracks().forEach(t=>t.stop());flux=null}}
+async function lancerScan(){
+ const etat=t=>{const e=document.getElementById("scanEtat");if(e)e.textContent=t};
+ try{flux=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false})}
+ catch(e){etat("Appareil photo indisponible : autorisez-le dans le navigateur, ou saisissez le numéro de la carte.");return}
+ const v=document.getElementById("video");if(!v||layer!=="scanner"){arreterScan();return}
+ v.srcObject=flux;await v.play().catch(()=>{});
+ let lire;
+ if("BarcodeDetector" in window&&(await BarcodeDetector.getSupportedFormats().catch(()=>[])).includes("qr_code")){const d=new BarcodeDetector({formats:["qr_code"]});lire=async()=>{const r=await d.detect(v);return r[0]&&r[0].rawValue}}
+ else{
+  if(!window.jsQR)await new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src="vendor/jsQR.js";sc.onload=ok;sc.onerror=ko;document.head.appendChild(sc)}).catch(()=>{});
+  const cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true});
+  lire=async()=>{if(!window.jsQR||!v.videoWidth)return null;cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);const r=jsQR(cx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height,{inversionAttempts:"dontInvert"});return r&&r.data}
+ }
+ const tour=async()=>{
+  if(!flux||layer!=="scanner")return;
+  const txt=await lire().catch(()=>null);const m=txt&&String(txt).match(/#carte=(\d+)\.([0-9a-f]+)/);
+  if(m){arreterScan();etat("Carte trouvée…");
+   if(scanMode==="parrain"){try{const p=await choisirParrain(`${m[1]}.${m[2]}`);fermer();toast(`Parrain : ${p.prenom} ${p.initiale}.`)}catch(e){toast(e.message);fermer()}return}
+   try{await ouvrirCarteScannee(+m[1],m[2])}catch(e){toast(e.message);fermer()}return}
+  if(txt)etat("Ce QR code n’est pas une carte La Madeleine.");
+  setTimeout(tour,250);
+ };
+ tour();
+}
+async function ouvrirCarteScannee(numero,cle){
+ const r=await api("atelier/carte",{numero,cle});
+ ficheDetail=r.client;fiche=r.client.numero;ficheCode=null;adminTab="clients";
+ if(layer){layer=null;history.replaceState({v:view},"")}
+ if(view!=="atelier")aller("atelier");else render();
+ if(!ATL)await rechargerAtelier().catch(()=>{});render();scrollTo(0,0);
+ toast(`Carte n° ${num4(numero)} : ${r.client.prenom} ${r.client.nom}`);
+}
+
+function vCarteInfo(){
+ return `<div class="wrap"><h2 class="sec">Carte de fidélité La Madeleine</h2><div class="panel" style="max-width:520px;margin:0 auto;text-align:center">
+  <p>Ce QR code est celui d’une carte de fidélité La Madeleine. Il sert à Mélanie pour tamponner la carte au marché ou à l’atelier.</p>
+  <p class="hint">Vous aussi, créez votre carte : un tampon par commande, 10 € offerts au 10<sup>e</sup>.</p>
+  <div class="row" style="justify-content:center"><button class="btn brass" data-nav="compte">Créer ma carte</button><button class="btn ghost" data-nav="boutique">Voir la boutique</button></div></div></div>`;
+}
+
 /* ---------- Entrée de l'atelier (adresse cachée : …/#atelier) ---------- */
 function vEntree(){
  return `<div class="wrap"><h2 class="sec">L’atelier</h2><form class="panel form" id="fAtelier" style="max-width:420px;margin:0 auto">
@@ -843,19 +989,23 @@ function vEntree(){
 /* ---------- Calques ---------- */
 function renderLayer(){
  const L=document.getElementById("layer");
+ if(layer!=="scanner")arreterScan();
  if(!layer){L.innerHTML="";return}
  if(layer==="cart"){
   const c=client(),st=cartTotal();
   const bon=c&&c.bons>0&&document.getElementById("bon")?.checked!==false;
-  const port=st>=60?0:6.9,remise=bon?Math.min(VALEUR_BON,st):0;
+  const cag=c&&c.cagnotte>0&&document.getElementById("cag")?.checked!==false;
+  const port=st>=60?0:6.9,remise=bon?Math.min(VALEUR_BON,st):0,reduc=c&&c.reductions>0?Math.round(5*(st-remise))/100:0,deduit=cag?Math.min(c.cagnotte,st-remise-reduc):0;
   L.innerHTML=`<div class="veil" data-close></div><aside class="drawer" role="dialog" aria-label="Panier"><div class="row" style="justify-content:space-between"><h2>Mon panier</h2><button class="btn ghost small" data-close>Fermer</button></div>
   <div class="lines">${panier.map(l=>{const p=P(l.id);if(!p)return"";return`<div class="line"><div class="mini">${pic(p)}</div><div><b>${esc(p.nom)}</b><div class="meta">${eur(p.prix)}</div></div><div class="qty"><button data-q="${p.id}:-1" aria-label="Moins">−</button><span>${l.q}</span><button data-q="${p.id}:1" aria-label="Plus">+</button></div></div>`}).join("")||`<p class="hint">Votre panier est vide.</p>`}</div>
   ${!panier.length&&err?`<div class="err">${esc(err)}</div>`:""}
   ${panier.length?`<div class="form"><label class="f">Mode de réception<select id="mode"><option value="Colissimo">Colissimo · ${st>=60?"offert":"6,90 €"}</option><option value="Retrait atelier">Retrait à l'atelier · gratuit</option></select></label>
   <div class="hint">Livraison offerte dès 60 € d'achat.</div>
   ${c&&c.bons>0?`<label class="check"><input type="checkbox" id="bon" ${bon?"checked":""}><span>Utiliser mon bon fidélité de ${VALEUR_BON} €${c.bons>1?` (vous en avez ${c.bons})`:""}</span></label>`:""}
+  ${c&&c.cagnotte>0?`<label class="check"><input type="checkbox" id="cag" ${cag?"checked":""}><span>Utiliser ma cagnotte parrainage (${eur(c.cagnotte)})</span></label>`:""}
   ${c?`<div class="hint">Cette commande ajoutera un tampon à votre carte (${Math.min(c.tampons+1,TAMPONS_PAR_BON)}/${TAMPONS_PAR_BON}).</div>`:`<div class="hint">Avec la carte de fidélité, cette commande vous rapporterait un tampon.</div>`}
-  <div class="total"><span>Total</span><span id="tot">${eur(st-remise+port)}</span></div>
+  ${reduc?`<div class="hint" id="reducLigne">Réduction parrainage 5 % : <b>−${eur(reduc)}</b> (appliquée toute seule)</div>`:""}
+  <div class="total"><span>Total</span><span id="tot">${eur(st-remise-reduc-deduit+port)}</span></div>
   <div class="err">${esc(err)}</div>
   ${SERVEUR?`<button class="btn brass" data-act="checkout">${c?"Valider la commande":"Créer ma carte ou me connecter pour commander"}</button>`:`<button class="btn brass" disabled>Commandes bientôt ouvertes</button>`}</div>`:""}</aside>`;
  } else if(layer.startsWith("prod:")){
@@ -868,6 +1018,10 @@ function renderLayer(){
  } else if(layer==="recadrer"){
   if(!REC){layer=null;L.innerHTML="";return}
   L.innerHTML=vRecadrer();dessinerCadre();
+ } else if(layer==="scanner"){
+  L.innerHTML=vScanner();lancerScan();
+ } else if(layer==="grand"){
+  L.innerHTML=vCarteGrand();
  } else if(layer==="installer"){
   L.innerHTML=vInstaller();
  } else if(layer==="edit"){
@@ -890,7 +1044,7 @@ function renderLayer(){
  }
 }
 
-function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="messages"?vMessages():view==="entree"?vEntree():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
+function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="messages"?vMessages():view==="entree"?vEntree():view==="carteInfo"?vCarteInfo():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
 
 /* ---------- Navigation : chaque écran et chaque fenêtre ouverte a son étape, le bouton « retour » y revient ---------- */
 function aller(v){view=v;history.pushState({v},"");render();scrollTo(0,0)}
@@ -921,6 +1075,13 @@ document.addEventListener("click",async e=>{
  else if(d.close!==undefined){fermer()}
  else if(d.act==="installer"){installer()}
  else if(d.act==="okBienvenue"){bienvenue=false;render()}
+ else if(d.act==="carteGrand"){ouvrir("grand")}
+ else if(d.act==="scanner"){scanMode="atelier";ouvrir("scanner")}
+ else if(d.act==="scanParrain"){scanMode="parrain";ouvrir("scanner")}
+ else if(d.act==="partager"){const c=client(),lien=lienAppli(c),texte=`Découvre les bougies gourmandes de La Madeleine ! Avec mon code parrain ${num4(c.numero)} à l’inscription, tu crées ta carte de fidélité.`;
+  if(navigator.share)navigator.share({title:"La Madeleine",text:texte,url:lien}).catch(()=>{});
+  else navigator.clipboard?.writeText(lien).then(()=>toast("Lien copié : collez-le dans un message"),()=>toast(lien))}
+ else if(d.act==="deduireCagnotte")agir(async()=>{const r=await api("atelier/cagnotte",{numero:fiche,montant:+document.getElementById("cagMontant").value});ficheDetail=r.client;Object.assign(ATL.clients.find(x=>x.numero===fiche)||{},{cagnotte:r.client.cagnotte});render();toast(`Cagnotte de ${r.client.prenom} : ${eur(r.client.cagnotte)}`)});
  else if(d.act==="recadrer"){if(REC)ouvrir("recadrer")}
  else if(d.act==="validerCadre"){const c=document.getElementById("cadre");if(c){photoNeuve=c.toDataURL("image/jpeg",.85);document.querySelectorAll(".avatar").forEach(v=>{v.innerHTML=`<img src="${photoNeuve}" alt="">`;v.dataset.act="recadrer";v.title="Recadrer la photo"})}fermer();if(view==="compte"&&client())toast("Photo prête : touchez « Enregistrer » pour la garder")}
  else if(d.act==="installerMaintenant"){installer()}
@@ -944,8 +1105,8 @@ document.addEventListener("click",async e=>{
    if(fitCart()){renderNav();err="Le stock a changé pendant votre visite : votre panier a été ajusté. Vérifiez-le avant de valider.";renderLayer();return}
    const avant=client().bons,bon=!!document.getElementById("bon")?.checked;
    try{
-    const r=await api("commande",{items:panier,mode:document.getElementById("mode").value,bon});
-    panier=[];savePanier();MOI.client=r.client;(MOI.commandes=MOI.commandes||[]).unshift(r.commande);LS.set("madeleine.moi",MOI);
+    const r=await api("commande",{items:panier,mode:document.getElementById("mode").value,bon,cagnotte:!!document.getElementById("cag")?.checked});
+    panier=[];savePanier();MOI.client=r.client;setTimeout(verifierFete,500);(MOI.commandes=MOI.commandes||[]).unshift(r.commande);LS.set("madeleine.moi",MOI);
     await rechargerCatalogue();layer=null;history.replaceState({v:view},"");err="";flip=true;aller("compte");
     toast(r.client.bons>avant-(bon?1:0)?`Commande ${r.commande.ref} enregistrée · 10e tampon : ${VALEUR_BON} € offerts sur votre prochain achat !`:`Commande ${r.commande.ref} enregistrée · +1 tampon sur votre carte`);
    }catch(e){
@@ -960,16 +1121,17 @@ document.addEventListener("click",async e=>{
  else if(d.del)agir(async()=>{await api("atelier/supprimer",{id:d.del});pending=null;await rechargerAtelier();render();toast("Création retirée de la vitrine")});
  else if(d.stock){const[id,s]=d.stock.split(":");agir(async()=>{await api("atelier/stock",{id,delta:+s});await rechargerAtelier();render()})}
  else if(d.act==="newProd"){editing={c1:"#e9a7b4",c2:"#c2405a",cat:"gateau"};layer="edit";renderLayer()}
- else if(d.fiche){fiche=+d.fiche;ficheCode=null;render();scrollTo(0,0)}
- else if(d.tampon)agir(async()=>{const r=await api("atelier/tampon",{numero:fiche,delta:+d.tampon});const c=ATL.clients.find(x=>x.numero===fiche);const gagne=r.client.bons>c.bons;Object.assign(c,r.client);render();toast(gagne?`10e tampon ! ${c.prenom} gagne un bon de ${VALEUR_BON} €`:`Carte ${num4(fiche)} : ${c.tampons}/${TAMPONS_PAR_BON} tampons`)});
- else if(d.act==="utiliserBon")agir(async()=>{const r=await api("atelier/bon",{numero:fiche});Object.assign(ATL.clients.find(x=>x.numero===fiche),r.client);render();toast(`Bon de ${VALEUR_BON} € utilisé`)});
+ else if(d.fiche){fiche=+d.fiche;ficheCode=null;ficheDetail=null;render();scrollTo(0,0);agir(async()=>{const r=await api("atelier/client",{numero:fiche});ficheDetail=r.client;render()})}
+ else if(d.tampon)agir(async()=>{const r=await api("atelier/tampon",{numero:fiche,delta:+d.tampon});const c=ATL.clients.find(x=>x.numero===fiche);const gagne=r.client.bons>c.bons;const{photo,...sansPhoto}=r.client;Object.assign(c,sansPhoto);ficheDetail=r.client;render();toast(gagne?`10e tampon ! ${c.prenom} gagne un bon de ${VALEUR_BON} €`:`Carte ${num4(fiche)} : ${c.tampons}/${TAMPONS_PAR_BON} tampons`)});
+ else if(d.act==="utiliserBon")agir(async()=>{const r=await api("atelier/bon",{numero:fiche});const{photo,...sansPhoto}=r.client;Object.assign(ATL.clients.find(x=>x.numero===fiche),sansPhoto);ficheDetail=r.client;render();toast(`Bon de ${VALEUR_BON} € utilisé`)});
  else if(d.act==="reactivation")agir(async()=>{const r=await api("atelier/reactivation",{numero:fiche});ficheCode=r.code;render()});
  else if(d.act==="saveLettre")agir(async()=>{const texte=document.getElementById("aLettre").value.trim();await api("atelier/lettre",{texte});LETTRE=texte;toast("Texte enregistré")});
  else if(d.act==="resetLettre")agir(async()=>{await api("atelier/lettre",{texte:null});LETTRE=null;render();toast("Texte d'origine rétabli")});
 });
 document.addEventListener("change",async e=>{
  const t=e.target;
- if(t.id==="mode"||t.id==="bon"){const c=client(),st=cartTotal(),mode=document.getElementById("mode").value;const port=mode==="Colissimo"&&st<60?6.9:0;const remise=document.getElementById("bon")?.checked?Math.min(VALEUR_BON,st):0;document.getElementById("tot").textContent=eur(st-remise+port)}
+ if(t.id==="mode"||t.id==="bon"||t.id==="cag"){const c=client(),st=cartTotal(),mode=document.getElementById("mode").value;const port=mode==="Colissimo"&&st<60?6.9:0;const remise=document.getElementById("bon")?.checked?Math.min(VALEUR_BON,st):0;const reduc=c&&c.reductions>0?Math.round(5*(st-remise))/100:0;const deduit=document.getElementById("cag")?.checked?Math.min(c.cagnotte,st-remise-reduc):0;const rl=document.getElementById("reducLigne");if(rl)rl.innerHTML=`Réduction parrainage 5 % : <b>−${eur(reduc)}</b> (appliquée toute seule)`;document.getElementById("tot").textContent=eur(st-remise-reduc-deduit+port)}
+ if(t.id==="rParrainer"){const z=document.getElementById("zoneParrain");if(z)z.hidden=!t.checked}
  if(t.id==="rPhoto"||t.id==="iPhoto"){const f=t.files[0];if(!f)return;try{REC={im:await ouvrirImage(f),zoom:1,x:0,y:0};t.value="";ouvrir("recadrer")}catch(x){toast("Cette image n'a pas pu être lue.")}}
  if(t.dataset.statut){const id=+t.dataset.statut;agir(async()=>{try{await api("atelier/statut",{id,statut:t.value})}finally{await rechargerAtelier();render()}toast(`Commande ${ATL.commandes.find(o=>o.id===id)?.ref||""} : ${STAT[t.value]}`)})}
 });
@@ -978,8 +1140,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&layer)fermer()});
 document.addEventListener("submit",e=>{
  e.preventDefault();const f=e.target,v=id=>f.querySelector(id).value;
  if(f.id==="fReg")agir(async()=>{
-  try{const r=await api("inscription",{prenom:v("#rPrenom"),nom:v("#rNom"),email:v("#rEmail"),tel:v("#rTel"),adresse:v("#rAdr"),photo:photoNeuve});
-   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[]};NONLUS=1;MSG=null;bienvenue=true;LS.set("madeleine.moi",MOI);photoNeuve=null;REC=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`)}
+  try{const r=await api("inscription",{prenom:v("#rPrenom"),nom:v("#rNom"),email:v("#rEmail"),tel:v("#rTel"),adresse:v("#rAdr"),parrain:f.querySelector("#rParrainer").checked&&PARRAIN?PARRAIN.code:null,photo:photoNeuve});LS.del("madeleine.parrain");PARRAIN=null;
+   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[],filleuls:0};NONLUS=1;MSG=null;bienvenue=true;LS.set("madeleine.bonsVus."+r.client.numero,0);LS.set("madeleine.moi",MOI);photoNeuve=null;REC=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`)}
   catch(x){err=x.message;render()}});
  if(f.id==="fCode")agir(async()=>{
   try{const r=await api("connexion",{code:v("#cCode")});setJeton(r.jeton);await rechargerMoi();NONLUS=MOI.nonlus||0;MSG=null;err="";render();scrollTo(0,0);toast(`Carte n° ${num4(r.client.numero)} ouverte sur cet appareil`)}
@@ -987,7 +1149,7 @@ document.addEventListener("submit",e=>{
  if(f.id==="fAtelier")agir(async()=>{const r=await api("atelier/entrer",{code:v("#aCode")});setJeton(r.jeton);MOI={role:"atelier"};LS.set("madeleine.moi",MOI);ATL=null;view="atelier";history.replaceState(null,"",location.pathname+location.search);render();toast("Bienvenue dans l'atelier")});
  if(f.id==="fMsg")agir(async()=>{await api("message",{objet:v("#mObjet"),texte:v("#mTexte"),commande:f.querySelector("#mCmd")?.value||null});brouillon={};const d=await api("messages",{lu:true});MSG=d.messages;render();toast("Message envoyé à Mélanie")});
  if(f.id==="fAMsg")agir(async()=>{const n=CONV.client.numero;await api("atelier/message",{numero:n,objet:v("#amObjet"),texte:v("#amTexte"),commande:f.querySelector("#amCmd")?.value||null});brouillon={};await ouvrirConv(n);toast(`Message envoyé à ${CONV.client.prenom}`)});
- if(f.id==="fTampon"){const n=parseInt(v("#tNum"),10);agir(async()=>{const r=await api("atelier/client",{numero:n});fiche=r.client.numero;ficheCode=null;const c=ATL.clients.find(x=>x.numero===fiche);if(c)Object.assign(c,{tampons:r.client.tampons,bons:r.client.bons});render()})}
+ if(f.id==="fTampon"){const n=parseInt(v("#tNum"),10);agir(async()=>{const r=await api("atelier/client",{numero:n});fiche=r.client.numero;ficheCode=null;ficheDetail=r.client;const c=ATL.clients.find(x=>x.numero===fiche);if(c)Object.assign(c,{tampons:r.client.tampons,bons:r.client.bons});render()})}
  if(f.id==="fProd")agir(async()=>{
   const g=id=>f.querySelector(id).value,file=f.querySelector("#ePhoto").files[0];
   const p={...editing,nom:g("#eNom").trim(),cat:g("#eCat"),parfum:g("#eParfum").trim(),cire:g("#eCire"),prix:+g("#ePrix"),stock:+g("#eStock")||0,poids:+g("#ePoids")||0,duree:+g("#eDuree")||0,desc:g("#eDesc").trim()};
@@ -1005,6 +1167,7 @@ setInterval(()=>{
   if(tape){renderNav();return}
   if(atelier()&&view==="atelier"){await rechargerAtelier();if(adminTab==="messagerie"&&plus){BOITE=null;if(CONV)CONV=await api("atelier/conversation",{numero:CONV.client.numero})}}
   else if(view==="messages"&&plus)MSG=null;
+  if(client()&&plus)await rechargerMoi().catch(()=>{});
   render();
  }).catch(()=>{});
 },60000);
