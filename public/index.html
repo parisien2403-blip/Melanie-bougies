@@ -309,6 +309,26 @@ dl.recap{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin:0;font-
 
 .parrain-choisi{display:flex;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--mustard);padding:8px 10px;flex-wrap:wrap}
 
+/* Réglages */
+.reglages{max-width:720px}
+.reglages section{margin-bottom:22px}
+.reglages h3{font-family:var(--f-tag);font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px}
+.reglage{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-bottom-width:0;padding:12px 14px;cursor:pointer;color:var(--ink)}
+.reglage:last-of-type,.reglage.fixe{border-bottom-width:1px}.reglage.fixe{cursor:default;flex-wrap:wrap}
+section>.reglage:first-of-type{border-radius:6px 6px 0 0}section>.reglage:last-of-type{border-radius:0 0 6px 6px}section>.reglage:only-of-type{border-radius:6px}
+.reglage .ic{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:var(--wood);color:var(--brass-1);flex:none}
+.reglage .t{flex:1;min-width:0;display:flex;flex-direction:column}.reglage .t small{color:var(--ink-soft);font-size:12.5px}
+.reglage .fl{color:var(--ink-soft);font-size:22px}
+.interrupteur{appearance:none;width:46px;height:28px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;flex:none;transition:background .2s}
+.interrupteur::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s}
+.interrupteur:checked{background:var(--rose-deep)}.interrupteur:checked::after{left:21px}.interrupteur:disabled{opacity:.5}
+.segments{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.segments button{border:0;background:var(--paper);padding:6px 12px;cursor:pointer;font-size:13px}
+.segments button.on{background:var(--rose-deep);color:var(--card)}
+.nouveautes{display:grid;gap:10px;margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px}
+.nouveautes ul{margin:4px 0 0;padding-left:18px;font-size:14px}
+.reglages .btn .ico{width:18px;height:18px;vertical-align:-4px}
+.dock button.on .ico{color:var(--brass-1)}
+
 /* Atelier : réglages */
 .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:6px}
 .slot{display:grid;gap:4px;justify-items:start}.slot img{width:100%;aspect-ratio:1;object-fit:cover;border:3px solid var(--brass-2)}
@@ -436,12 +456,18 @@ flacon:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="108" rx="30" ry
 };
 ART.verrine=ART.pot;ART.douceur=ART.gateau;
 
+// Numéro de cette version de l'appli (à augmenter avec public/version.json et CACHE dans sw.js à chaque publication)
+const VERSION="1.10";
+
 /* ---------- Mémoire de l'appareil ---------- */
 // Seulement ce qui appartient à cet appareil : son jeton de connexion, son panier, une copie de la carte pour l'afficher hors ligne
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}},
  del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let jeton=LS.get("madeleine.jeton");
+// Thème choisi dans les réglages : automatique (celui du téléphone), clair ou sombre
+function appliquerTheme(t){if(t==="clair")document.documentElement.dataset.theme="light";else if(t==="sombre")document.documentElement.dataset.theme="dark";else delete document.documentElement.dataset.theme}
+appliquerTheme(LS.get("madeleine.theme"));
 let panier=LS.get("madeleine.panier")||[];
 const savePanier=()=>LS.set("madeleine.panier",panier);
 function setJeton(j){jeton=j;if(j)LS.set("madeleine.jeton",j);else{LS.del("madeleine.jeton");LS.del("madeleine.moi")}}
@@ -528,7 +554,7 @@ async function init(){
  const par=new URLSearchParams(location.search).get("parrain");if(par&&/^\d{1,7}\.[0-9a-f]{8,40}$/.test(par)&&!client())await choisirParrain(par).catch(()=>{});
  // Raccourcis de l'icône (appui long) : ?vue=compte, ?vue=messages…
  const vue=new URLSearchParams(location.search).get("vue");
- if(vue&&["boutique","histoire","compte","messages"].includes(vue))view=vue==="compte"&&atelier()?"atelier":vue;
+ if(vue&&["boutique","histoire","compte","messages","reglages","verrine"].includes(vue))view=vue==="compte"&&atelier()?"atelier":vue;
  const carte=location.hash.match(/^#carte=(\d+)\.([0-9a-f]+)$/);
  if(carte&&!atelier())view=client()&&client().numero===+carte[1]?"compte":"carteInfo";
  history.replaceState({v:view},"",location.pathname+(carte?"":location.hash));
@@ -552,24 +578,35 @@ const ICO={
  partager:'<path d="M12 15V3M8 7l4-4 4 4"/><path d="M6 11H5v10h14V11h-1"/>',
  plus:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/>',
  menu:'<circle cx="12" cy="5" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="12" cy="19" r="1.3"/>',
- installer:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 7.5v6M9.5 11l2.5 2.5 2.5-2.5M8 21h8"/>'
+ installer:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 7.5v6M9.5 11l2.5 2.5 2.5-2.5M8 21h8"/>',
+ reglages:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>',
+ discussion:'<path d="M4 5h16v11H9l-5 4V5Z"/><path d="M8 9.5h8M8 12.5h5"/>',
+ cloche:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+ maj:'<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/>',
+ theme:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/>',
+ qr:'<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+ aide:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17h.01"/>',
+ sortie:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>'
 };
 const ico=n=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICO[n]}</svg>`;
+// Barre du bas (téléphone) : Boutique · Ma carte · Discussion · Panier · Réglages
 function renderDock(){
- const it=[["boutique","Boutique"],["histoire","Histoire"]];
- if(atelier())it.push(["atelier","Atelier",NONLUS]);
- else if(client())it.push(["compte","Ma carte"],["messages","Messages",NONLUS]);
- else it.push(["compte","Fidélité"]);
- document.getElementById("dock").innerHTML=it.map(([k,l,n])=>`<button class="${view===k||(k==="compte"&&view==="entree")?"on":""}" data-nav="${k}">${ico(k)}<span class="l">${l}</span>${n?`<span class="badge">${n}</span>`:""}</button>`).join("")+
-  `<button data-open="cart">${ico("panier")}<span class="l">Panier</span>${cartCount()?`<span class="badge">${cartCount()}</span>`:""}</button>`;
+ const it=[["boutique","Boutique","boutique"]];
+ if(atelier())it.push(["atelier","Atelier","atelier",NONLUS]);
+ else if(client())it.push(["compte","Ma carte","compte"],["messages","Discussion","discussion",NONLUS]);
+ else it.push(["compte","Fidélité","compte"],["histoire","Histoire","histoire"]);
+ const panier=`<button data-open="cart">${ico("panier")}<span class="l">Panier</span>${cartCount()?`<span class="badge">${cartCount()}</span>`:""}</button>`;
+ const regl=`<button class="${view==="reglages"?"on":""}" data-nav="reglages">${ico("reglages")}<span class="l">Réglages</span>${MAJ?`<span class="badge">1</span>`:""}</button>`;
+ document.getElementById("dock").innerHTML=it.map(([k,l,i,n])=>`<button class="${view===k||(k==="compte"&&view==="entree")?"on":""}" data-nav="${k}">${ico(i)}<span class="l">${l}</span>${n?`<span class="badge">${n}</span>`:""}</button>`).join("")+panier+regl;
 }
 function renderNav(){
  renderDock();
  const items=[["boutique","Boutique"],["histoire","Notre histoire"]];
  if(atelier())items.push(["atelier","L'atelier",NONLUS]);
- else if(client())items.push(["compte","Ma carte"],["messages","Messages",NONLUS]);
+ else if(client())items.push(["compte","Ma carte"],["messages","Discussion",NONLUS]);
  else items.push(["compte","Carte de fidélité"]);
- document.getElementById("nav").innerHTML=items.map(([k,l,n])=>`<button class="nbtn ${view===k?"on":""}" data-nav="${k}">${esc(l)}${n!==undefined?`<span class="badge" aria-label="${n} non lu${n>1?"s":""}">${n||""}</span>`:""}</button>`).join("")+
+ items.push(["reglages","Réglages",MAJ?1:undefined]);
+ document.getElementById("nav").innerHTML=items.map(([k,l,n])=>`<button class="nbtn ${view===k?"on":""}" data-nav="${k}">${esc(l)}${n!==undefined?`<span class="badge" aria-label="${k==="reglages"?"mise à jour disponible":`${n} non lu${n>1?"s":""}`}">${n||""}</span>`:""}</button>`).join("")+
   `<button class="nbtn" data-open="cart">Panier<span class="badge">${cartCount()}</span></button>`+
   (installe()?"":`<button class="nbtn" data-act="installer" title="Installer l’application">${ico("installer")}</button>`);
 }
@@ -876,7 +913,7 @@ function vCompte(){
   <p>Votre carte <b>n° ${num4(c.numero)}</b> est créée, avec votre adresse de l’application :</p>
   <p><span class="adresse-interne" style="font-size:16px">${esc(c.courriel)}</span></p>
   <ul><li><b>Suivez vos commandes</b> ici, étape par étape, et recevez un message à chaque étape.</li>
-   <li><b>Écrivez à Mélanie</b> dans <a href="#" data-nav="messages">Messages</a> : elle vous répond à cette adresse.</li>
+   <li><b>Écrivez à Mélanie</b> dans <a href="#" data-nav="messages">Discussion</a> : elle vous répond à cette adresse.</li>
    <li><b>Un tampon par commande</b> : au 10<sup>e</sup>, 10 € offerts.</li>
    <li><b>Sur un autre appareil</b> : « Ajouter un appareil » plus bas, pas de mot de passe à retenir.</li></ul>
   ${installe()?"":`<button class="btn brass small" data-act="installer">Installer l’application sur ce téléphone</button>`}</div>`:""}
@@ -971,6 +1008,11 @@ function aBoutique(){
  <div class="panel form"><b>Catégories de la vitrine</b>
   ${r.categories.map(([k,l],i)=>`<div class="row" style="flex-wrap:nowrap"><input data-r="categories.${i}.1" value="${esc(l)}" maxlength="30" style="flex:1"><span class="meta">${PRODUITS.filter(p=>p.cat===k).length} création(s)</span>${PRODUITS.some(p=>p.cat===k)?"":`<button class="btn ghost small" data-act="catSuppr:${i}">Retirer</button>`}</div>`).join("")}
   <div class="row" style="flex-wrap:nowrap"><input id="nouvCat" placeholder="Nouvelle catégorie (ex. Spécial Noël)" maxlength="30" style="flex:1"><button class="btn small" data-act="catAjout">Ajouter</button></div></div>
+ <div class="panel form"><b>Prévenir mes clients (notification)</b>
+  <p class="hint" style="margin:0">Nouvelle collection, marché, promotion… Envoyé aux clients qui ont activé « Nouveautés de l’atelier ».</p>
+  <label class="f">Titre<input id="annTitre" maxlength="80" placeholder="Les bougies de Noël sont arrivées !"></label>
+  <label class="f">Texte<input id="annTexte" maxlength="200" placeholder="Bûches, pains d’épices et verrines givrées vous attendent."></label>
+  <div class="row"><button class="btn small" data-act="envoyerAnnonce">Envoyer l’annonce</button></div></div>
  <div class="row barre-enreg"><button class="btn brass" data-act="saveBoutique">Enregistrer ma boutique</button><button class="btn ghost small" data-act="annulerBoutique">Annuler les changements</button><button class="btn ghost small" data-nav="boutique">Voir le site</button></div>`;
 }
 
@@ -1047,9 +1089,9 @@ function filMessages(ms,moi,autre){
 const chargement=t=>`<div class="wrap"><h2 class="sec">${t}</h2><p class="hint" style="text-align:center">Chargement…</p></div>`;
 function vMessages(){
  const c=client();if(!c)return vCompte();
- if(!MSG){api("messages",{lu:true}).then(d=>{MSG=d.messages;NONLUS=0;render()}).catch(e=>toast(e.message));return chargement("Ma messagerie")}
+ if(!MSG){api("messages",{lu:true}).then(d=>{MSG=d.messages;NONLUS=0;render()}).catch(e=>toast(e.message));return chargement("Discussion")}
  const cmds=MOI.commandes||[];
- return `<div class="wrap"><h2 class="sec">Ma messagerie</h2>
+ return `<div class="wrap"><h2 class="sec">Discussion avec Mélanie</h2>
  <p class="lead">Votre adresse : <span class="adresse-interne">${esc(c.courriel)}</span><br><span class="hint">Elle ne sert que sur ce site, pour échanger avec Mélanie.</span></p>
  <div class="two"><form class="panel form" id="fMsg" style="align-self:start"><b>Écrire à Mélanie</b>
   <label class="f">À<input value="melanie@la-madeleine" disabled style="font-family:var(--f-tag)"></label>
@@ -1181,6 +1223,82 @@ function vCarteInfo(){
   <div class="row" style="justify-content:center"><button class="btn brass" data-nav="compte">Créer ma carte</button><button class="btn ghost" data-nav="boutique">Voir la boutique</button></div></div></div>`;
 }
 
+/* ---------- Mises à jour : version.json comparé à VERSION ---------- */
+let MAJ=null,HISTO=null;// MAJ : version plus récente disponible ; HISTO : nouveautés des versions
+async function chercherMaj(manuel){
+ try{
+  const reg=await navigator.serviceWorker?.getRegistration();if(reg)reg.update().catch(()=>{});
+  const v=await(await fetch("version.json?t="+Date.now(),{cache:"no-store"})).json();HISTO=v.historique||[];
+  MAJ=v.version!==VERSION?v.version:null;
+  if(manuel)toast(MAJ?`La version ${MAJ} est prête`:"Vous avez la dernière version");
+ }catch(e){if(manuel)toast("Impossible de vérifier pour l’instant : êtes-vous connecté(e) à internet ?")}
+ renderNav();if(view==="reglages")render();
+}
+// Installe la nouvelle version : le service worker se met à jour, puis la page recharge
+async function installerMaj(){
+ toast("Mise à jour en cours…");
+ try{const reg=await navigator.serviceWorker?.getRegistration();if(reg){await reg.update();if(reg.waiting)reg.waiting.postMessage("activer")}}catch(e){}
+ setTimeout(()=>location.reload(),600);
+}
+
+/* ---------- Notifications (Web Push) ---------- */
+const notifPossible=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+const CHOIX_DEFAUT={messages:true,suivi:true,nouveautes:true,majs:true,commandes:true};
+let NOTIF=LS.get("madeleine.notifs")||{actif:false,choix:CHOIX_DEFAUT};
+const b64Octets=t=>Uint8Array.from(atob(t.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((t.length+3)%4)),c=>c.charCodeAt(0));
+async function abonnement(creer){
+ const reg=await navigator.serviceWorker.ready;let ab=await reg.pushManager.getSubscription();
+ if(!ab&&creer){const{cle}=await api("notifs/cle");ab=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64Octets(cle)})}
+ return ab;
+}
+async function activerNotifs(){
+ if(!notifPossible()){toast(surIOS?"Sur iPhone : installez d’abord l’appli (Partager › Sur l’écran d’accueil), puis activez ici.":"Ce navigateur ne gère pas les notifications.");return}
+ if(Notification.permission==="denied"){toast("Les notifications sont bloquées pour ce site : autorisez-les dans les réglages du navigateur.");return}
+ if(await Notification.requestPermission()!=="granted"){toast("Notifications non autorisées");return}
+ const ab=await abonnement(true);await api("notifs/abonner",{abonnement:ab.toJSON(),choix:NOTIF.choix});
+ NOTIF={actif:true,choix:NOTIF.choix};LS.set("madeleine.notifs",NOTIF);toast("Notifications activées");render();
+}
+async function desactiverNotifs(){
+ try{const ab=await abonnement(false);if(ab){await api("notifs/desabonner",{endpoint:ab.endpoint}).catch(()=>{});await ab.unsubscribe()}}catch(e){}
+ NOTIF={actif:false,choix:NOTIF.choix};LS.set("madeleine.notifs",NOTIF);render();
+}
+// Rattache l'abonnement de l'appareil au compte (connexion, inscription, déconnexion, choix modifiés)
+async function majAbonnement(){if(!NOTIF.actif||!notifPossible()||Notification.permission!=="granted")return;try{const ab=await abonnement(false);if(ab)await api("notifs/abonner",{abonnement:ab.toJSON(),choix:NOTIF.choix})}catch(e){}}
+
+function vReglages(){
+ const c=client(),theme=LS.get("madeleine.theme")||"auto";
+ const ligne=(icone,titre,sous,action,droite="")=>`<button class="reglage" ${action}><span class="ic">${ico(icone)}</span><span class="t"><b>${titre}</b>${sous?`<small>${sous}</small>`:""}</span>${droite||"<span class=\"fl\">›</span>"}</button>`;
+ const bascule=(k,titre,sous)=>`<label class="reglage"><span class="ic">${ico("cloche")}</span><span class="t"><b>${titre}</b><small>${sous}</small></span><input type="checkbox" class="interrupteur" data-notif="${k}" ${NOTIF.choix[k]!==false?"checked":""} ${NOTIF.actif?"":"disabled"}></label>`;
+ const etatNotif=!notifPossible()?(surIOS&&!installe()?"Sur iPhone, installez d’abord l’appli : les notifications arrivent alors comme des SMS.":"Ce navigateur ne gère pas les notifications."):NOTIF.actif?"Activées sur cet appareil":"Désactivées sur cet appareil";
+ return `<div class="wrap reglages"><h2 class="sec">Réglages</h2>
+ ${c?`<section><h3>Ma carte</h3><div class="carte fixe petite" data-nav="compte" style="cursor:pointer">${rectoHTML(c)}</div>
+  ${ligne("compte","Ma carte de fidélité",`${c.tampons}/${TAMPONS_PAR_BON} tampons${c.bons?` · ${c.bons} bon(s)`:""}${c.cagnotte?` · cagnotte ${eur(c.cagnotte)}`:""}`,'data-nav="compte"')}
+  ${ligne("qr","Ma carte en grand · QR code","À montrer à Mélanie pour tamponner",'data-act="carteGrand"')}
+  ${ligne("discussion","Discussion avec Mélanie",NONLUS?`${NONLUS} message(s) non lu(s)`:"Une question, une commande spéciale…",'data-nav="messages"')}
+  ${ligne("compte","Mes informations et mes appareils","Adresse, téléphone, photo, ajouter un appareil",'data-act="versInfos"')}</section>`
+ :atelier()?`<section><h3>L’atelier</h3>${ligne("atelier","Ouvrir l’atelier","Commandes, discussion, créations, réglages de la boutique",'data-nav="atelier"')}</section>`
+ :`<section><h3>Ma carte</h3>${ligne("compte","Créer ma carte de fidélité","Un tampon par commande, 10 € au 10e",'data-nav="compte"')}${ligne("compte","J’ai déjà une carte","L’ouvrir sur cet appareil avec un code",'data-nav="compte"')}</section>`}
+ <section><h3>Notifications</h3><p class="hint">${etatNotif}</p>
+  ${notifPossible()?(NOTIF.actif?`${atelier()?bascule("messages","Messages des clients","Une cliente ou un client vous écrit")+bascule("commandes","Nouvelles commandes","Dès qu’une commande arrive"):
+   bascule("messages","Messages de Mélanie","Réponses, bons gagnés, parrainage")+bascule("suivi","Suivi de mes commandes","Reçue, en préparation, expédiée, livrée")+bascule("nouveautes","Nouveautés de l’atelier","Nouvelles bougies, marchés, promotions")}${bascule("majs","Mises à jour de l’application","Quand une nouvelle version sort")}
+   <div class="row"><button class="btn ghost small" data-act="essaiNotif">M’envoyer une notification d’essai</button><button class="btn ghost small" data-act="coupeNotifs">Désactiver sur cet appareil</button></div>`
+   :`<button class="btn brass" data-act="activeNotifs">${ico("cloche")} Activer les notifications</button>`):(surIOS&&!installe()?`<button class="btn small" data-act="installer">Installer l’application</button>`:"")}</section>
+ <section id="maj"><h3>Mise à jour</h3>
+  <div class="reglage fixe"><span class="ic">${ico("maj")}</span><span class="t"><b>Version ${VERSION}</b><small>${MAJ?`La version <b>${esc(MAJ)}</b> est disponible`:"Vous avez la dernière version"}</small></span>${MAJ?`<button class="btn brass small" data-act="installerMaj">Mettre à jour</button>`:`<button class="btn ghost small" data-act="chercherMaj">Rechercher</button>`}</div>
+  ${HISTO&&HISTO.length?`<div class="nouveautes">${HISTO.slice(0,4).map(h=>`<div><b>Version ${esc(h.version)}</b> <span class="meta">${h.date?fdate(h.date):""}</span><ul>${(h.notes||[]).map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`).join("")}</div>`:""}</section>
+ <section><h3>Affichage</h3><div class="reglage fixe"><span class="ic">${ico("theme")}</span><span class="t"><b>Thème</b><small>Clair, sombre, ou comme le téléphone</small></span>
+  <div class="segments">${[["auto","Auto"],["clair","Clair"],["sombre","Sombre"]].map(([k,l])=>`<button class="${theme===k?"on":""}" data-theme-choix="${k}">${l}</button>`).join("")}</div></div></section>
+ <section><h3>Application</h3>
+  ${installe()?"":ligne("installer","Installer l’application","Sur l’écran d’accueil, comme une vraie appli",'data-act="installer"')}
+  ${ligne("qr","Faire découvrir La Madeleine",c?"Votre lien de parrainage, à partager":"Partager le lien de la boutique",'data-act="partagerAppli"')}
+  ${ligne("histoire","Notre histoire","Le goût d’avant, retrouvé dans la cire",'data-nav="histoire"')}
+  ${c?ligne("aide","Aide","Une question ? Écrivez à Mélanie dans Discussion",'data-nav="messages"'):""}</section>
+ ${c?`<section>${ligne("sortie","Se déconnecter de cet appareil","Votre carte reste sur vos autres appareils",'data-act="askLogoutReglages"')}
+  ${pending==="logout"?`<p class="hint">Pour revenir, il faudra un code d’un autre appareil connecté ou un code de réactivation donné par Mélanie. <button class="btn small" data-act="logout">Me déconnecter</button> <button class="btn ghost small" data-act="cancelDel">Annuler</button></p>`:""}</section>`
+ :atelier()?`<section>${ligne("sortie","Fermer l’atelier sur cet appareil","",'data-act="sortirAtelier"')}</section>`:""}
+ <p class="hint" style="text-align:center">La Madeleine · version ${VERSION}</p></div>`;
+}
+
 /* ---------- Entrée de l'atelier (adresse cachée : …/#atelier) ---------- */
 function vEntree(){
  return `<div class="wrap"><h2 class="sec">L’atelier</h2><form class="panel form" id="fAtelier" style="max-width:420px;margin:0 auto">
@@ -1267,7 +1385,7 @@ function renderLayer(){
  }
 }
 
-function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="messages"?vMessages():view==="entree"?vEntree():view==="verrine"?vVerrine():view==="carteInfo"?vCarteInfo():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
+function render(){renderNav();const a=document.getElementById("app");a.innerHTML=view==="compte"?vCompte():view==="messages"?vMessages():view==="entree"?vEntree():view==="reglages"?vReglages():view==="verrine"?vVerrine():view==="carteInfo"?vCarteInfo():view==="atelier"?vAtelier():view==="histoire"?vHistoire():vBoutique();renderLayer()}
 
 /* ---------- Navigation : chaque écran et chaque fenêtre ouverte a son étape, le bouton « retour » y revient ---------- */
 function aller(v){view=v;history.pushState({v},"");render();scrollTo(0,0)}
@@ -1281,7 +1399,7 @@ async function agir(fn){if(occupe)return;occupe=true;try{await fn()}catch(e){toa
 function addToCart(id){const p=P(id);const l=panier.find(x=>x.id===id);const cur=l?l.q:0;if(cur>=p.stock){toast("Stock atteint pour cette bougie");return}l?l.q++:panier.push({id,q:1});savePanier();renderNav();toast(`« ${p.nom} » ajoutée au panier`)}
 
 document.addEventListener("click",async e=>{
- const t=e.target.closest("[data-compo],[data-question],[data-repondre],[data-conv],[data-ecrire],[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],[data-tampon],[data-fiche],#goHome");
+ const t=e.target.closest("[data-theme-choix],[data-compo],[data-question],[data-repondre],[data-conv],[data-ecrire],[data-nav],[data-open],[data-close],[data-filtre],[data-add],[data-q],[data-act],[data-atab],[data-stock],[data-edit],[data-askdel],[data-del],[data-scroll],[data-tampon],[data-fiche],#goHome");
  if(!t)return; const d=t.dataset;if(t.tagName==="A")e.preventDefault();
  if(d.close!==undefined&&e.target!==t&&t.classList.contains("modal"))return;
  if(d.question){const o=(MOI.commandes||[]).find(x=>x.id===+d.question);brouillon={objet:o?`Question sur la commande ${o.ref}`:"",commande:+d.question};view="messages";MSG=null;render();scrollTo(0,0);return}
@@ -1298,6 +1416,16 @@ document.addEventListener("click",async e=>{
  else if(d.close!==undefined){fermer()}
  else if(d.act==="installer"){installer()}
  else if(d.act==="okBienvenue"){bienvenue=false;render()}
+ else if(d.act==="activeNotifs")agir(activerNotifs);
+ else if(d.act==="coupeNotifs")agir(desactiverNotifs);
+ else if(d.act==="essaiNotif")agir(async()=>{const ab=await abonnement(false);if(!ab)throw new Error("Activez d’abord les notifications");await api("notifs/essai",{endpoint:ab.endpoint});toast("Notification envoyée")});
+ else if(d.act==="chercherMaj"){chercherMaj(true)}
+ else if(d.act==="installerMaj"){installerMaj()}
+ else if(d.themeChoix){LS.set("madeleine.theme",d.themeChoix);appliquerTheme(d.themeChoix);render()}
+ else if(d.act==="versInfos"){aller("compte");setTimeout(()=>document.getElementById("iTel")?.closest(".panel")?.scrollIntoView({behavior:"smooth"}),100)}
+ else if(d.act==="askLogoutReglages"){pending="logout";render()}
+ else if(d.act==="partagerAppli"){const c=client(),lien=lienAppli(c);if(navigator.share)navigator.share({title:"La Madeleine",text:"Les bougies gourmandes de La Madeleine",url:lien}).catch(()=>{});else navigator.clipboard?.writeText(lien).then(()=>toast("Lien copié"),()=>toast(lien))}
+ else if(d.act==="envoyerAnnonce")agir(async()=>{const titre=document.getElementById("annTitre").value,texte=document.getElementById("annTexte").value;const r=await api("atelier/annonce",{titre,texte});document.getElementById("annTitre").value="";document.getElementById("annTexte").value="";toast(`Annonce envoyée (${r.appareils} appareil${r.appareils>1?"s":""} abonné${r.appareils>1?"s":""})`)});
  else if(d.act==="saveBoutique")agir(async()=>{const r=await api("atelier/reglages",{reglages:RED});appliquerReglages(r.reglages);RED=null;render();toast("Boutique enregistrée")});
  else if(d.act==="annulerBoutique"){RED=null;render()}
  else if(d.act==="catAjout"){const l=document.getElementById("nouvCat").value.trim();if(!l)return;let k=slug(l),n=2;while(RED.categories.some(c=>c[0]===k))k=slug(l)+"-"+n++;RED.categories.push([k,l]);render()}
@@ -1346,7 +1474,7 @@ document.addEventListener("click",async e=>{
  else if(d.act==="liaison")agir(async()=>{const r=await api("code-liaison",{});codeLiaison=r.code;render();setTimeout(()=>{if(codeLiaison===r.code){codeLiaison=null;if(view==="compte")render()}},r.minutes*60000)});
  else if(d.act==="askLogout"){pending="logout";render()}
  else if(d.act==="cancelDel"){pending=null;render()}
- else if(d.act==="logout")agir(async()=>{try{await api("deconnexion",{})}catch(e){}setJeton(null);MOI=null;pending=null;codeLiaison=null;MSG=null;NONLUS=0;REC=null;photoNeuve=null;view="boutique";render();toast("Carte fermée sur cet appareil")});
+ else if(d.act==="logout")agir(async()=>{try{await api("deconnexion",{})}catch(e){}setJeton(null);MOI=null;pending=null;codeLiaison=null;MSG=null;NONLUS=0;REC=null;photoNeuve=null;aller("boutique");toast("Carte fermée sur cet appareil");majAbonnement()});
  else if(d.act==="sortirAtelier")agir(async()=>{try{await api("atelier/sortir",{})}catch(e){}setJeton(null);MOI=null;ATL=null;BOITE=null;CONV=null;NONLUS=0;view="boutique";render();toast("Atelier fermé sur cet appareil")});
  else if(d.act==="checkout"){
   if(!client()){layer=null;history.replaceState({v:view},"");err="Créez votre carte ou ouvrez-la sur cet appareil pour commander.";aller("compte");return}
@@ -1381,6 +1509,7 @@ document.addEventListener("change",async e=>{
  const t=e.target;
  if(t.id==="mode"||t.id==="bon"||t.id==="cag")majTotaux();
  if(t.dataset.v&&VED&&t.type==="checkbox")fixer(VED,t.dataset.v,t.checked);
+ if(t.dataset.notif){NOTIF.choix={...NOTIF.choix,[t.dataset.notif]:t.checked};LS.set("madeleine.notifs",NOTIF);majAbonnement()}
  if(t.dataset.img&&RED){const f=t.files[0];if(!f)return;const[k,i]=t.dataset.img.split(".");agir(async()=>{RED.images[k][+i]=await envoyerPhoto(f);render();toast("Photo prête : touchez « Enregistrer ma boutique »")})}
  if(t.id==="rParrainer"){const z=document.getElementById("zoneParrain");if(z)z.hidden=!t.checked}
  if(t.id==="rPhoto"||t.id==="iPhoto"){const f=t.files[0];if(!f)return;try{REC={im:await ouvrirImage(f),zoom:1,x:0,y:0};t.value="";ouvrir("recadrer")}catch(x){toast("Cette image n'a pas pu être lue.")}}
@@ -1394,12 +1523,12 @@ document.addEventListener("submit",e=>{
  e.preventDefault();const f=e.target,v=id=>f.querySelector(id).value;
  if(f.id==="fReg")agir(async()=>{
   try{const r=await api("inscription",{prenom:v("#rPrenom"),nom:v("#rNom"),email:v("#rEmail"),tel:v("#rTel"),adresse:v("#rAdr"),parrain:f.querySelector("#rParrainer").checked&&PARRAIN?PARRAIN.code:null,photo:photoNeuve});LS.del("madeleine.parrain");PARRAIN=null;
-   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[],filleuls:0};NONLUS=1;MSG=null;bienvenue=true;LS.set("madeleine.bonsVus."+r.client.numero,0);LS.set("madeleine.moi",MOI);photoNeuve=null;REC=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`)}
+   setJeton(r.jeton);MOI={role:"client",client:r.client,commandes:[],filleuls:0};NONLUS=1;MSG=null;bienvenue=true;LS.set("madeleine.bonsVus."+r.client.numero,0);LS.set("madeleine.moi",MOI);photoNeuve=null;REC=null;err="";flip=false;render();scrollTo(0,0);toast(`Bienvenue ! Voici votre carte n° ${num4(r.client.numero)}`);majAbonnement()}
   catch(x){err=x.message;render()}});
  if(f.id==="fCode")agir(async()=>{
-  try{const r=await api("connexion",{code:v("#cCode")});setJeton(r.jeton);await rechargerMoi();NONLUS=MOI.nonlus||0;MSG=null;err="";render();scrollTo(0,0);toast(`Carte n° ${num4(r.client.numero)} ouverte sur cet appareil`)}
+  try{const r=await api("connexion",{code:v("#cCode")});setJeton(r.jeton);await rechargerMoi();NONLUS=MOI.nonlus||0;MSG=null;err="";render();scrollTo(0,0);toast(`Carte n° ${num4(r.client.numero)} ouverte sur cet appareil`);majAbonnement()}
   catch(x){err="!"+x.message;render()}});
- if(f.id==="fAtelier")agir(async()=>{const r=await api("atelier/entrer",{code:v("#aCode")});setJeton(r.jeton);MOI={role:"atelier"};LS.set("madeleine.moi",MOI);ATL=null;view="atelier";history.replaceState(null,"",location.pathname+location.search);render();toast("Bienvenue dans l'atelier")});
+ if(f.id==="fAtelier")agir(async()=>{const r=await api("atelier/entrer",{code:v("#aCode")});setJeton(r.jeton);MOI={role:"atelier"};LS.set("madeleine.moi",MOI);ATL=null;view="atelier";history.replaceState(null,"",location.pathname+location.search);render();toast("Bienvenue dans l'atelier");majAbonnement()});
  if(f.id==="fMsg")agir(async()=>{await api("message",{objet:v("#mObjet"),texte:v("#mTexte"),commande:f.querySelector("#mCmd")?.value||null});brouillon={};const d=await api("messages",{lu:true});MSG=d.messages;render();toast("Message envoyé à Mélanie")});
  if(f.id==="fAMsg")agir(async()=>{const n=CONV.client.numero;await api("atelier/message",{numero:n,objet:v("#amObjet"),texte:v("#amTexte"),commande:f.querySelector("#amCmd")?.value||null});brouillon={};await ouvrirConv(n);toast(`Message envoyé à ${CONV.client.prenom}`)});
  if(f.id==="fTampon"){const n=parseInt(v("#tNum"),10);agir(async()=>{const r=await api("atelier/client",{numero:n});fiche=r.client.numero;ficheCode=null;ficheDetail=r.client;const c=ATL.clients.find(x=>x.numero===fiche);if(c)Object.assign(c,{tampons:r.client.tampons,bons:r.client.bons});render()})}
@@ -1415,21 +1544,20 @@ document.addEventListener("submit",e=>{
   await api("atelier/produit",{produit:p});layer=null;editing=null;history.replaceState({v:view},"");await rechargerAtelier();render();toast("Création enregistrée");
  });
 });
-// Toutes les minutes : nouveaux messages (et, dans l'atelier, nouvelles commandes), sauf pendant une saisie
-setInterval(()=>{
- if(!jeton||!SERVEUR||!MOI||occupe||document.visibilityState!=="visible")return;
- const tape=document.activeElement?.matches("input,textarea,select")||layer;
- api("nonlus").then(async d=>{
-  const plus=d.nonlus>NONLUS;NONLUS=d.nonlus;
-  if(plus)toast("Nouveau message dans votre messagerie");
-  if(tape){renderNav();return}
+// Toutes les minutes : nouveaux messages (et, dans l'atelier, nouvelles commandes), sauf appli cachée
+setInterval(()=>{if(!occupe&&document.visibilityState==="visible")verifierNouveau()},60000);
+if("serviceWorker" in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.type==="madeleine-push"&&jeton)verifierNouveau()});
+// Relève des non-lus (notification reçue, ou toutes les minutes)
+async function verifierNouveau(){
+ if(!jeton||!SERVEUR||!MOI)return;
+ try{const d=await api("nonlus");const plus=d.nonlus>NONLUS;NONLUS=d.nonlus;
   if(atelier()&&view==="atelier"){await rechargerAtelier();if(adminTab==="messagerie"&&plus){BOITE=null;if(CONV)CONV=await api("atelier/conversation",{numero:CONV.client.numero})}}
-  else if(view==="messages"&&plus)MSG=null;
-  if(client()&&plus)await rechargerMoi().catch(()=>{});
-  render();
- }).catch(()=>{});
-},60000);
-init();
+  else if(client()&&plus){await rechargerMoi();if(view==="messages")MSG=null}
+  const tape=document.activeElement?.matches("input,textarea,select")||layer;if(tape)renderNav();else render();
+ }catch(e){}
+}
+init().then(()=>{chercherMaj(false);majAbonnement()});
+setInterval(()=>chercherMaj(false),30*60000);
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
 </body>

@@ -9,5 +9,7 @@
   "compatibility_date": "2025-09-01",
   "assets": { "directory": "./public", "binding": "ASSETS" },
   "d1_databases": [{ "binding": "DB", "database_name": "la-madeleine" }],
+  // Toutes les 30 minutes : une nouvelle version (public/version.json, « notifier » à vrai) est annoncée en notification
+  "triggers": { "crons": ["*/30 * * * *"] },
   "observability": { "enabled": true }
 }
