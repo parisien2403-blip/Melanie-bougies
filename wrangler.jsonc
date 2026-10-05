@@ -1,0 +1,11 @@
+// Déploiement Cloudflare (Workers) : le site (fichiers statiques) + la boutique (worker.js, /api/…).
+// Cloudflare le déploie tout seul depuis GitHub à chaque publication. La base D1 est créée automatiquement
+// au premier déploiement. Réglage à faire une fois dans Cloudflare : le secret CODE_ATELIER (voir README.md).
+{
+  "name": "la-madeleine",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  "assets": { "directory": ".", "binding": "ASSETS" },
+  "d1_databases": [{ "binding": "DB", "database_name": "la-madeleine" }],
+  "observability": { "enabled": true }
+}

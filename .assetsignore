@@ -1,0 +1,8 @@
+# Fichiers du dépôt qui ne doivent pas être servis comme pages du site
+worker.js
+wrangler.jsonc
+README.md
+.dev.vars
+.wrangler
+node_modules
+.git

@@ -1,23 +1,38 @@
 # La Madeleine · Chandellerie d'autrefois
 
-Maquette de boutique en ligne (PWA) pour les bougies gourmandes de Mélanie.
+Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidélité.
 
 ## Contenu
-- `index.html` : tout le site (vitrine, page « Notre histoire », comptes, panier, atelier)
+- `index.html` : tout le site (vitrine, « Notre histoire », carte de fidélité, panier, atelier)
+- `worker.js` : le serveur Cloudflare (comptes, cartes, tampons, commandes, stock, atelier)
+- `wrangler.jsonc` : réglages du déploiement Cloudflare
+- `produits.json` : catalogue de départ (copié dans la base au premier lancement, puis géré depuis l'atelier)
 - `manifest.webmanifest` + `sw.js` : installation sur téléphone et ouverture hors ligne
-- `icons/` : icônes de l'application
-- `img/` : photos de la vitrine (photos d'inspiration, à remplacer par celles de Mélanie en gardant les mêmes noms p1.jpg à p10.jpg)
+- `icons/`, `img/` : icônes et photos de la vitrine (photos d'inspiration, à remplacer en gardant les noms p1.jpg à p10.jpg)
 
-## Comptes de démonstration
-- Client : client@exemple.fr / demo
-- Atelier : melanie@lamadeleine.fr / bougie
+## Carte de fidélité
+- Inscription sans mot de passe : prénom, nom, e-mail, téléphone, adresse, photo. La carte reste ouverte sur l'appareil.
+- Numéro de client dans l'ordre des inscriptions : 0001, 0002…
+- Carte recto (photo, nom, numéro) / verso (10 cases), à retourner et à télécharger en image.
+- Un tampon par commande, retiré si la commande est annulée. Au 10e tampon : un bon de 10 € à utiliser dans le panier.
+- Autre appareil : « Ma carte › Ajouter un appareil » affiche un code (15 min) à saisir sur l'autre appareil.
+- Téléphone perdu : dans l'atelier, « Clients & tampons › Gérer › Code de réactivation » (48 h).
+- Vente en direct (marché) : l'atelier tamponne une carte par son numéro et peut utiliser un bon.
 
-## Le mot de Mélanie
-Le texte personnel de la page « Notre histoire » se modifie depuis l'atelier, onglet « Mon mot ».
+## Mise en ligne sur Cloudflare (une seule fois)
+1. Cloudflare › Workers & Pages › Créer › Importer un dépôt Git › choisir `Melanie-bougies`.
+   Cloudflare lit `wrangler.jsonc`, crée la base D1 `la-madeleine` et redéploie à chaque publication sur `main`.
+2. Workers › la-madeleine › Paramètres › Variables et secrets › ajouter le secret `CODE_ATELIER`
+   (le code que Mélanie tapera dans « Carte de fidélité › Accès atelier »). Jamais dans le dépôt.
+3. Ouvrir l'adresse donnée par Cloudflare (…workers.dev), puis « Accès atelier » avec ce code.
 
-## Limites de la maquette
-Les comptes, paniers et commandes sont enregistrés dans le navigateur de chaque visiteur.
-Pour une vraie boutique : base de données en ligne (Supabase, Firebase) et paiement (Stripe, SumUp).
+Sur une adresse sans serveur (GitHub Pages), le site affiche la vitrine seule, avec un bandeau.
+
+## Essai en local
+Créer un fichier `.dev.vars` (ignoré par git) contenant `CODE_ATELIER="essai"`, puis `npx wrangler dev`.
+
+## Limites
+Le paiement en ligne n'est pas branché (Stripe ou SumUp à ajouter) : les commandes sont réglées à part.
 
 ## Mise à jour
-À chaque modification, incrémenter `CACHE` dans `sw.js` (madeleine-v2 → madeleine-v3…).
+À chaque modification, incrémenter `CACHE` dans `sw.js` (madeleine-v3 → madeleine-v4…).
