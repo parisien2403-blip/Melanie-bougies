@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="La Madeleine, chandellerie d'autrefois : bougies gourmandes façonnées à la main par Mélanie, pour retrouver le goût et l'odeur d'avant.">
+<meta name="description" content="Boudoir & Vanille, candle studio : bougies gourmandes façonnées à la main par Mélanie, pour retrouver le goût et l'odeur d'avant.">
 <meta name="theme-color" content="#4a2a17">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/favicon-48.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="La Madeleine">
+<meta name="apple-mobile-web-app-title" content="Boudoir & Vanille">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>La Madeleine Bougies</title>
+<title>Boudoir & Vanille</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap">
@@ -58,10 +58,14 @@
 *{box-sizing:border-box}
 html{background:var(--paper)}
 body{margin:0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
-  background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;
-  /* Papier peint à rayures fines */
-  background-image:repeating-linear-gradient(90deg,transparent 0 38px,var(--stripe) 38px 40px,transparent 40px 46px,var(--stripe) 46px 47px,transparent 47px 86px)}
-main{flex:1}
+  color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;
+  /* Mur lambrissé : lames de noyer verni (img/bois-v.jpg), un peu assombries en haut et en bas */
+  background:linear-gradient(180deg,rgba(20,8,2,.35),rgba(20,8,2,0) 30%,rgba(20,8,2,0) 70%,rgba(20,8,2,.35)),url(img/bois-v.jpg) 0 0/900px repeat,#4a2a17;background-attachment:fixed,scroll,scroll}
+main{flex:1;padding:10px 0 26px}
+/* Panneau encastré dans la boiserie : moulure sombre, filet de laiton, papier peint rayé à l'intérieur */
+main>.wrap{width:calc(100% - 28px);max-width:1120px;margin:16px auto;padding:6px clamp(14px,3vw,34px) 26px;border-radius:3px;
+  background:var(--paper) repeating-linear-gradient(90deg,transparent 0 38px,var(--stripe) 38px 40px,transparent 40px 46px,var(--stripe) 46px 47px,transparent 47px 86px);
+  box-shadow:0 0 0 3px var(--brass-2),0 0 0 4px rgba(0,0,0,.4),0 0 0 11px #3a1f0f,0 0 0 12px rgba(255,226,190,.22),0 0 0 14px rgba(0,0,0,.35),0 24px 46px rgba(0,0,0,.55)}
 img{max-width:100%}
 a{color:var(--rose-deep)}
 [hidden]{display:none!important}
@@ -71,9 +75,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* Boiserie vernie */
 .wood{color:var(--on-wood);
-  background:var(--varnish),var(--grain),
-    linear-gradient(90deg,var(--wood) 0,var(--wood-hi) 22%,var(--wood) 41%,var(--wood-2) 63%,var(--wood-hi) 84%,var(--wood) 100%);
-  background-color:var(--wood);background-size:auto,700px 260px,auto}
+  /* Lames de noyer verni à l'horizontale (img/bois-h.jpg) et reflet du vernis */
+  background:var(--varnish),url(img/bois-h.jpg) 0 0/1024px 1024px repeat,var(--wood)}
 .brass-rule{height:4px;background:var(--brass);box-shadow:0 1px 0 rgba(0,0,0,.35)}
 
 /* Bandeau démo */
@@ -84,8 +87,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 header.top{position:sticky;top:0;z-index:20;box-shadow:0 6px 16px var(--shadow)}
 header.top .wood{box-shadow:inset 0 1px 0 rgba(255,236,210,.25),inset 0 -8px 14px rgba(0,0,0,.28)}
 .top .wrap{display:flex;align-items:center;gap:16px;padding-block:10px;flex-wrap:wrap}
-.logo{display:flex;flex-direction:column;line-height:1;cursor:pointer;background:none;border:0;padding:0;text-align:left}
-.logo b{font-family:var(--f-script);font-weight:400;font-size:40px;color:var(--brass-1);text-shadow:0 1px 0 rgba(0,0,0,.6),0 0 1px rgba(0,0,0,.4);line-height:.9}
+.logo{display:flex;align-items:center;gap:12px;line-height:1;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.logo img{width:64px;height:64px;flex:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.55))}
+.logo span{display:flex;flex-direction:column}
+.logo b{font-family:var(--f-script);font-weight:400;font-size:36px;color:var(--brass-1);text-shadow:0 1px 0 rgba(0,0,0,.6),0 0 1px rgba(0,0,0,.4);line-height:.9}
 .logo small{font-family:var(--f-tag);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--on-wood);opacity:.85;margin-top:6px}
 nav.main{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
 .nbtn{background:none;color:var(--on-wood);border:1px solid transparent;border-radius:2px;padding:6px 12px;cursor:pointer;font-size:14px;font-family:var(--f-display);letter-spacing:.02em}
@@ -139,7 +144,7 @@ h2.sec.left{text-align:left}h2.sec.left::after{display:none}
 
 /* Boutons : bois verni et laiton */
 .btn{border:1px solid var(--wood-2);color:var(--on-wood);padding:8px 16px;border-radius:2px;cursor:pointer;font-size:14px;
-  background:var(--varnish),linear-gradient(90deg,var(--wood),var(--wood-hi) 50%,var(--wood));background-color:var(--wood);
+  background:var(--varnish),url(img/bois-h.jpg) 0 37%/700px repeat,var(--wood);
   box-shadow:inset 0 1px 0 rgba(255,236,210,.3),0 1px 2px rgba(0,0,0,.3)}
 .btn:hover{filter:brightness(1.12)}
 .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none}
@@ -224,7 +229,7 @@ dl.spec dt{font-family:var(--f-tag);color:var(--ink-soft)}dl.spec dd{margin:0}
 /* Pied de page : lambris vernis */
 footer{box-shadow:0 -6px 16px var(--shadow)}
 .lambris{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;max-width:1120px;margin:0 auto;padding:18px 16px 8px}
-.lambris span{height:64px;border-radius:2px;
+.lambris span{height:64px;border-radius:2px;background:url(img/bois-v.jpg) 30% 40%/600px repeat;
   box-shadow:inset 3px 3px 0 rgba(255,236,210,.14),inset -3px -3px 0 rgba(0,0,0,.4),inset 0 0 0 7px rgba(0,0,0,.08),inset 9px 9px 0 -2px rgba(0,0,0,.25),inset -9px -9px 0 -2px rgba(255,236,210,.08)}
 footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:12px 22px;font-size:13px}
 footer .wrap b{font-family:var(--f-script);font-weight:400;font-size:26px;color:var(--brass-1);line-height:1}
@@ -239,7 +244,7 @@ footer .wrap b{font-family:var(--f-script);font-weight:400;font-size:26px;color:
 .recto{display:grid;grid-template-columns:31% 1fr;gap:5cqw;padding:7cqw;align-items:center}
 .recto .ph{aspect-ratio:3/4;border:.8cqw solid var(--brass-2);background:#e7dacd;overflow:hidden;display:grid;place-items:center;font-family:var(--f-display);font-size:9cqw;color:#5a3219;box-shadow:0 .6cqw 1.4cqw rgba(0,0,0,.45)}
 .recto .ph img{width:100%;height:100%;object-fit:cover;display:block}
-.recto .marque{font-family:var(--f-script);font-size:8.6cqw;color:var(--brass-1);line-height:1;text-shadow:0 .2cqw 0 rgba(0,0,0,.6)}
+.recto .marque{font-family:var(--f-script);font-size:6.6cqw;color:var(--brass-1);line-height:1;text-shadow:0 .2cqw 0 rgba(0,0,0,.6)}
 .recto .sous{font-family:var(--f-tag);font-size:2.3cqw;letter-spacing:.2em;text-transform:uppercase;opacity:.85;margin-top:1cqw}
 .recto .nom{font-family:var(--f-display);font-size:5cqw;line-height:1.15;margin-top:4cqw;overflow-wrap:anywhere}
 .recto .num{display:inline-block;margin-top:3cqw;font-family:var(--f-tag);font-size:4.6cqw;background:var(--brass);color:#2b1a0c;padding:.6cqw 2.4cqw;border-radius:.6cqw;box-shadow:0 .3cqw .6cqw rgba(0,0,0,.4)}
@@ -308,6 +313,8 @@ dl.recap{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin:0;font-
 @media (max-width:520px){.qr-perso,.parrain{flex-direction:column;text-align:center}.parrain .row{justify-content:center}}
 
 .parrain-choisi{display:flex;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--mustard);padding:8px 10px;flex-wrap:wrap}
+
+.logo-histoire{display:block;width:min(220px,55vw);height:auto;margin:6px 0 14px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}
 
 /* Réglages */
 .reglages{max-width:720px}
@@ -423,7 +430,7 @@ input[type=range]{accent-color:var(--brass-2);width:100%}
   .boite{grid-template-columns:1fr}
   .bar input{margin-left:0;width:100%}
   .lambris{grid-template-columns:repeat(3,1fr)}.lambris span:nth-child(n+4){display:none}
-  .logo b{font-size:34px}
+  .logo b{font-size:28px}.logo img{width:52px;height:52px}.logo small{font-size:9px;letter-spacing:.16em}
   header.top{position:static}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -433,12 +440,12 @@ input[type=range]{accent-color:var(--brass-2);width:100%}
 <div class="demo">Photos d’inspiration à remplacer par les créations de Mélanie · paiement en ligne pas encore branché</div>
 <div class="demo" id="hors" hidden style="background:var(--rose-deep)">Boutique en ligne pas encore ouverte sur cette adresse : vitrine seulement (inscriptions et commandes indisponibles)</div>
 <header class="top"><div class="wood"><div class="wrap">
-  <button class="logo" id="goHome" aria-label="Accueil La Madeleine"><b>La Madeleine</b><small>Chandellerie d'autrefois</small></button>
+  <button class="logo" id="goHome" aria-label="Accueil Boudoir & Vanille"><img src="img/logo-160.png" alt="" width="64" height="64"><span><b>Boudoir & Vanille</b><small>Candle studio · Boutique vintage</small></span></button>
   <nav class="main" id="nav"></nav>
 </div></div><div class="brass-rule"></div></header>
 <main id="app"></main>
 <footer class="wood"><div class="brass-rule"></div><div class="lambris" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
- <div class="wrap"><span><b>La Madeleine</b><br>Bougies gourmandes façonnées à la main par Mélanie</span><span>Cire végétale · mèches coton · fabrication française<br><button class="installer" data-act="installer" id="fInstaller">Installer l’application</button></span></div></footer>
+ <div class="wrap"><span><b>Boudoir & Vanille</b><br>Bougies gourmandes façonnées à la main par Mélanie</span><span>Cire végétale · mèches coton · fabrication française<br><button class="installer" data-act="installer" id="fInstaller">Installer l’application</button></span></div></footer>
 <nav class="dock wood" id="dock" aria-label="Menu"></nav>
 <div id="invite"></div>
 <div id="layer"></div>
@@ -457,7 +464,7 @@ flacon:(c1,c2)=>`<svg viewBox="0 0 120 120"><ellipse cx="60" cy="108" rx="30" ry
 ART.verrine=ART.pot;ART.douceur=ART.gateau;
 
 // Numéro de cette version de l'appli (à augmenter avec public/version.json et CACHE dans sw.js à chaque publication)
-const VERSION="1.10";
+const VERSION="1.11";
 
 /* ---------- Mémoire de l'appareil ---------- */
 // Seulement ce qui appartient à cet appareil : son jeton de connexion, son panier, une copie de la carte pour l'afficher hors ligne
@@ -472,6 +479,8 @@ let panier=LS.get("madeleine.panier")||[];
 const savePanier=()=>LS.set("madeleine.panier",panier);
 function setJeton(j){jeton=j;if(j)LS.set("madeleine.jeton",j);else{LS.del("madeleine.jeton");LS.del("madeleine.moi")}}
 
+// « 10 € » plutôt que « 10,00 € » quand le montant est rond
+const eurRond=n=>Number.isInteger(n)?`${n} €`:eur(n);
 const eur=n=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR"});
 const num4=n=>String(n).padStart(4,"0");
 // Règles de la boutique, réglées par Mélanie (Atelier › Ma boutique) et reçues avec le catalogue
@@ -619,7 +628,7 @@ function vBoutique(){
   <div><span class="stamp">Fait main · petites séries</span>
    <h1 class="big">${accroche(R.accrocheTitre)}</h1>
    <p>${esc(R.accrocheTexte)}</p>
-   <p>Avec la carte de fidélité, chaque commande vous rapporte un tampon. <b>Au ${TAMPONS_PAR_BON}<sup>e</sup>, ${eur(VALEUR_BON)} offerts.</b></p>
+   <p>Avec la carte de fidélité, chaque commande vous rapporte un tampon. <b>Au ${TAMPONS_PAR_BON}<sup>e</sup>, ${eurRond(VALEUR_BON)} offerts.</b></p>
    <div class="row"><button class="btn" data-scroll="vitrine">Voir la vitrine</button><button class="btn ghost" data-nav="${client()||atelier()?"histoire":"compte"}">${client()||atelier()?"Lire notre histoire":"Créer ma carte de fidélité"}</button></div></div>
   <div class="hero-art frame wood" aria-hidden="true">${R.images.accueil.map(u=>`<img src="${esc(u)}" alt="">`).join("")}</div>
  </section>
@@ -725,16 +734,16 @@ function vHistoire(){
  const lettre=String(LETTRE??LETTRE_DEFAUT).split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
  return `<div class="wrap">
  <section class="hero">
-  <div><span class="stamp">Notre histoire</span>
+  <div><img src="img/logo.png" alt="Boudoir & Vanille, candle studio" class="logo-histoire"><span class="stamp">Notre histoire</span>
    <h1 class="big">Le goût <em>d’avant</em>, retrouvé dans la cire.</h1>
    <p>Il y a des odeurs qui ouvrent des portes. Une brioche qui dore, un caramel qui frémit, la vanille sur les doigts : en une seconde, on a de nouveau huit ans, assis à la table de la cuisine, les jambes qui ne touchent pas le sol.</p>
-   <p>La Madeleine est née de cette envie-là : retrouver les plaisirs simples qu’on a laissés filer, et les rallumer, le temps d’une bougie.</p></div>
+   <p>Boudoir & Vanille est né de cette envie-là : retrouver les plaisirs simples qu’on a laissés filer, et les rallumer, le temps d’une bougie.</p></div>
   <div class="hero-art frame wood" aria-hidden="true">${R.images.histoire.map(u=>`<img src="${esc(u)}" alt="">`).join("")}</div>
  </section>
 
  <figure class="plaque wood"><blockquote>« Quand d’un passé ancien rien ne subsiste, après la mort des êtres, après la destruction des choses, seules, plus frêles mais plus vivaces, plus immatérielles, plus persistantes, plus fidèles, l’odeur et la saveur restent encore longtemps, comme des âmes… »</blockquote>
   <cite>MARCEL PROUST · DU CÔTÉ DE CHEZ SWANN · 1913</cite></figure>
- <p class="lead">C’est en trempant une madeleine dans son thé que Proust a vu toute son enfance remonter d’un coup. Notre nom vient de là : de ce petit gâteau qui fait revenir ce qu’on croyait perdu.</p>
+ <p class="lead">Proust avait sa madeleine trempée dans le thé. Nous, c’est le boudoir qu’on trempait dans le chocolat chaud, et la vanille qui embaumait toute la cuisine : voilà d’où vient notre nom, Boudoir & Vanille.</p>
 
  <h2 class="sec">Les plaisirs qu’on croyait perdus</h2>
  <p class="lead">On ne les a pas vus partir. Un jour, le goûter de quatre heures est devenu une barre avalée debout, la pâtisserie du coin a fermé, et les dimanches ont pris le goût du pressé. Ces petits bonheurs n’ont pas disparu : ils attendent qu’on les rallume.</p>
@@ -762,7 +771,7 @@ const lienAppli=c=>`${location.origin}${location.pathname}${c?`?parrain=${c.nume
 function rectoHTML(c){
  const init=(c.prenom[0]||"")+(c.nom[0]||"");
  return `<div class="face recto wood"><div class="ph">${c.photo?`<img src="${c.photo}" alt="">`:esc(init.toUpperCase())}</div>
-   <div><div class="marque">La Madeleine</div><div class="sous">Carte de fidélité</div>
+   <div><div class="marque">Boudoir & Vanille</div><div class="sous">Carte de fidélité</div>
     <div class="nom">${esc(c.prenom)}<br>${esc(c.nom.toUpperCase())}</div>
     <div class="num">N° ${num4(c.numero)}</div>${c.courriel?`<div class="mel">${esc(c.courriel)}</div>`:""}<div class="depuis">Membre depuis ${fmois(c.cree)}</div></div></div>`;
 }
@@ -781,7 +790,7 @@ function carteHTML(c){
 function vCarteGrand(){
  const c=client();if(!c)return "";
  return `<div class="veil" data-close></div><div class="modal" data-close><div class="box grand" role="dialog" aria-label="Ma carte en grand">
-  <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">Ma carte La Madeleine</h3><button class="btn ghost small" data-close aria-label="Fermer" style="font-size:20px;line-height:1;padding:4px 10px">×</button></div>
+  <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">Ma carte Boudoir & Vanille</h3><button class="btn ghost small" data-close aria-label="Fermer" style="font-size:20px;line-height:1;padding:4px 10px">×</button></div>
   <div class="carte fixe">${rectoHTML(c)}</div>
   <div class="qr-perso"><div class="qr">${qrSVG(lienCarte(c))}</div><p><b>Montrez ce QR code à Mélanie</b><br>Elle le scanne pour tamponner votre carte ou utiliser vos bons, au marché comme à l’atelier.</p></div>
   <div class="carte fixe">${versoHTML(c)}</div></div></div>`;
@@ -789,7 +798,7 @@ function vCarteGrand(){
 function parrainageHTML(c){
  const lien=lienAppli(c),n=MOI.filleuls||0;
  return `<div class="panel parrain"><div class="qr">${qrSVG(lien)}</div><div>
-  <h3>Faites découvrir La Madeleine</h3>
+  <h3>Faites découvrir Boudoir & Vanille</h3>
   <p>Un proche s’inscrit en cochant « Je me fais parrainer » et scanne <b>votre carte</b> (Ma carte en grand · QR code), ou ce QR code-ci, ou votre lien. Vous gagnez <b>${R.tauxReduction} % sur votre prochaine commande</b>, puis <b>${eur(R.gainParrain)} à chacune de ses commandes</b>.</p>
   <p class="meta">${n} filleul${n>1?"s":""} · cagnotte : <b>${eur(c.cagnotte||0)}</b>${c.reductions?` · <b>${c.reductions} réduction${c.reductions>1?"s":""} de ${R.tauxReduction} %</b> en attente`:""}</p>
   <div class="row"><button class="btn brass small" data-act="partager">Partager le lien</button></div></div></div>`;
@@ -804,12 +813,9 @@ async function dessinerCarte(c){
  const cadre=oy=>{x.save();rr(24,oy+24,W-48,H-48,30);x.lineWidth=7;x.strokeStyle=laiton(oy,oy+H);x.stroke();x.restore()};
  // Recto : bois verni
  x.save();rr(0,0,W,H,44);x.clip();
- let g=x.createLinearGradient(0,0,W,0);[["#5a3219",0],["#8a5430",.22],["#5a3219",.41],["#3d200f",.63],["#8a5430",.84],["#5a3219",1]].forEach(([c,o])=>g.addColorStop(o,c));
- x.fillStyle=g;x.fillRect(0,0,W,H);
- let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
- for(let i=0;i<170;i++){const y=rnd()*H,a=4+rnd()*14,f=.004+rnd()*.01,ph=rnd()*6;x.beginPath();for(let X=0;X<=W;X+=16){const Y=y+Math.sin(X*f+ph)*a;X?x.lineTo(X,Y):x.moveTo(X,Y)}
-  x.strokeStyle=`rgba(${rnd()<.5?"25,10,2":"255,225,190"},${.04+rnd()*.1})`;x.lineWidth=.6+rnd()*2.2;x.stroke()}
- g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"rgba(255,236,210,.26)");g.addColorStop(.35,"rgba(255,236,210,0)");g.addColorStop(1,"rgba(0,0,0,.3)");x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.fillStyle="#5a3219";x.fillRect(0,0,W,H);
+ try{const bois=new Image();bois.src="img/bois-h.jpg";await bois.decode();x.drawImage(bois,0,0,1024,1024,0,-60,1024,1024)}catch(e){}
+ let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"rgba(255,236,210,.26)");g.addColorStop(.35,"rgba(255,236,210,0)");g.addColorStop(1,"rgba(0,0,0,.3)");x.fillStyle=g;x.fillRect(0,0,W,H);
  x.restore();cadre(0);
  // Photo
  const px=70,py=110,pw=290,ph=387;x.fillStyle="#e7dacd";x.fillRect(px,py,pw,ph);
@@ -817,7 +823,7 @@ async function dessinerCarte(c){
  else{x.fillStyle="#5a3219";x.font='110px "Playfair Display", Georgia, serif';x.textAlign="center";x.textBaseline="middle";x.fillText(((c.prenom[0]||"")+(c.nom[0]||"")).toUpperCase(),px+pw/2,py+ph/2);x.textAlign="left";x.textBaseline="alphabetic"}
  x.lineWidth=8;x.strokeStyle=laiton(py,py+ph);x.strokeRect(px,py,pw,ph);
  const tx=410;x.shadowColor="rgba(0,0,0,.6)";x.shadowOffsetY=2;
- x.fillStyle="#f0d89a";x.font='92px "Pinyon Script", cursive';x.fillText("La Madeleine",tx,175);x.shadowColor="transparent";
+ x.fillStyle="#f0d89a";x.font='74px "Pinyon Script", cursive';{let f=74;while(f>40&&x.measureText("Boudoir & Vanille").width>560){f-=2;x.font=`${f}px "Pinyon Script", cursive`}}x.fillText("Boudoir & Vanille",tx,170);x.shadowColor="transparent";
  x.fillStyle="rgba(246,232,214,.85)";x.font='23px "Special Elite", monospace';x.fillText("C A R T E   D E   F I D É L I T É",tx,215);
  x.fillStyle="#f6e8d6";x.font='50px "Playfair Display", Georgia, serif';
  const fit=(t,max)=>{let f=50;while(f>26&&x.measureText(t).width>max){f-=2;x.font=`${f}px "Playfair Display", Georgia, serif`}return t};
@@ -884,7 +890,7 @@ function vCompte(){
  if(atelier())return vAtelier();
  const c=client();
  if(!c) return `<div class="wrap"><h2 class="sec">Carte de fidélité</h2>
-  <p class="lead">Inscrivez-vous et recevez votre carte La Madeleine, avec votre photo et votre numéro de cliente ou de client. Un tampon à chaque commande : <b>au 10e, 10 € offerts</b> sur l’achat de votre choix. Pas de mot de passe à retenir : la carte reste sur votre téléphone.</p>
+  <p class="lead">Inscrivez-vous et recevez votre carte Boudoir & Vanille, avec votre photo et votre numéro de cliente ou de client. Un tampon à chaque commande : <b>au 10e, 10 € offerts</b> sur l’achat de votre choix. Pas de mot de passe à retenir : la carte reste sur votre téléphone.</p>
   ${SERVEUR?"":`<p class="err" style="text-align:center">Les inscriptions ouvriront avec la boutique en ligne.</p>`}
   <div class="two">
   <form class="panel form" id="fReg"><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:22px">Créer ma carte</h3>
@@ -895,7 +901,7 @@ function vCompte(){
    <label class="f">E-mail<input id="rEmail" type="email" required maxlength="120" autocomplete="email"></label>
    <label class="f">Téléphone (facultatif)<input id="rTel" type="tel" maxlength="30" autocomplete="tel"></label>
    <label class="f">Adresse de livraison<textarea id="rAdr" rows="2" maxlength="300" autocomplete="street-address"></textarea></label>
-   <label class="check"><input type="checkbox" id="rParrainer" ${PARRAIN?"checked":""}><span><b>Je me fais parrainer</b> : je scanne la carte d’un client La Madeleine qui m’a fait découvrir l’atelier. Il sera remercié par une réduction.</span></label>
+   <label class="check"><input type="checkbox" id="rParrainer" ${PARRAIN?"checked":""}><span><b>Je me fais parrainer</b> : je scanne la carte d’un client Boudoir & Vanille qui m’a fait découvrir l’atelier. Il sera remercié par une réduction.</span></label>
    <div id="zoneParrain" ${PARRAIN?"":"hidden"}>${zoneParrain()}</div>
    <div class="err">${view==="compte"&&err&&!err.startsWith("!")?esc(err):""}</div>
    <button class="btn brass" ${SERVEUR?"":"disabled"}>Recevoir ma carte</button></form>
@@ -909,7 +915,7 @@ function vCompte(){
  const cmds=MOI.commandes||[];
  return `<div class="wrap"><h2 class="sec">Bonjour ${esc(c.prenom)}</h2>
  ${bienvenue?`<div class="panel bienvenue"><button class="x" data-act="okBienvenue" aria-label="Fermer">×</button>
-  <h3>Bienvenue chez La Madeleine !</h3>
+  <h3>Bienvenue chez Boudoir & Vanille !</h3>
   <p>Votre carte <b>n° ${num4(c.numero)}</b> est créée, avec votre adresse de l’application :</p>
   <p><span class="adresse-interne" style="font-size:16px">${esc(c.courriel)}</span></p>
   <ul><li><b>Suivez vos commandes</b> ici, étape par étape, et recevez un message à chaque étape.</li>
@@ -927,7 +933,7 @@ function vCompte(){
  <div class="two"><div class="panel form"><b>Mes informations</b>
    <div class="row" style="align-items:flex-end"><div class="avatar" ${REC?`data-act="recadrer" title="Recadrer la photo"`:""}>${(photoNeuve||c.photo)?`<img src="${photoNeuve||c.photo}" alt="">`:`<span class="hint">Photo</span>`}</div>
     <label class="f" style="flex:1;min-width:160px">Changer de photo<input id="iPhoto" type="file" accept="image/*"></label></div>
-   <label class="f">Mon adresse La Madeleine (messagerie du site)<input value="${esc(c.courriel||"")}" disabled style="font-family:var(--f-tag)"></label>
+   <label class="f">Mon adresse Boudoir & Vanille (messagerie du site)<input value="${esc(c.courriel||"")}" disabled style="font-family:var(--f-tag)"></label>
    <label class="f">E-mail<input value="${esc(c.email)}" disabled></label>
    <label class="f">Téléphone<input id="iTel" type="tel" value="${esc(c.tel||"")}" maxlength="30"></label>
    <label class="f">Adresse de livraison<textarea id="iAdr" rows="2" maxlength="300">${esc(c.adresse||"")}</textarea></label>
@@ -1094,12 +1100,12 @@ function vMessages(){
  return `<div class="wrap"><h2 class="sec">Discussion avec Mélanie</h2>
  <p class="lead">Votre adresse : <span class="adresse-interne">${esc(c.courriel)}</span><br><span class="hint">Elle ne sert que sur ce site, pour échanger avec Mélanie.</span></p>
  <div class="two"><form class="panel form" id="fMsg" style="align-self:start"><b>Écrire à Mélanie</b>
-  <label class="f">À<input value="melanie@la-madeleine" disabled style="font-family:var(--f-tag)"></label>
+  <label class="f">À<input value="melanie@boudoir-vanille" disabled style="font-family:var(--f-tag)"></label>
   <label class="f">Objet<input id="mObjet" maxlength="120" value="${esc(brouillon.objet||"")}"></label>
   ${cmds.length?`<label class="f">À propos d’une commande (facultatif)<select id="mCmd"><option value="">Aucune</option>${cmds.map(o=>`<option value="${o.id}" ${brouillon.commande===o.id?"selected":""}>${o.ref} · ${fdate(o.date)}</option>`).join("")}</select></label>`:""}
   <label class="f">Message<textarea id="mTexte" rows="7" maxlength="4000" required></textarea></label>
   <button class="btn brass">Envoyer</button></form>
- <div>${filMessages(MSG,"client","Mélanie · La Madeleine")||`<p class="hint">Aucun message pour l’instant.</p>`}</div></div></div>`;
+ <div>${filMessages(MSG,"client","Mélanie · Boudoir & Vanille")||`<p class="hint">Aucun message pour l’instant.</p>`}</div></div></div>`;
 }
 function aMessagerie(){
  if(!BOITE){api("atelier/boite").then(d=>{BOITE=d.conversations;render()}).catch(e=>toast(e.message));return `<p class="hint">Chargement…</p>`}
@@ -1123,7 +1129,7 @@ const installe=()=>matchMedia("(display-mode: standalone)").matches||navigator.s
 const surIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 const surAndroid=/android/i.test(navigator.userAgent);
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();invitePWA=e;renderInvite()});
-addEventListener("appinstalled",()=>{invitePWA=null;LS.set("madeleine.invite","non");renderInvite();renderNav();toast("La Madeleine est installée sur votre appareil")});
+addEventListener("appinstalled",()=>{invitePWA=null;LS.set("madeleine.invite","non");renderInvite();renderNav();toast("Boudoir & Vanille est installée sur votre appareil")});
 async function installer(){
  if(invitePWA){invitePWA.prompt();const r=await invitePWA.userChoice.catch(()=>null);invitePWA=null;if(r&&r.outcome==="accepted")LS.set("madeleine.invite","non");renderInvite();return}
  ouvrir("installer");
@@ -1133,7 +1139,7 @@ function renderInvite(){
  const z=document.getElementById("invite"),f=document.getElementById("fInstaller");
  if(f)f.hidden=installe();
  const voir=!installe()&&LS.get("madeleine.invite")!=="non"&&(invitePWA||surIOS)&&matchMedia("(max-width:760px)").matches;
- z.innerHTML=voir?`<div class="invite wood" role="dialog" aria-label="Installer l’application"><img src="icons/icon-192.png" alt=""><div><b>L’appli La Madeleine</b>Votre carte de fidélité et vos messages, sur l’écran d’accueil.</div><button class="btn brass small" data-act="installer">Installer</button><button class="x" data-act="pasInstaller" aria-label="Plus tard">×</button></div>`:"";
+ z.innerHTML=voir?`<div class="invite wood" role="dialog" aria-label="Installer l’application"><img src="icons/icon-192.png" alt=""><div><b>L’appli Boudoir & Vanille</b>Votre carte de fidélité et vos messages, sur l’écran d’accueil.</div><button class="btn brass small" data-act="installer">Installer</button><button class="x" data-act="pasInstaller" aria-label="Plus tard">×</button></div>`:"";
 }
 function vInstaller(){
  const ici=surIOS?"ios":surAndroid?"android":"pc";
@@ -1141,10 +1147,10 @@ function vInstaller(){
  const blocs={
   ios:bloc("ios","iPhone et iPad",[`Ouvrez ce site dans <b>Safari</b>.`,`Touchez le bouton <span class="touche">${ico("partager")} Partager</span> en bas de l’écran.`,`Choisissez <span class="touche">${ico("plus")} Sur l’écran d’accueil</span>, puis <b>Ajouter</b>.`]),
   android:bloc("android","Android",[`Ouvrez ce site dans <b>Chrome</b>.`,`Touchez le menu <span class="touche">${ico("menu")}</span> en haut à droite.`,`Choisissez <b>Installer l’application</b> (ou <b>Ajouter à l’écran d’accueil</b>), puis confirmez.`]),
-  pc:bloc("pc","Ordinateur (Windows, Mac)",[`Ouvrez ce site dans <b>Chrome</b> ou <b>Edge</b>.`,`Cliquez sur l’icône <span class="touche">${ico("installer")}</span> à droite de la barre d’adresse (ou menu ⋮ › <b>Installer La Madeleine</b>).`,`Confirmez : l’application s’ouvre dans sa propre fenêtre et se range avec vos autres logiciels.`])
+  pc:bloc("pc","Ordinateur (Windows, Mac)",[`Ouvrez ce site dans <b>Chrome</b> ou <b>Edge</b>.`,`Cliquez sur l’icône <span class="touche">${ico("installer")}</span> à droite de la barre d’adresse (ou menu ⋮ › <b>Installer Boudoir & Vanille</b>).`,`Confirmez : l’application s’ouvre dans sa propre fenêtre et se range avec vos autres logiciels.`])
  };
  return `<div class="veil" data-close></div><div class="modal" data-close><div class="box form" role="dialog" aria-label="Installer l’application" style="display:block;padding:22px">
-  <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div class="row" style="flex-wrap:nowrap"><img src="icons/icon-192.png" alt="" style="width:56px;height:56px;border-radius:12px"><div><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">Installer La Madeleine</h3><p class="hint" style="margin:2px 0 0">Une icône sur l’écran d’accueil, votre carte toujours sous la main, même sans réseau.</p></div></div><button class="btn ghost small" data-close aria-label="Fermer" style="font-size:20px;line-height:1;padding:4px 10px">×</button></div>
+  <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div class="row" style="flex-wrap:nowrap"><img src="icons/icon-192.png" alt="" style="width:56px;height:56px;border-radius:12px"><div><h3 style="margin:0;font-family:var(--f-display);font-weight:400;font-size:24px">Installer Boudoir & Vanille</h3><p class="hint" style="margin:2px 0 0">Une icône sur l’écran d’accueil, votre carte toujours sous la main, même sans réseau.</p></div></div><button class="btn ghost small" data-close aria-label="Fermer" style="font-size:20px;line-height:1;padding:4px 10px">×</button></div>
   ${invitePWA?`<button class="btn brass" data-act="installerMaintenant" style="width:100%;margin-top:16px">Installer maintenant</button>`:""}
   <div style="display:grid;gap:12px;margin-top:16px">${[ici,...["ios","android","pc"].filter(k=>k!==ici)].map(k=>blocs[k]).join("")}</div>
   <p class="hint" style="margin:14px 0 0">L’application se met à jour toute seule : rien à télécharger depuis un magasin d’applications.</p></div></div>`;
@@ -1202,7 +1208,7 @@ async function lancerScan(){
   if(m){arreterScan();etat("Carte trouvée…");
    if(scanMode==="parrain"){try{const p=await choisirParrain(`${m[1]}.${m[2]}`);fermer();toast(`Parrain : ${p.prenom} ${p.initiale}.`)}catch(e){toast(e.message);fermer()}return}
    try{await ouvrirCarteScannee(+m[1],m[2])}catch(e){toast(e.message);fermer()}return}
-  if(txt)etat("Ce QR code n’est pas une carte La Madeleine.");
+  if(txt)etat("Ce QR code n’est pas une carte Boudoir & Vanille.");
   setTimeout(tour,250);
  };
  tour();
@@ -1217,8 +1223,8 @@ async function ouvrirCarteScannee(numero,cle){
 }
 
 function vCarteInfo(){
- return `<div class="wrap"><h2 class="sec">Carte de fidélité La Madeleine</h2><div class="panel" style="max-width:520px;margin:0 auto;text-align:center">
-  <p>Ce QR code est celui d’une carte de fidélité La Madeleine. Il sert à Mélanie pour tamponner la carte au marché ou à l’atelier.</p>
+ return `<div class="wrap"><h2 class="sec">Carte de fidélité Boudoir & Vanille</h2><div class="panel" style="max-width:520px;margin:0 auto;text-align:center">
+  <p>Ce QR code est celui d’une carte de fidélité Boudoir & Vanille. Il sert à Mélanie pour tamponner la carte au marché ou à l’atelier.</p>
   <p class="hint">Vous aussi, créez votre carte : un tampon par commande, 10 € offerts au 10<sup>e</sup>.</p>
   <div class="row" style="justify-content:center"><button class="btn brass" data-nav="compte">Créer ma carte</button><button class="btn ghost" data-nav="boutique">Voir la boutique</button></div></div></div>`;
 }
@@ -1290,13 +1296,13 @@ function vReglages(){
   <div class="segments">${[["auto","Auto"],["clair","Clair"],["sombre","Sombre"]].map(([k,l])=>`<button class="${theme===k?"on":""}" data-theme-choix="${k}">${l}</button>`).join("")}</div></div></section>
  <section><h3>Application</h3>
   ${installe()?"":ligne("installer","Installer l’application","Sur l’écran d’accueil, comme une vraie appli",'data-act="installer"')}
-  ${ligne("qr","Faire découvrir La Madeleine",c?"Votre lien de parrainage, à partager":"Partager le lien de la boutique",'data-act="partagerAppli"')}
+  ${ligne("qr","Faire découvrir Boudoir & Vanille",c?"Votre lien de parrainage, à partager":"Partager le lien de la boutique",'data-act="partagerAppli"')}
   ${ligne("histoire","Notre histoire","Le goût d’avant, retrouvé dans la cire",'data-nav="histoire"')}
   ${c?ligne("aide","Aide","Une question ? Écrivez à Mélanie dans Discussion",'data-nav="messages"'):""}</section>
  ${c?`<section>${ligne("sortie","Se déconnecter de cet appareil","Votre carte reste sur vos autres appareils",'data-act="askLogoutReglages"')}
   ${pending==="logout"?`<p class="hint">Pour revenir, il faudra un code d’un autre appareil connecté ou un code de réactivation donné par Mélanie. <button class="btn small" data-act="logout">Me déconnecter</button> <button class="btn ghost small" data-act="cancelDel">Annuler</button></p>`:""}</section>`
  :atelier()?`<section>${ligne("sortie","Fermer l’atelier sur cet appareil","",'data-act="sortirAtelier"')}</section>`:""}
- <p class="hint" style="text-align:center">La Madeleine · version ${VERSION}</p></div>`;
+ <p class="hint" style="text-align:center">Boudoir & Vanille · version ${VERSION}</p></div>`;
 }
 
 /* ---------- Entrée de l'atelier (adresse cachée : …/#atelier) ---------- */
@@ -1424,7 +1430,7 @@ document.addEventListener("click",async e=>{
  else if(d.themeChoix){LS.set("madeleine.theme",d.themeChoix);appliquerTheme(d.themeChoix);render()}
  else if(d.act==="versInfos"){aller("compte");setTimeout(()=>document.getElementById("iTel")?.closest(".panel")?.scrollIntoView({behavior:"smooth"}),100)}
  else if(d.act==="askLogoutReglages"){pending="logout";render()}
- else if(d.act==="partagerAppli"){const c=client(),lien=lienAppli(c);if(navigator.share)navigator.share({title:"La Madeleine",text:"Les bougies gourmandes de La Madeleine",url:lien}).catch(()=>{});else navigator.clipboard?.writeText(lien).then(()=>toast("Lien copié"),()=>toast(lien))}
+ else if(d.act==="partagerAppli"){const c=client(),lien=lienAppli(c);if(navigator.share)navigator.share({title:"Boudoir & Vanille",text:"Les bougies gourmandes de Boudoir & Vanille",url:lien}).catch(()=>{});else navigator.clipboard?.writeText(lien).then(()=>toast("Lien copié"),()=>toast(lien))}
  else if(d.act==="envoyerAnnonce")agir(async()=>{const titre=document.getElementById("annTitre").value,texte=document.getElementById("annTexte").value;const r=await api("atelier/annonce",{titre,texte});document.getElementById("annTitre").value="";document.getElementById("annTexte").value="";toast(`Annonce envoyée (${r.appareils} appareil${r.appareils>1?"s":""} abonné${r.appareils>1?"s":""})`)});
  else if(d.act==="saveBoutique")agir(async()=>{const r=await api("atelier/reglages",{reglages:RED});appliquerReglages(r.reglages);RED=null;render();toast("Boutique enregistrée")});
  else if(d.act==="annulerBoutique"){RED=null;render()}
@@ -1453,8 +1459,8 @@ document.addEventListener("click",async e=>{
  else if(d.act==="carteGrand"){ouvrir("grand")}
  else if(d.act==="scanner"){scanMode="atelier";ouvrir("scanner")}
  else if(d.act==="scanParrain"){scanMode="parrain";ouvrir("scanner")}
- else if(d.act==="partager"){const c=client(),lien=lienAppli(c),texte=`Découvre les bougies gourmandes de La Madeleine ! Avec mon code parrain ${num4(c.numero)} à l’inscription, tu crées ta carte de fidélité.`;
-  if(navigator.share)navigator.share({title:"La Madeleine",text:texte,url:lien}).catch(()=>{});
+ else if(d.act==="partager"){const c=client(),lien=lienAppli(c),texte=`Découvre les bougies gourmandes de Boudoir & Vanille ! Avec mon code parrain ${num4(c.numero)} à l’inscription, tu crées ta carte de fidélité.`;
+  if(navigator.share)navigator.share({title:"Boudoir & Vanille",text:texte,url:lien}).catch(()=>{});
   else navigator.clipboard?.writeText(lien).then(()=>toast("Lien copié : collez-le dans un message"),()=>toast(lien))}
  else if(d.act==="deduireCagnotte")agir(async()=>{const r=await api("atelier/cagnotte",{numero:fiche,montant:+document.getElementById("cagMontant").value});ficheDetail=r.client;Object.assign(ATL.clients.find(x=>x.numero===fiche)||{},{cagnotte:r.client.cagnotte});render();toast(`Cagnotte de ${r.client.prenom} : ${eur(r.client.cagnotte)}`)});
  else if(d.act==="recadrer"){if(REC)ouvrir("recadrer")}
@@ -1469,7 +1475,7 @@ document.addEventListener("click",async e=>{
  else if(d.act==="retirerPromo"){PROMO=null;renderLayer()}
  else if(d.atab){adminTab=d.atab;pending=null;if(d.atab==="messagerie")BOITE=null;render();agir(async()=>{await rechargerAtelier();render()})}
  else if(d.act==="flip"){flip=!flip;document.querySelector(".carte")?.classList.toggle("tournee",flip)}
- else if(d.act==="dlCarte"){const c=client();if(!c)return;const cv=await dessinerCarte(c);const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=`carte-la-madeleine-${num4(c.numero)}.png`;document.body.appendChild(a);a.click();a.remove()}
+ else if(d.act==="dlCarte"){const c=client();if(!c)return;const cv=await dessinerCarte(c);const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=`carte-boudoir-vanille-${num4(c.numero)}.png`;document.body.appendChild(a);a.click();a.remove()}
  else if(d.act==="saveProfil")agir(async()=>{const r=await api("profil",{tel:document.getElementById("iTel").value,adresse:document.getElementById("iAdr").value,...(photoNeuve?{photo:photoNeuve}:{})});MOI.client=r.client;photoNeuve=null;REC=null;LS.set("madeleine.moi",MOI);render();toast("Informations enregistrées")});
  else if(d.act==="liaison")agir(async()=>{const r=await api("code-liaison",{});codeLiaison=r.code;render();setTimeout(()=>{if(codeLiaison===r.code){codeLiaison=null;if(view==="compte")render()}},r.minutes*60000)});
  else if(d.act==="askLogout"){pending="logout";render()}

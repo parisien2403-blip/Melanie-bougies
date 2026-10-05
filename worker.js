@@ -1,12 +1,12 @@
-// La Madeleine — serveur Cloudflare : sert le site (fichiers statiques) et la boutique /api/…
+// Boudoir & Vanille — serveur Cloudflare : sert le site (fichiers statiques) et la boutique /api/…
 //
 // Comptes clients sans mot de passe (même principe que TRIGONE) : à l'inscription, l'appareil reçoit un jeton secret
 // qu'il garde pour lui ; le serveur n'en garde que l'empreinte. Pour un autre appareil, le client affiche un code de
 // liaison (8 caractères, 15 min) et le saisit sur le nouvel appareil. Téléphone perdu : l'atelier donne un code de
 // réactivation (48 h).
 //
-// Messagerie (comme la boîte aux lettres de TRIGONE) : chaque client reçoit une adresse prenom.nom@la-madeleine qui ne
-// sert que sur le site. Il écrit à melanie@la-madeleine, l'atelier répond ; les étapes de ses commandes lui arrivent aussi
+// Messagerie (comme la boîte aux lettres de TRIGONE) : chaque client reçoit une adresse prenom.nom@boudoir-vanille qui ne
+// sert que sur le site. Il écrit à melanie@boudoir-vanille, l'atelier répond ; les étapes de ses commandes lui arrivent aussi
 // en message automatique.
 //
 // Parrainage : à l'inscription, le filleul coche « Je me fais parrainer » et scanne le QR code de la carte de son parrain
@@ -113,7 +113,7 @@ function verrineCommandee(p, q) {
 }
 const arrondi = n => Math.round(n * 100) / 100;
 const MODES = ['Colissimo', 'Retrait atelier'];
-const DOMAINE = 'la-madeleine', ADRESSE_ATELIER = 'melanie@' + DOMAINE;
+const DOMAINE = 'boudoir-vanille', ADRESSE_ATELIER = 'melanie@' + DOMAINE;
 const STATUTS = ['nouvelle', 'preparation', 'prete', 'livree', 'annulee'];
 
 const SCHEMA = [
@@ -163,7 +163,7 @@ function photoValide(p, max) {
   return p;
 }
 
-// Adresse interne prenom.nom@la-madeleine (sans accents) ; prenom.nom2… si elle est déjà prise
+// Adresse interne prenom.nom@boudoir-vanille (sans accents) ; prenom.nom2… si elle est déjà prise
 const simplifier = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 async function adresseLibre(env, prenom, nom) {
   const base = [simplifier(prenom), simplifier(nom)].filter(Boolean).join('.') || 'client';
@@ -210,7 +210,7 @@ async function clesVapid(env) {
 async function envoyerPush(env, ab, message) {
   const vapid = await clesVapid(env), t = new TextEncoder();
   const tete = b64url(t.encode(JSON.stringify({ typ: 'JWT', alg: 'ES256' })));
-  const corpsJwt = b64url(t.encode(JSON.stringify({ aud: new URL(ab.endpoint).origin, exp: maintenant() + 12 * 3600, sub: 'mailto:atelier@la-madeleine.invalid' })));
+  const corpsJwt = b64url(t.encode(JSON.stringify({ aud: new URL(ab.endpoint).origin, exp: maintenant() + 12 * 3600, sub: 'mailto:atelier@boudoir-vanille.invalid' })));
   const cleSig = await crypto.subtle.importKey('jwk', vapid.prive, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
   const sig = new Uint8Array(await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, cleSig, t.encode(tete + '.' + corpsJwt)));
   const uaPub = depuisB64url(ab.cles.p256dh), auth = depuisB64url(ab.cles.auth);
@@ -259,7 +259,7 @@ async function annoncerVersion(env) {
   if (!v.notifier || (deja && deja.v === v.version)) return;
   await env.DB.prepare("INSERT INTO reglages (k, v) VALUES ('version_annoncee', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(v.version).run();
   await pousser(env, "role IN ('client', 'visiteur', 'atelier')", [], 'majs',
-    { titre: `La Madeleine ${v.version} est disponible`, texte: (v.historique && v.historique[0] && v.historique[0].notes || []).slice(0, 2).join(' · ') || 'Ouvrez l’appli pour la mettre à jour.', url: './?vue=reglages', tag: 'majs' });
+    { titre: `Boudoir & Vanille ${v.version} est disponible`, texte: (v.historique && v.historique[0] && v.historique[0].notes || []).slice(0, 2).join(' · ') || 'Ouvrez l’appli pour la mettre à jour.', url: './?vue=reglages', tag: 'majs' });
 }
 
 // Compteur par adresse IP (essais de code, inscriptions) : false une fois la limite atteinte sur la période.
@@ -280,6 +280,8 @@ async function preparer(env) {
     const { results: sans } = await env.DB.prepare('SELECT numero, prenom, nom FROM clients WHERE courriel IS NULL ORDER BY numero').all();
     for (const c of sans) await env.DB.prepare('UPDATE clients SET courriel = ? WHERE numero = ?').bind(await adresseLibre(env, c.prenom, c.nom), c.numero).run();
     await env.DB.prepare('CREATE UNIQUE INDEX IF NOT EXISTS clients_courriel ON clients (courriel)').run();
+    // Nouveau nom (Boudoir & Vanille) : les adresses créées sous l'ancien nom changent de domaine
+    await env.DB.prepare("UPDATE clients SET courriel = REPLACE(courriel, '@la-madeleine', '@boudoir-vanille') WHERE courriel LIKE '%@la-madeleine'").run();
     // Clé secrète du QR code de la carte (sans elle, un numéro seul ne permet pas d'ouvrir la fiche)
     try { await env.DB.prepare('ALTER TABLE clients ADD COLUMN cle TEXT').run(); } catch { /* déjà là */ }
     const { results: sansCle } = await env.DB.prepare('SELECT numero FROM clients WHERE cle IS NULL').all();
@@ -402,7 +404,7 @@ async function api(request, env, chemin) {
     // Vérifie le QR code scanné à l'inscription ; ne renvoie que le prénom et l'initiale du nom
     if (!await limite(env, 'parrain:' + ip, 60, 3600)) throw new Refus(429, 'Trop d\'essais. Réessayez dans une heure.');
     const p = await parrainDuCode(env, corps.code);
-    if (!p) throw new Refus(404, 'Ce QR code n\'est pas celui d\'une carte La Madeleine.');
+    if (!p) throw new Refus(404, 'Ce QR code n\'est pas celui d\'une carte Boudoir & Vanille.');
     return json({ prenom: p.prenom, initiale: (p.nom || '')[0] || '', numero: p.numero });
   }
 
@@ -426,7 +428,7 @@ async function api(request, env, chemin) {
     const a = await env.DB.prepare('SELECT * FROM abonnements WHERE endpoint = ?').bind(txt(corps.endpoint, 900)).first();
     if (!a) throw new Refus(404, 'Cet appareil n\'est pas abonné aux notifications.');
     if (!await limite(env, 'essai:' + ip, 10, 3600)) throw new Refus(429, 'Assez d\'essais pour aujourd\'hui !');
-    const r = await envoyerPush(env, { endpoint: a.endpoint, cles: JSON.parse(a.cles) }, { titre: 'La Madeleine', texte: 'Les notifications fonctionnent : vous serez prévenu(e) ici.', url: './?vue=reglages', tag: 'essai' });
+    const r = await envoyerPush(env, { endpoint: a.endpoint, cles: JSON.parse(a.cles) }, { titre: 'Boudoir & Vanille', texte: 'Les notifications fonctionnent : vous serez prévenu(e) ici.', url: './?vue=reglages', tag: 'essai' });
     if (!r.ok) throw new Refus(502, 'Le service de notification de l\'appareil a refusé l\'envoi (' + r.status + ').');
     return json({ ok: true });
   }
@@ -447,13 +449,13 @@ async function api(request, env, chemin) {
     }
     const c = await env.DB.prepare(`INSERT INTO clients (prenom, nom, courriel, cle, email, tel, adresse, photo, cree, parrain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`)
       .bind(prenom, nom, await adresseLibre(env, prenom, nom), hasard(8), email, txt(corps.tel, 30), txt(corps.adresse, 300), photo, new Date().toISOString().slice(0, 10), parrain ? parrain.numero : null).first();
-    if (parrain) prevenirClient(env, parrain.numero, 'messages', 'Un nouveau filleul !', `${prenom} a rejoint La Madeleine grâce à vous : ${Math.round(TAUX_REDUCTION * 100)} % offerts sur votre prochaine commande.`, 'compte');
+    if (parrain) prevenirClient(env, parrain.numero, 'messages', 'Un nouveau filleul !', `${prenom} a rejoint Boudoir & Vanille grâce à vous : ${Math.round(TAUX_REDUCTION * 100)} % offerts sur votre prochaine commande.`, 'compte');
     if (parrain) await env.DB.batch([
       env.DB.prepare('UPDATE clients SET reductions = reductions + 1 WHERE numero = ?').bind(parrain.numero),
       messageAuto(env, parrain.numero, `Un nouveau filleul : ${Math.round(TAUX_REDUCTION * 100)} % offerts !`,
-        `Bonne nouvelle ${parrain.prenom} : ${prenom} vient de créer sa carte La Madeleine grâce à vous.\n\nVous gagnez ${Math.round(TAUX_REDUCTION * 100)} % de réduction sur votre prochaine commande (appliqués tout seuls dans le panier), puis ${eurosTexte(GAIN_PARRAIN)} dans votre cagnotte à chacune de ses commandes. Merci de faire découvrir l'atelier !`),
+        `Bonne nouvelle ${parrain.prenom} : ${prenom} vient de créer sa carte Boudoir & Vanille grâce à vous.\n\nVous gagnez ${Math.round(TAUX_REDUCTION * 100)} % de réduction sur votre prochaine commande (appliqués tout seuls dans le panier), puis ${eurosTexte(GAIN_PARRAIN)} dans votre cagnotte à chacune de ses commandes. Merci de faire découvrir l'atelier !`),
     ]);
-    await messageAuto(env, c.numero, 'Bienvenue chez La Madeleine',
+    await messageAuto(env, c.numero, 'Bienvenue chez Boudoir & Vanille',
       `Bonjour ${prenom},\n\nVotre carte n° ${String(c.numero).padStart(4, '0')} est prête. Voici votre messagerie : vous pouvez m'écrire ici pour toute question sur une bougie ou une commande, je vous répondrai au plus vite.\n\nMélanie`).run();
     return json({ jeton: await nouvelAppareil(env, c.numero, 'client'), client: clientPublic(c) });
   }
@@ -694,7 +696,7 @@ async function api(request, env, chemin) {
     // QR code scanné par l'atelier : numéro + clé secrète de la carte
     exigerAtelier();
     const c = await env.DB.prepare('SELECT * FROM clients WHERE numero = ? AND cle = ?').bind(Math.floor(Number(corps.numero)), txt(corps.cle, 40)).first();
-    if (!c) throw new Refus(404, 'Ce QR code ne correspond à aucune carte La Madeleine.');
+    if (!c) throw new Refus(404, 'Ce QR code ne correspond à aucune carte Boudoir & Vanille.');
     return json({ client: clientPublic(c) });
   }
   case 'atelier/client': {

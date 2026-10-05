@@ -1,8 +1,8 @@
-// La Madeleine · service worker : mise en cache pour ouverture hors ligne
+// Boudoir & Vanille · service worker : mise en cache pour ouverture hors ligne
 // Change le numéro à chaque mise à jour du site pour forcer le rafraîchissement
-const CACHE = "madeleine-v10";
+const CACHE = "madeleine-v11";
 const FILES = ["./", "index.html", "manifest.webmanifest", "produits.json", "vendor/qrcode.js",
-  "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png",
+  "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-48.png", "img/logo-160.png", "img/bois-v.jpg", "img/bois-h.jpg",
   ...Array.from({ length: 10 }, (_, i) => `img/p${i + 1}.jpg`)];
 
 self.addEventListener("install", e => {
@@ -34,7 +34,7 @@ self.addEventListener("push", e => {
   try { d = e.data ? e.data.json() : {}; } catch (x) {}
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(fenetres => {
     fenetres.forEach(f => f.postMessage({ type: "madeleine-push", tag: d.tag }));
-    return self.registration.showNotification(d.titre || "La Madeleine", {
+    return self.registration.showNotification(d.titre || "Boudoir & Vanille", {
       body: d.texte || "", icon: "icons/icon-192.png", badge: "icons/icon-192.png", tag: d.tag || "madeleine", renotify: true,
       data: { url: new URL(d.url || "./", self.registration.scope).href }
     });

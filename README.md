@@ -1,6 +1,11 @@
-# La Madeleine · Chandellerie d'autrefois
+# Boudoir & Vanille · Candle studio
 
 Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidélité.
+
+## Identité
+- Logo : `public/img/logo.png` (médaillon détouré) et `logo-160.png` (en-tête) ; icônes de l'appli dans `public/icons/`.
+- Boiserie : textures de noyer verni `public/img/bois-v.jpg` (mur, lames verticales) et `bois-h.jpg` (en-tête, barre, boutons).
+- Le nom technique Cloudflare reste `la-madeleine` (adresse …workers.dev et base D1) : le changer créerait un nouveau site vide.
 
 ## Contenu
 - `public/` : le site publié (seul ce dossier est servi en ligne)
@@ -13,7 +18,7 @@ Boutique en ligne (PWA) des bougies gourmandes de Mélanie, avec carte de fidél
 
 ## Carte de fidélité
 - Inscription sans mot de passe : prénom, nom, e-mail, téléphone, adresse, photo. La carte reste ouverte sur l'appareil.
-- Numéro de client dans l'ordre des inscriptions : 0001, 0002…, et adresse de l'application `prenom.nom@la-madeleine`
+- Numéro de client dans l'ordre des inscriptions : 0001, 0002…, et adresse de l'application `prenom.nom@boudoir-vanille`
   (imprimée sur la carte), présentées dans un écran de bienvenue après l'inscription.
 - Suivi des commandes dans « Ma carte » : frise Reçue › En préparation › Prête / expédiée › Livrée.
 - Photo recadrée à l'inscription (glisser + zoom, ovale pour placer le visage), modifiable ensuite dans « Ma carte ».
@@ -63,8 +68,8 @@ Le serveur revérifie et rechiffre la composition à la commande. Options et pri
 - `public/vendor/` : bibliothèques libres de QR code (voir LICENCES.txt).
 
 ## Messagerie
-- Chaque client reçoit une adresse `prenom.nom@la-madeleine` (prenom.nom2… en cas d'homonyme), utilisable seulement sur le site.
-- Le client écrit à `melanie@la-madeleine`, éventuellement à propos d'une de ses commandes ; Mélanie répond depuis l'atelier (onglet Messagerie).
+- Chaque client reçoit une adresse `prenom.nom@boudoir-vanille` (prenom.nom2… en cas d'homonyme), utilisable seulement sur le site.
+- Le client écrit à `melanie@boudoir-vanille`, éventuellement à propos d'une de ses commandes ; Mélanie répond depuis l'atelier (onglet Messagerie).
 - Messages automatiques : bienvenue, commande bien reçue, en préparation, prête / expédiée, livrée, annulée.
 - Pastille du nombre de messages non lus, vérifiée chaque minute.
 
@@ -73,7 +78,7 @@ Aucun lien visible pour les clients. Mélanie ouvre l'adresse du site suivie de 
 (ex. `https://la-madeleine.….workers.dev/#atelier`), saisit le code `CODE_ATELIER` une fois :
 l'atelier reste ouvert sur cet appareil et apparaît dans le menu.
 Dans l'application installée (pas de barre d'adresse, surtout sur iPhone) : **5 appuis rapides sur le titre
-« La Madeleine »** ouvrent la même page du code.
+« Boudoir & Vanille »** ouvrent la même page du code.
 
 ## Application (PC, Android, iPhone)
 Le site est une application installable (PWA), sans passer par les magasins d'applications :

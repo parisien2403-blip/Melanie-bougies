@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "La Madeleine · Chandellerie d'autrefois",
-  "short_name": "La Madeleine",
-  "description": "Bougies gourmandes façonnées à la main par Mélanie : boutique, carte de fidélité et messagerie.",
+  "name": "Boudoir & Vanille · Candle studio",
+  "short_name": "Boudoir & Vanille",
+  "description": "Candle studio de Mélanie : bougies gourmandes faites main, carte de fidélité et discussion.",
   "start_url": "./?source=appli",
   "scope": "./",
   "display": "standalone",

@@ -1,8 +1,17 @@
 {
- "version": "1.10",
+ "version": "1.11",
  "date": "2026-10-05",
  "notifier": true,
  "historique": [
+  {
+   "version": "1.11",
+   "date": "2026-10-05",
+   "notes": [
+    "Nouveau nom : Boudoir & Vanille, et son médaillon",
+    "Une vraie boiserie en noyer verni sur tout le site",
+    "Notre histoire : le boudoir trempé dans le chocolat chaud"
+   ]
+  },
   {
    "version": "1.10",
    "date": "2026-10-05",
